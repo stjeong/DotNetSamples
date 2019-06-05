@@ -7,6 +7,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "WinForms", "WinForms", "{80
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CopyRTFtoClipboard", "WinForms\CopyRTFtoClipboard\CopyRTFtoClipboard.csproj", "{8012646A-EC3D-462E-9880-185EEF108B92}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NetCore", "NetCore", "{976B7B43-4DFF-439D-84E6-C9B6489168A8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Metadata.Visualizer", "NetCore\Microsoft.Metadata.Visualizer\Microsoft.Metadata.Visualizer.csproj", "{C1386EEF-5EF0-4D04-BA82-9E225B998839}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -17,12 +21,17 @@ Global
 		{8012646A-EC3D-462E-9880-185EEF108B92}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8012646A-EC3D-462E-9880-185EEF108B92}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8012646A-EC3D-462E-9880-185EEF108B92}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C1386EEF-5EF0-4D04-BA82-9E225B998839}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C1386EEF-5EF0-4D04-BA82-9E225B998839}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C1386EEF-5EF0-4D04-BA82-9E225B998839}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C1386EEF-5EF0-4D04-BA82-9E225B998839}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{8012646A-EC3D-462E-9880-185EEF108B92} = {805EF5B0-839A-4637-988E-33CD684D9B3D}
+		{C1386EEF-5EF0-4D04-BA82-9E225B998839} = {976B7B43-4DFF-439D-84E6-C9B6489168A8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {AA2A41E4-D2AE-415B-A76F-C15D5BCE7128}

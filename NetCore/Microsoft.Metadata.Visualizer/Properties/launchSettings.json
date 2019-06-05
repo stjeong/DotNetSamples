@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Microsoft.Metadata.Visualizer": {
+      "commandName": "Project",
+      "commandLineArgs": "Microsoft.Metadata.Visualizer.dll"
+    }
+  }
+}

@@ -9,7 +9,39 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CopyRTFtoClipboard", "WinFo
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NetCore", "NetCore", "{976B7B43-4DFF-439D-84E6-C9B6489168A8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Metadata.Visualizer", "NetCore\Microsoft.Metadata.Visualizer\Microsoft.Metadata.Visualizer.csproj", "{C1386EEF-5EF0-4D04-BA82-9E225B998839}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Metadata.Visualizer", "NetCore\Microsoft.Metadata.Visualizer\Microsoft.Metadata.Visualizer.csproj", "{C1386EEF-5EF0-4D04-BA82-9E225B998839}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CairoSharp_x64", "NetCore\CairoSharp_x64\CairoSharp_x64.csproj", "{B527F2A9-E168-4817-A5B4-2776C9B02E81}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "lib", "lib", "{F633966E-EB9D-45FA-9F88-8F3A623B0148}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "gtk", "gtk", "{A4852926-981E-40C4-BC8C-20754D12AE5B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "64bit", "64bit", "{6C8D0524-180E-46AD-9E38-C9AE87895FD2}"
+	ProjectSection(SolutionItems) = preProject
+		lib\gtk\64bit\cairo-gobject.dll = lib\gtk\64bit\cairo-gobject.dll
+		lib\gtk\64bit\cairo-gobject.pdb = lib\gtk\64bit\cairo-gobject.pdb
+		lib\gtk\64bit\expat.dll = lib\gtk\64bit\expat.dll
+		lib\gtk\64bit\expat.pdb = lib\gtk\64bit\expat.pdb
+		lib\gtk\64bit\fontconfig.dll = lib\gtk\64bit\fontconfig.dll
+		lib\gtk\64bit\fontconfig.pdb = lib\gtk\64bit\fontconfig.pdb
+		lib\gtk\64bit\freetype.dll = lib\gtk\64bit\freetype.dll
+		lib\gtk\64bit\freetype.pdb = lib\gtk\64bit\freetype.pdb
+		lib\gtk\64bit\libbz2.dll = lib\gtk\64bit\libbz2.dll
+		lib\gtk\64bit\libbz2.pdb = lib\gtk\64bit\libbz2.pdb
+		lib\gtk\64bit\libcairo-2.dll = lib\gtk\64bit\libcairo-2.dll
+		lib\gtk\64bit\libcairo-2.pdb = lib\gtk\64bit\libcairo-2.pdb
+		lib\gtk\64bit\libcharset.dll = lib\gtk\64bit\libcharset.dll
+		lib\gtk\64bit\libcharset.pdb = lib\gtk\64bit\libcharset.pdb
+		lib\gtk\64bit\libiconv.dll = lib\gtk\64bit\libiconv.dll
+		lib\gtk\64bit\libiconv.pdb = lib\gtk\64bit\libiconv.pdb
+		lib\gtk\64bit\libpng16.dll = lib\gtk\64bit\libpng16.dll
+		lib\gtk\64bit\libpng16.pdb = lib\gtk\64bit\libpng16.pdb
+		lib\gtk\64bit\pixman-1.dll = lib\gtk\64bit\pixman-1.dll
+		lib\gtk\64bit\pixman-1.pdb = lib\gtk\64bit\pixman-1.pdb
+		lib\gtk\64bit\zlib.pdb = lib\gtk\64bit\zlib.pdb
+		lib\gtk\64bit\zlib1.dll = lib\gtk\64bit\zlib1.dll
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -25,6 +57,10 @@ Global
 		{C1386EEF-5EF0-4D04-BA82-9E225B998839}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C1386EEF-5EF0-4D04-BA82-9E225B998839}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C1386EEF-5EF0-4D04-BA82-9E225B998839}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B527F2A9-E168-4817-A5B4-2776C9B02E81}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B527F2A9-E168-4817-A5B4-2776C9B02E81}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B527F2A9-E168-4817-A5B4-2776C9B02E81}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B527F2A9-E168-4817-A5B4-2776C9B02E81}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -32,6 +68,9 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{8012646A-EC3D-462E-9880-185EEF108B92} = {805EF5B0-839A-4637-988E-33CD684D9B3D}
 		{C1386EEF-5EF0-4D04-BA82-9E225B998839} = {976B7B43-4DFF-439D-84E6-C9B6489168A8}
+		{B527F2A9-E168-4817-A5B4-2776C9B02E81} = {976B7B43-4DFF-439D-84E6-C9B6489168A8}
+		{A4852926-981E-40C4-BC8C-20754D12AE5B} = {F633966E-EB9D-45FA-9F88-8F3A623B0148}
+		{6C8D0524-180E-46AD-9E38-C9AE87895FD2} = {A4852926-981E-40C4-BC8C-20754D12AE5B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {AA2A41E4-D2AE-415B-A76F-C15D5BCE7128}

@@ -43,6 +43,97 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "64bit", "64bit", "{6C8D0524
 		lib\gtk\64bit\zlib1.dll = lib\gtk\64bit\zlib1.dll
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PLPlotOutputToWindow", "PLPlotOutputToWindow\PLPlotOutputToWindow.csproj", "{7E064478-D0D0-45F5-B247-F67611D0007C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "plplot", "plplot", "{52125D32-259C-47DA-8528-82483F04C3DB}"
+	ProjectSection(SolutionItems) = preProject
+		lib\plplot\64bit\cairo-gobject.dll = lib\plplot\64bit\cairo-gobject.dll
+		lib\plplot\64bit\cairo.dll = lib\plplot\64bit\cairo.dll
+		lib\plplot\64bit\csirocsa.dll = lib\plplot\64bit\csirocsa.dll
+		lib\plplot\64bit\expat.dll = lib\plplot\64bit\expat.dll
+		lib\plplot\64bit\fontconfig.dll = lib\plplot\64bit\fontconfig.dll
+		lib\plplot\64bit\freetype.dll = lib\plplot\64bit\freetype.dll
+		lib\plplot\64bit\gio-2.dll = lib\plplot\64bit\gio-2.dll
+		lib\plplot\64bit\glib-2.dll = lib\plplot\64bit\glib-2.dll
+		lib\plplot\64bit\gmodule-2.dll = lib\plplot\64bit\gmodule-2.dll
+		lib\plplot\64bit\gobject-2.dll = lib\plplot\64bit\gobject-2.dll
+		lib\plplot\64bit\gthread-2.dll = lib\plplot\64bit\gthread-2.dll
+		lib\plplot\64bit\harfbuzz.dll = lib\plplot\64bit\harfbuzz.dll
+		lib\plplot\64bit\libbz2.dll = lib\plplot\64bit\libbz2.dll
+		lib\plplot\64bit\libcharset.dll = lib\plplot\64bit\libcharset.dll
+		lib\plplot\64bit\libffi.dll = lib\plplot\64bit\libffi.dll
+		lib\plplot\64bit\libiconv.dll = lib\plplot\64bit\libiconv.dll
+		lib\plplot\64bit\libintl.dll = lib\plplot\64bit\libintl.dll
+		lib\plplot\64bit\libpng16.dll = lib\plplot\64bit\libpng16.dll
+		lib\plplot\64bit\pango-1.dll = lib\plplot\64bit\pango-1.dll
+		lib\plplot\64bit\pangocairo-1.dll = lib\plplot\64bit\pangocairo-1.dll
+		lib\plplot\64bit\pangoft2-1.dll = lib\plplot\64bit\pangoft2-1.dll
+		lib\plplot\64bit\pangowin32-1.dll = lib\plplot\64bit\pangowin32-1.dll
+		lib\plplot\64bit\pcre.dll = lib\plplot\64bit\pcre.dll
+		lib\plplot\64bit\pcre16.dll = lib\plplot\64bit\pcre16.dll
+		lib\plplot\64bit\pcre32.dll = lib\plplot\64bit\pcre32.dll
+		lib\plplot\64bit\pcrecpp.dll = lib\plplot\64bit\pcrecpp.dll
+		lib\plplot\64bit\pcreposix.dll = lib\plplot\64bit\pcreposix.dll
+		lib\plplot\64bit\pixman-1.dll = lib\plplot\64bit\pixman-1.dll
+		lib\plplot\64bit\plplot.dll = lib\plplot\64bit\plplot.dll
+		lib\plplot\64bit\plplotcxx.dll = lib\plplot\64bit\plplotcxx.dll
+		lib\plplot\64bit\qsastime.dll = lib\plplot\64bit\qsastime.dll
+		lib\plplot\64bit\zlib1.dll = lib\plplot\64bit\zlib1.dll
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "plplot", "plplot", "{59862579-DA44-491C-8A53-F9E669CBC81D}"
+	ProjectSection(SolutionItems) = preProject
+		lib\plplot\64bit\plplot\cmap0_alternate.pal = lib\plplot\64bit\plplot\cmap0_alternate.pal
+		lib\plplot\64bit\plplot\cmap0_black_on_white.pal = lib\plplot\64bit\plplot\cmap0_black_on_white.pal
+		lib\plplot\64bit\plplot\cmap0_default.pal = lib\plplot\64bit\plplot\cmap0_default.pal
+		lib\plplot\64bit\plplot\cmap0_white_bg.pal = lib\plplot\64bit\plplot\cmap0_white_bg.pal
+		lib\plplot\64bit\plplot\cmap1_blue_red.pal = lib\plplot\64bit\plplot\cmap1_blue_red.pal
+		lib\plplot\64bit\plplot\cmap1_blue_yellow.pal = lib\plplot\64bit\plplot\cmap1_blue_yellow.pal
+		lib\plplot\64bit\plplot\cmap1_default.pal = lib\plplot\64bit\plplot\cmap1_default.pal
+		lib\plplot\64bit\plplot\cmap1_gray.pal = lib\plplot\64bit\plplot\cmap1_gray.pal
+		lib\plplot\64bit\plplot\cmap1_highfreq.pal = lib\plplot\64bit\plplot\cmap1_highfreq.pal
+		lib\plplot\64bit\plplot\cmap1_lowfreq.pal = lib\plplot\64bit\plplot\cmap1_lowfreq.pal
+		lib\plplot\64bit\plplot\cmap1_radar.pal = lib\plplot\64bit\plplot\cmap1_radar.pal
+		lib\plplot\64bit\plplot\plstnd5.fnt = lib\plplot\64bit\plplot\plstnd5.fnt
+		lib\plplot\64bit\plplot\plxtnd5.fnt = lib\plplot\64bit\plplot\plxtnd5.fnt
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "64bit", "64bit", "{33114786-C37F-4138-AF5B-1EC2F33EA7FF}"
+	ProjectSection(SolutionItems) = preProject
+		lib\plplot\64bit\cairo-gobject.dll = lib\plplot\64bit\cairo-gobject.dll
+		lib\plplot\64bit\cairo.dll = lib\plplot\64bit\cairo.dll
+		lib\plplot\64bit\csirocsa.dll = lib\plplot\64bit\csirocsa.dll
+		lib\plplot\64bit\expat.dll = lib\plplot\64bit\expat.dll
+		lib\plplot\64bit\fontconfig.dll = lib\plplot\64bit\fontconfig.dll
+		lib\plplot\64bit\freetype.dll = lib\plplot\64bit\freetype.dll
+		lib\plplot\64bit\gio-2.dll = lib\plplot\64bit\gio-2.dll
+		lib\plplot\64bit\glib-2.dll = lib\plplot\64bit\glib-2.dll
+		lib\plplot\64bit\gmodule-2.dll = lib\plplot\64bit\gmodule-2.dll
+		lib\plplot\64bit\gobject-2.dll = lib\plplot\64bit\gobject-2.dll
+		lib\plplot\64bit\gthread-2.dll = lib\plplot\64bit\gthread-2.dll
+		lib\plplot\64bit\harfbuzz.dll = lib\plplot\64bit\harfbuzz.dll
+		lib\plplot\64bit\libbz2.dll = lib\plplot\64bit\libbz2.dll
+		lib\plplot\64bit\libcharset.dll = lib\plplot\64bit\libcharset.dll
+		lib\plplot\64bit\libffi.dll = lib\plplot\64bit\libffi.dll
+		lib\plplot\64bit\libiconv.dll = lib\plplot\64bit\libiconv.dll
+		lib\plplot\64bit\libintl.dll = lib\plplot\64bit\libintl.dll
+		lib\plplot\64bit\libpng16.dll = lib\plplot\64bit\libpng16.dll
+		lib\plplot\64bit\pango-1.dll = lib\plplot\64bit\pango-1.dll
+		lib\plplot\64bit\pangocairo-1.dll = lib\plplot\64bit\pangocairo-1.dll
+		lib\plplot\64bit\pangoft2-1.dll = lib\plplot\64bit\pangoft2-1.dll
+		lib\plplot\64bit\pangowin32-1.dll = lib\plplot\64bit\pangowin32-1.dll
+		lib\plplot\64bit\pcre.dll = lib\plplot\64bit\pcre.dll
+		lib\plplot\64bit\pcre16.dll = lib\plplot\64bit\pcre16.dll
+		lib\plplot\64bit\pcre32.dll = lib\plplot\64bit\pcre32.dll
+		lib\plplot\64bit\pcrecpp.dll = lib\plplot\64bit\pcrecpp.dll
+		lib\plplot\64bit\pcreposix.dll = lib\plplot\64bit\pcreposix.dll
+		lib\plplot\64bit\pixman-1.dll = lib\plplot\64bit\pixman-1.dll
+		lib\plplot\64bit\plplot.dll = lib\plplot\64bit\plplot.dll
+		lib\plplot\64bit\plplotcxx.dll = lib\plplot\64bit\plplotcxx.dll
+		lib\plplot\64bit\qsastime.dll = lib\plplot\64bit\qsastime.dll
+		lib\plplot\64bit\zlib1.dll = lib\plplot\64bit\zlib1.dll
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -61,6 +152,10 @@ Global
 		{B527F2A9-E168-4817-A5B4-2776C9B02E81}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B527F2A9-E168-4817-A5B4-2776C9B02E81}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B527F2A9-E168-4817-A5B4-2776C9B02E81}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7E064478-D0D0-45F5-B247-F67611D0007C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7E064478-D0D0-45F5-B247-F67611D0007C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7E064478-D0D0-45F5-B247-F67611D0007C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7E064478-D0D0-45F5-B247-F67611D0007C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -71,6 +166,10 @@ Global
 		{B527F2A9-E168-4817-A5B4-2776C9B02E81} = {976B7B43-4DFF-439D-84E6-C9B6489168A8}
 		{A4852926-981E-40C4-BC8C-20754D12AE5B} = {F633966E-EB9D-45FA-9F88-8F3A623B0148}
 		{6C8D0524-180E-46AD-9E38-C9AE87895FD2} = {A4852926-981E-40C4-BC8C-20754D12AE5B}
+		{7E064478-D0D0-45F5-B247-F67611D0007C} = {805EF5B0-839A-4637-988E-33CD684D9B3D}
+		{52125D32-259C-47DA-8528-82483F04C3DB} = {F633966E-EB9D-45FA-9F88-8F3A623B0148}
+		{59862579-DA44-491C-8A53-F9E669CBC81D} = {33114786-C37F-4138-AF5B-1EC2F33EA7FF}
+		{33114786-C37F-4138-AF5B-1EC2F33EA7FF} = {52125D32-259C-47DA-8528-82483F04C3DB}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {AA2A41E4-D2AE-415B-A76F-C15D5BCE7128}

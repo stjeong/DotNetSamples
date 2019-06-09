@@ -36,7 +36,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="PLplotNet">
-      <HintPath>..\lib\plplot\64bit\PLplotNet.dll</HintPath>
+      <HintPath>..\..\lib\plplot\64bit\PLplotNet.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -71,55 +71,55 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
-    <None Include="..\lib\plplot\64bit\plplot\cmap0_alternate.pal">
+    <None Include="..\..\lib\plplot\64bit\plplot\cmap0_alternate.pal">
       <Link>winx64\plplot\cmap0_alternate.pal</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="..\lib\plplot\64bit\plplot\cmap0_black_on_white.pal">
+    <None Include="..\..\lib\plplot\64bit\plplot\cmap0_black_on_white.pal">
       <Link>winx64\plplot\cmap0_black_on_white.pal</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="..\lib\plplot\64bit\plplot\cmap0_default.pal">
+    <None Include="..\..\lib\plplot\64bit\plplot\cmap0_default.pal">
       <Link>winx64\plplot\cmap0_default.pal</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="..\lib\plplot\64bit\plplot\cmap0_white_bg.pal">
+    <None Include="..\..\lib\plplot\64bit\plplot\cmap0_white_bg.pal">
       <Link>winx64\plplot\cmap0_white_bg.pal</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="..\lib\plplot\64bit\plplot\cmap1_blue_red.pal">
+    <None Include="..\..\lib\plplot\64bit\plplot\cmap1_blue_red.pal">
       <Link>winx64\plplot\cmap1_blue_red.pal</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="..\lib\plplot\64bit\plplot\cmap1_blue_yellow.pal">
+    <None Include="..\..\lib\plplot\64bit\plplot\cmap1_blue_yellow.pal">
       <Link>winx64\plplot\cmap1_blue_yellow.pal</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="..\lib\plplot\64bit\plplot\cmap1_default.pal">
+    <None Include="..\..\lib\plplot\64bit\plplot\cmap1_default.pal">
       <Link>winx64\plplot\cmap1_default.pal</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="..\lib\plplot\64bit\plplot\cmap1_gray.pal">
+    <None Include="..\..\lib\plplot\64bit\plplot\cmap1_gray.pal">
       <Link>winx64\plplot\cmap1_gray.pal</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="..\lib\plplot\64bit\plplot\cmap1_highfreq.pal">
+    <None Include="..\..\lib\plplot\64bit\plplot\cmap1_highfreq.pal">
       <Link>winx64\plplot\cmap1_highfreq.pal</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="..\lib\plplot\64bit\plplot\cmap1_lowfreq.pal">
+    <None Include="..\..\lib\plplot\64bit\plplot\cmap1_lowfreq.pal">
       <Link>winx64\plplot\cmap1_lowfreq.pal</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="..\lib\plplot\64bit\plplot\cmap1_radar.pal">
+    <None Include="..\..\lib\plplot\64bit\plplot\cmap1_radar.pal">
       <Link>winx64\plplot\cmap1_radar.pal</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="..\lib\plplot\64bit\plplot\plstnd5.fnt">
+    <None Include="..\..\lib\plplot\64bit\plplot\plstnd5.fnt">
       <Link>winx64\plplot\plstnd5.fnt</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="..\lib\plplot\64bit\plplot\plxtnd5.fnt">
+    <None Include="..\..\lib\plplot\64bit\plplot\plxtnd5.fnt">
       <Link>winx64\plplot\plxtnd5.fnt</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -135,135 +135,135 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\lib\plplot\64bit\cairo-gobject.dll">
+    <Content Include="..\..\lib\plplot\64bit\cairo-gobject.dll">
       <Link>winx64\cairo-gobject.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\lib\plplot\64bit\cairo.dll">
+    <Content Include="..\..\lib\plplot\64bit\cairo.dll">
       <Link>winx64\cairo.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\lib\plplot\64bit\csirocsa.dll">
+    <Content Include="..\..\lib\plplot\64bit\csirocsa.dll">
       <Link>winx64\csirocsa.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\lib\plplot\64bit\expat.dll">
+    <Content Include="..\..\lib\plplot\64bit\expat.dll">
       <Link>winx64\expat.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\lib\plplot\64bit\fontconfig.dll">
+    <Content Include="..\..\lib\plplot\64bit\fontconfig.dll">
       <Link>winx64\fontconfig.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\lib\plplot\64bit\freetype.dll">
+    <Content Include="..\..\lib\plplot\64bit\freetype.dll">
       <Link>winx64\freetype.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\lib\plplot\64bit\gio-2.dll">
+    <Content Include="..\..\lib\plplot\64bit\gio-2.dll">
       <Link>winx64\gio-2.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\lib\plplot\64bit\glib-2.dll">
+    <Content Include="..\..\lib\plplot\64bit\glib-2.dll">
       <Link>winx64\glib-2.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\lib\plplot\64bit\gmodule-2.dll">
+    <Content Include="..\..\lib\plplot\64bit\gmodule-2.dll">
       <Link>winx64\gmodule-2.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\lib\plplot\64bit\gobject-2.dll">
+    <Content Include="..\..\lib\plplot\64bit\gobject-2.dll">
       <Link>winx64\gobject-2.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\lib\plplot\64bit\gthread-2.dll">
+    <Content Include="..\..\lib\plplot\64bit\gthread-2.dll">
       <Link>winx64\gthread-2.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\lib\plplot\64bit\harfbuzz.dll">
+    <Content Include="..\..\lib\plplot\64bit\harfbuzz.dll">
       <Link>winx64\harfbuzz.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\lib\plplot\64bit\libbz2.dll">
+    <Content Include="..\..\lib\plplot\64bit\libbz2.dll">
       <Link>winx64\libbz2.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\lib\plplot\64bit\libcharset.dll">
+    <Content Include="..\..\lib\plplot\64bit\libcharset.dll">
       <Link>winx64\libcharset.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\lib\plplot\64bit\libffi.dll">
+    <Content Include="..\..\lib\plplot\64bit\libffi.dll">
       <Link>winx64\libffi.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\lib\plplot\64bit\libiconv.dll">
+    <Content Include="..\..\lib\plplot\64bit\libiconv.dll">
       <Link>winx64\libiconv.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\lib\plplot\64bit\libintl.dll">
+    <Content Include="..\..\lib\plplot\64bit\libintl.dll">
       <Link>winx64\libintl.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\lib\plplot\64bit\libpng16.dll">
+    <Content Include="..\..\lib\plplot\64bit\libpng16.dll">
       <Link>winx64\libpng16.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\lib\plplot\64bit\pango-1.dll">
+    <Content Include="..\..\lib\plplot\64bit\pango-1.dll">
       <Link>winx64\pango-1.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\lib\plplot\64bit\pangocairo-1.dll">
+    <Content Include="..\..\lib\plplot\64bit\pangocairo-1.dll">
       <Link>winx64\pangocairo-1.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\lib\plplot\64bit\pangoft2-1.dll">
+    <Content Include="..\..\lib\plplot\64bit\pangoft2-1.dll">
       <Link>winx64\pangoft2-1.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\lib\plplot\64bit\pangowin32-1.dll">
+    <Content Include="..\..\lib\plplot\64bit\pangowin32-1.dll">
       <Link>winx64\pangowin32-1.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\lib\plplot\64bit\pcre.dll">
+    <Content Include="..\..\lib\plplot\64bit\pcre.dll">
       <Link>winx64\pcre.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\lib\plplot\64bit\pcre16.dll">
+    <Content Include="..\..\lib\plplot\64bit\pcre16.dll">
       <Link>winx64\pcre16.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\lib\plplot\64bit\pcre32.dll">
+    <Content Include="..\..\lib\plplot\64bit\pcre32.dll">
       <Link>winx64\pcre32.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\lib\plplot\64bit\pcrecpp.dll">
+    <Content Include="..\..\lib\plplot\64bit\pcrecpp.dll">
       <Link>winx64\pcrecpp.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\lib\plplot\64bit\pcreposix.dll">
+    <Content Include="..\..\lib\plplot\64bit\pcreposix.dll">
       <Link>winx64\pcreposix.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\lib\plplot\64bit\pixman-1.dll">
+    <Content Include="..\..\lib\plplot\64bit\pixman-1.dll">
       <Link>winx64\pixman-1.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\lib\plplot\64bit\plplot.dll">
+    <Content Include="..\..\lib\plplot\64bit\plplot.dll">
       <Link>winx64\plplot.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\lib\plplot\64bit\plplotcxx.dll">
+    <Content Include="..\..\lib\plplot\64bit\plplotcxx.dll">
       <Link>winx64\plplotcxx.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\lib\plplot\64bit\PLplotNet.dll">
+    <Content Include="..\..\lib\plplot\64bit\PLplotNet.dll">
       <Link>winx64\PLplotNet.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\lib\plplot\64bit\qsastime.dll">
+    <Content Include="..\..\lib\plplot\64bit\qsastime.dll">
       <Link>winx64\qsastime.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\lib\plplot\64bit\zlib1.dll">
+    <Content Include="..\..\lib\plplot\64bit\zlib1.dll">
       <Link>winx64\zlib1.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

@@ -37,6 +37,7 @@
   <ItemGroup>
     <Reference Include="PLplotNet">
       <HintPath>..\..\lib\plplot\64bit\PLplotNet.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

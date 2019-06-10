@@ -17,10 +17,6 @@ namespace PLPlotOutputToWindow
     {
         public Form1()
         {
-            if (File.Exists("PLplotNet.dll") == true)
-            {
-                File.Delete("PLplotNet.dll");
-            }
             InitializeComponent();
         }
 

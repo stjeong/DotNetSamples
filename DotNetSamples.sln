@@ -140,7 +140,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MemoryPartOfTaskManagerAndR
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "testd", "NetCore\testd\testd.csproj", "{B65015B7-D402-4790-BBAF-1F3FEA16AE90}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PLplotGridmap", "NetCore\PLplotGridmap\PLplotGridmap.csproj", "{65290CCA-AA0E-4396-882C-A5957F0C5760}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PLplotGridmap", "NetCore\PLplotGridmap\PLplotGridmap.csproj", "{65290CCA-AA0E-4396-882C-A5957F0C5760}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnixDomainSocketSample", "NetCore\UnixDomainSocketSample\UnixDomainSocketSample.csproj", "{BF04D670-8A30-447D-B814-1E2395A8F49E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -176,6 +178,10 @@ Global
 		{65290CCA-AA0E-4396-882C-A5957F0C5760}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{65290CCA-AA0E-4396-882C-A5957F0C5760}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{65290CCA-AA0E-4396-882C-A5957F0C5760}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BF04D670-8A30-447D-B814-1E2395A8F49E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BF04D670-8A30-447D-B814-1E2395A8F49E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BF04D670-8A30-447D-B814-1E2395A8F49E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BF04D670-8A30-447D-B814-1E2395A8F49E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -193,6 +199,7 @@ Global
 		{49448E2F-89D2-443E-B349-D54F2130FB5A} = {CB77B850-28BD-4B36-BAB3-DABB6136FFA2}
 		{B65015B7-D402-4790-BBAF-1F3FEA16AE90} = {976B7B43-4DFF-439D-84E6-C9B6489168A8}
 		{65290CCA-AA0E-4396-882C-A5957F0C5760} = {976B7B43-4DFF-439D-84E6-C9B6489168A8}
+		{BF04D670-8A30-447D-B814-1E2395A8F49E} = {976B7B43-4DFF-439D-84E6-C9B6489168A8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {AA2A41E4-D2AE-415B-A76F-C15D5BCE7128}

@@ -46,6 +46,9 @@ class Program
         var socket = new Socket(AddressFamily.Unix, SocketType.Stream, ProtocolType.IP);
         var unixEp = new UnixDomainSocketEndPoint(_socketPath);
 
+        // Under .NET Core 2.1, you can use user-defined UnixEndPoint type
+        // var unixEp = new UnixEndPoint(_socketPath);
+
         socket.Connect(unixEp);
         Console.WriteLine("[Client] Conencted");
         socket.Close();
@@ -65,6 +68,10 @@ class Program
             using (var socket = new Socket(AddressFamily.Unix, SocketType.Stream, ProtocolType.IP))
             {
                 var unixEp = new UnixDomainSocketEndPoint(_socketPath);
+
+                // Under .NET Core 2.1, you can use user-defined UnixEndPoint type
+                // var unixEp = new UnixEndPoint(_socketPath);
+
                 socket.Bind(unixEp);
                 socket.Listen(5);
                 while (true)

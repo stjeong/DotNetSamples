@@ -1,0 +1,85 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{b3b0226f-cfd5-4573-b69c-1728de09b6b3}</UniqueIdentifier>
+      <Extensions>c;cpp;rc;idl</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{357ad2f1-e748-4956-9c51-fa230c2c9c03}</UniqueIdentifier>
+      <Extensions>h;def</Extensions>
+    </Filter>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{a40dc122-4b86-4c25-89e1-4c73ea495420}</UniqueIdentifier>
+      <Extensions>ico;cur;tlb;bmp</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="classfactory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dsofauto.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dsofcontrol.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dsofdocobj.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dsofprint.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mainentry.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="utilities.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="res\dsoframer.rc">
+      <Filter>Source Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="dsofdocobj.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dsoframer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="utilities.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="version.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="msoffice.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="HttpPostDat.lib" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="lib\dsoframer.odl">
+      <Filter>Source Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="dsoframer.def">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="res\dso.ico">
+      <Filter>Resources</Filter>
+    </CustomBuild>
+    <CustomBuild Include="lib\dsoframer.olb">
+      <Filter>Resources</Filter>
+    </CustomBuild>
+    <CustomBuild Include="res\toolbox.bmp">
+      <Filter>Resources</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Manifest Include="dsoFramer.ocx.manifest" />
+  </ItemGroup>
+</Project>

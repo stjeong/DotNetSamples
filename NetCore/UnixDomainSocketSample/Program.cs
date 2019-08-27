@@ -12,6 +12,13 @@ class Program
 
     static string _socketPath;
 
+    // C# - .NET Core Unix Domain Socket 사용 예제
+    // http://www.sysnet.pe.kr/2/0/11963
+
+    // C# - .NET Core 2.0 이하의 Unix Domain Socket 사용 시 System.IndexOutOfRangeException 오류
+    // http://www.sysnet.pe.kr/2/0/11999
+
+
     static void Main(string[] args)
     {
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))

@@ -5,6 +5,9 @@ using System.Text;
 
 namespace NamedPipeSample
 {
+    // C# - Linux에서의 Named Pipe를 이용한 통신
+    // http://www.sysnet.pe.kr/2/0/11964
+
     class Program
     {
         static void Main(string[] args)

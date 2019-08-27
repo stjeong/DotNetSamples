@@ -10,6 +10,9 @@ using System.IO;
 
 namespace WindowsFormsApplication1
 {
+    // Excel Sheet를 WinForm에서 사용하는 방법 - 두 번째 이야기
+    // http://www.sysnet.pe.kr/2/0/12002
+
     public partial class Form1 : Form
     {
         public Form1()

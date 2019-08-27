@@ -8,6 +8,9 @@ using System.Text;
 
 namespace ConsoleApp1
 {
+    // C# - 32feet.NET을 이용한 PC 간 Bluetooth 통신 예제 코드
+    // http://www.sysnet.pe.kr/2/0/12004
+
     class Program
     {
         static Dictionary<string, BluetoothDeviceInfo> _btList = new Dictionary<string, BluetoothDeviceInfo>();

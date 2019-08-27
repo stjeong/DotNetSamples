@@ -3,6 +3,9 @@ using OpenQA.Selenium.Chrome;
 using System;
 using System.IO;
 
+// Microsoft Edge (Chromium)을 대상으로 한 Selenium WebDriver 사용법
+// http://www.sysnet.pe.kr/2/0/11984
+
 class Program
 {
     static void Main(string[] args)

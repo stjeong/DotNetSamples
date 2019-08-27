@@ -6,6 +6,9 @@ using System.Net.Sockets;
 
 namespace BTServer
 {
+    // C# - 32feet.NET을 이용한 PC 간 Bluetooth 통신 예제 코드
+    // http://www.sysnet.pe.kr/2/0/12004
+
     class Program
     {
         static void Main(string[] args)

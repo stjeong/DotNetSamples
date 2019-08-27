@@ -7,6 +7,9 @@ using Windows.Devices.Enumeration;
 
 namespace DevicePickerWinFormAppSample
 {
+    // WPF/WinForm에서 UWP의 기능을 이용해 Bluetooth 기기와 Pairing하는 방법
+    // http://www.sysnet.pe.kr/2/0/12001
+
     // add reference: C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETCore\v4.5\System.Runtime.WindowsRuntime.dll
 
     // add reference: C:\Program Files (x86)\Windows Kits\10\UnionMetadata\...[version]...\Windows.winmd

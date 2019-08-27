@@ -12,6 +12,9 @@
 #include <pthread.h>
 #include <signal.h>
 
+// C# - Rapsberry Pi Zero W와 PC 간 Bluetooth 통신 예제 코드
+// http://www.sysnet.pe.kr/2/0/12011
+
 // https://github.com/RyanGlScott/BluetoothTest/tree/master/C%20BlueZ%20Server
 // https://webnautes.tistory.com/1137
 

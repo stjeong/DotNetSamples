@@ -5,6 +5,9 @@ using System.Windows.Forms;
 
 namespace CopyRTFtoClipboard
 {
+    // Windows Forms/C# - 클립보드에 RTF 텍스트를 복사 및 확인하는 방법
+    // http://www.sysnet.pe.kr/2/0/11929
+
     public partial class Form1 : Form
     {
         public Form1()

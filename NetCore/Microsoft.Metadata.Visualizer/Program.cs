@@ -6,6 +6,9 @@ using System.Reflection.PortableExecutable;
 
 namespace Microsoft.Metadata.Visualizer
 {
+    // .NET Reflection을 대체할 System.Reflection.Metadata 소개
+    // http://www.sysnet.pe.kr/2/0/11930
+
     /*
     Metadata Tools
     ; https://github.com/dotnet/metadata-tools

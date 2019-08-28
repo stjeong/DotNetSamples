@@ -5,6 +5,9 @@ using System.Threading;
 
 namespace testd
 {
+    // C# - .NET Core Console로 리눅스 daemon 프로그램 만드는 방법
+    // http://www.sysnet.pe.kr/2/0/11958
+
     class Program
     {
         static void Main(string[] args)

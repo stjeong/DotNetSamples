@@ -1,5 +1,11 @@
 ﻿using PLplot;
 
+// C# - PLplot - 출력 모음(Family File Output)
+// http://www.sysnet.pe.kr/2/0/11961
+
+// C# - PLplot의 16색 이상을 표현하는 방법과 subpage를 이용한 그리드 맵 표현
+// http://www.sysnet.pe.kr/2/0/11960
+
 class Program
 {
     static void Main(string[] args)

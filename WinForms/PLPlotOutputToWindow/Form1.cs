@@ -13,6 +13,9 @@ using System.Windows.Forms;
 
 namespace PLPlotOutputToWindow
 {
+    // C# - PLplot 출력을 파일이 아닌 Window 화면으로 변경
+    // http://www.sysnet.pe.kr/2/0/11935
+
     public partial class Form1 : Form
     {
         public Form1()

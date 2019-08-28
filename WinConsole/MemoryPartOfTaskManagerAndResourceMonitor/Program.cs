@@ -7,6 +7,10 @@ class Program
     private static PerformanceCounter freeMemory;
     private static PerformanceCounter modifiedMemory;
 
+
+    // C# - 윈도우 작업 관리자와 리소스 모니터의 메모리 값을 구하는 방법
+    // http://www.sysnet.pe.kr/2/0/11950
+
     static void Main(string[] args)
     {
         freeMemory = new PerformanceCounter("Memory", "Free & Zero Page List Bytes", true);

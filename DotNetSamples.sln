@@ -175,6 +175,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BTServer", "WinConsole\Blue
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BTClient", "WinConsole\Bluetooth\pc2pc\BTClient\BTClient.csproj", "{019F5484-A92F-491B-923F-58C5B7A21FEB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpListenerAsHttps", "WinConsole\HttpListenerAsHttps\HttpListenerAsHttps.csproj", "{68A258DE-C3A0-4CAE-BDC2-5402EE20FB00}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -309,6 +311,14 @@ Global
 		{019F5484-A92F-491B-923F-58C5B7A21FEB}.Release|Any CPU.Build.0 = Release|Any CPU
 		{019F5484-A92F-491B-923F-58C5B7A21FEB}.Release|x86.ActiveCfg = Release|Any CPU
 		{019F5484-A92F-491B-923F-58C5B7A21FEB}.Release|x86.Build.0 = Release|Any CPU
+		{68A258DE-C3A0-4CAE-BDC2-5402EE20FB00}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{68A258DE-C3A0-4CAE-BDC2-5402EE20FB00}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{68A258DE-C3A0-4CAE-BDC2-5402EE20FB00}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{68A258DE-C3A0-4CAE-BDC2-5402EE20FB00}.Debug|x86.Build.0 = Debug|Any CPU
+		{68A258DE-C3A0-4CAE-BDC2-5402EE20FB00}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{68A258DE-C3A0-4CAE-BDC2-5402EE20FB00}.Release|Any CPU.Build.0 = Release|Any CPU
+		{68A258DE-C3A0-4CAE-BDC2-5402EE20FB00}.Release|x86.ActiveCfg = Release|Any CPU
+		{68A258DE-C3A0-4CAE-BDC2-5402EE20FB00}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -338,6 +348,7 @@ Global
 		{7E3F1E68-0625-40F8-B388-05F2B56BCF09} = {F02FCDD9-EEC6-4258-9098-EF675D19913E}
 		{7D391D4D-20F1-4E12-8A79-09AB181DD107} = {7E3F1E68-0625-40F8-B388-05F2B56BCF09}
 		{019F5484-A92F-491B-923F-58C5B7A21FEB} = {7E3F1E68-0625-40F8-B388-05F2B56BCF09}
+		{68A258DE-C3A0-4CAE-BDC2-5402EE20FB00} = {CB77B850-28BD-4B36-BAB3-DABB6136FFA2}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {AA2A41E4-D2AE-415B-A76F-C15D5BCE7128}

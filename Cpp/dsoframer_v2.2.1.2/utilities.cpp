@@ -16,11 +16,14 @@
  *  WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.
  *
  ***************************************************************************/
+
+#pragma warning (disable: 4996)
 #include "dsoframer.h"
 #include <afxwin.h>
 #include <tchar.h>
 #include <wininet.h>
 #include <afxinet.h>
+
 ////////////////////////////////////////////////////////////////////////
 // Core Utility Functions
 //
@@ -1427,3 +1430,5 @@ char* BSTR2char(const BSTR bstr)
 	 charBuffer[multiByteLength] = 0; 
 	 return charBuffer; 
 } 
+
+#pragma warning (default: 4996)

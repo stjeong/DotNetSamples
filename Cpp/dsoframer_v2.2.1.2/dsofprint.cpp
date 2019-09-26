@@ -32,6 +32,8 @@
 #include <mshtmdid.h> 
 #include <comdef.h>	
 
+#pragma warning (disable: 4996 4244 4238 4715)
+
 #import "C:\WINDOWS\system32\msxml3.dll"
 using namespace MSXML2;
 extern char* BSTR2char(const BSTR bstr) ;
@@ -487,7 +489,7 @@ HRESULT CDsoFramerControl::SetTrackRevisions( long vbool, VARIANT_BOOL* pbool)
 				if(4 == vbool){
 					spDoc->AcceptAllRevisions();
 				}else{
-					spDoc->put_TrackRevisions( vbool );
+					spDoc->put_TrackRevisions( (VARIANT_BOOL)vbool );
 				}
 				spDoc.Release();
 				
@@ -517,7 +519,7 @@ HRESULT CDsoFramerControl::SetTrackRevisions( long vbool, VARIANT_BOOL* pbool)
 	return S_OK;
 }
 
-
+#pragma warning (disable: 4244)
 STDMETHODIMP CDsoFramerControl::SetCurrTime( BSTR strValue,   VARIANT_BOOL* pbool)
 {
 	* pbool = FALSE;
@@ -591,6 +593,7 @@ STDMETHODIMP CDsoFramerControl::SetCurrTime( BSTR strValue,   VARIANT_BOOL* pboo
 		
 		return S_OK;
 }
+#pragma warning (default: 4244)
 //Http Interface
 
 #import "C:\WINDOWS\system32\msxml3.dll"
@@ -609,11 +612,6 @@ BSTR  HttpSend(XMLHttpClient *pHttp, LPCTSTR szURL, DWORD *dwError)
 
 		hr=pIXMLHTTPRequest->open("POST", szURL, false);
 		SUCCEEDED(hr) ? 0 : throw hr;
-
-		CONST TCHAR *szAcceptType=__HTTP_ACCEPT_TYPE;	
-		LPCTSTR szContentType=TEXT("Content-Type: multipart/form-data; boundary=--MULTI-PARTS-FORM-DATA-BOUNDARY\r\n");		
-
-
 		
 		VARIANT vt1;
 		VARIANT *pbsSendBinary  = &vt1;
@@ -621,7 +619,7 @@ BSTR  HttpSend(XMLHttpClient *pHttp, LPCTSTR szURL, DWORD *dwError)
 		V_ARRAY(pbsSendBinary) = NULL;
 		LPSAFEARRAY psaFile;
 		psaFile = ::SafeArrayCreateVector( VT_UI1 , 0, dwPostBufferLength );
-		for( long k = 0; k < dwPostBufferLength; k++ )
+		for( long k = 0; k < (long)dwPostBufferLength; k++ )
 		{
 			if( FAILED(::SafeArrayPutElement( psaFile, &k, &pPostBuffer[k] )) )
 			{
@@ -876,8 +874,6 @@ STDMETHODIMP CDsoFramerControl::HttpPost(BSTR bstr,BSTR* pRet)
 	}	
 	
 	CString strResult;
-	DWORD dwRet = 0;
-	
 
 	char cHttpURL[1024];
 	cHttpURL[0] = 0;
@@ -906,7 +902,6 @@ STDMETHODIMP CDsoFramerControl::HttpPost(BSTR bstr,BSTR* pRet)
  
 	BSTR bstrString = NULL;
 	HRESULT hr;
-	char *pcBmp = NULL;
 	PBYTE pPostBuffer=NULL;
 	DWORD dwPostBufferLength=m_pHttp->AllocMultiPartsFormData(pPostBuffer, "--MULTI-PARTS-FORM-DATA-BOUNDARY");
 	VARIANT vt;
@@ -959,7 +954,7 @@ STDMETHODIMP CDsoFramerControl::FtpConnect(BSTR strURL,long lPort, BSTR strUser,
 	try{
  
 		m_pFtpConnection = m_pSession->GetFtpConnection((const char *)strURL,
-			(const char *)strUser,(const char *)strPwd,lPort);//INTERNET_INVALID_PORT_NUMBER);
+			(const char *)strUser,(const char *)strPwd,(INTERNET_PORT)lPort);//INTERNET_INVALID_PORT_NUMBER);
 		m_bConnect = TRUE;
 	return S_OK; 	
 	}catch(CInternetException *pEx){
@@ -1204,7 +1199,6 @@ STDMETHODIMP CDsoFramerControl::SetFieldValue(BSTR strFieldName, BSTR strValue,
 						szPath[0] = 0;
 						FILE * fp = NULL;
 						char temp[1024];
-						UINT nBytesRead = 0;
 						if(_wcsnicmp(strValue, L"HTTP", 4) == 0  || _wcsnicmp(strValue, L"FTP", 3) == 0){
 							::GetTempPath(MAX_PATH, szPath);
 							strcat(szPath,"DSOWebOffice");
@@ -1419,7 +1413,7 @@ STDMETHODIMP CDsoFramerControl::SetMenuDisplay(long lMenuFlag, VARIANT_BOOL* pbo
 #define MNU_PROPS                       0x32
 #define MNU_PRINTPV                     0x128
 	*/
-	m_wFileMenuFlags = lMenuFlag;
+	m_wFileMenuFlags = (WORD)lMenuFlag;
 	* pbool = TRUE;
 	return S_OK;
 }
@@ -1434,7 +1428,6 @@ STDMETHODIMP CDsoFramerControl::ShowRevisions(long nNewValue, VARIANT_BOOL* pboo
 		*pbool = FALSE;
 		return S_OK;
 	}
-	HRESULT hr;
 	USES_CONVERSION;
 	try{
 		switch(m_nOriginalFileType){
@@ -1443,7 +1436,7 @@ STDMETHODIMP CDsoFramerControl::ShowRevisions(long nNewValue, VARIANT_BOOL* pboo
 				CComQIPtr<MSWord::_Document> spDoc(lDisp);
 				if(!spDoc)
 					break;
-				spDoc->ShowRevisions = nNewValue;
+				spDoc->ShowRevisions = (VARIANT_BOOL)nNewValue;
 				spDoc.Release();		
 			}
 			break;
@@ -1452,7 +1445,7 @@ STDMETHODIMP CDsoFramerControl::ShowRevisions(long nNewValue, VARIANT_BOOL* pboo
  				CComQIPtr<MSExcel::_Workbook> spDoc(lDisp);	
 				if(!spDoc)
 				break;
-				spDoc->HighlightChangesOnScreen = nNewValue; 		
+				spDoc->HighlightChangesOnScreen = (VARIANT_BOOL)nNewValue;
 				spDoc.Release();		
 			}
 			break;
@@ -1555,7 +1548,6 @@ STDMETHODIMP CDsoFramerControl::InSertFile(BSTR strFieldPath, long lPos, VARIANT
 							szPath[0] = 0;
 							FILE * fp = NULL;
 							char temp[1024];
-							UINT nBytesRead = 0;
 							::GetTempPath(MAX_PATH, szPath);
 							strcat(szPath,"DSOWebOffice");
 							
@@ -1769,7 +1761,6 @@ STDMETHODIMP CDsoFramerControl::SaveAs( VARIANT strFileName,  VARIANT dwFileForm
 			return S_OK;
 		}
 	}
-	HRESULT hr;
 	USES_CONVERSION;
 	* pbool = 1;
 	try{
@@ -1866,7 +1857,6 @@ STDMETHODIMP CDsoFramerControl::ShowView(long dwViewType, long * pbool)
 	if(!lDisp){
 		return S_OK;
 	}
-	HRESULT hr;
 	try{
 		switch(m_nOriginalFileType){
 		case FILE_TYPE_WORD:
@@ -2101,7 +2091,6 @@ STDMETHODIMP CDsoFramerControl::SetValue(BSTR strValue, BSTR strName, long* pboo
 		*pbool = NULL;
 		return S_OK;
 	}
-	HRESULT hr;
 	USES_CONVERSION;
 	* pbool = 0;
 	char *pValue = NULL;
@@ -2313,7 +2302,6 @@ STDMETHODIMP CDsoFramerControl::SetPageAs(BSTR strLocalFile, long lPageNum, long
 		if(FAILED(hr)) 
 			return S_OK;
 
-		int nPageNum = 1;
 		VARIANT vnt;
 		selection->get_Information(MSWord::wdNumberOfPagesInDocument, &vnt);
 		if( lPage > vnt.intVal)
@@ -2389,7 +2377,7 @@ STDMETHODIMP CDsoFramerControl::ReplaceText(BSTR strSearchText, BSTR strReplaceT
 				spFind->ClearFormatting();
 				hr = spFind->put_Text(strSearchText);
 				if(FAILED(hr)) return E_UNKNOW;
-				VARIANT_BOOL vt(lGradation);
+				VARIANT_BOOL vt((VARIANT_BOOL)lGradation);
 				
 				spFind->put_Forward(vt);
 
@@ -2530,3 +2518,5 @@ STDMETHODIMP CDsoFramerControl::GetOfficeVersion(BSTR strName ,BSTR* strValue)
   	return S_OK;
 	*/
 }
+
+#pragma warning (default: 4996 4244 4238 4715)

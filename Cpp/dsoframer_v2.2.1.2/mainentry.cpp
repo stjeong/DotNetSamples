@@ -56,7 +56,9 @@ extern "C" BOOL APIENTRY DllMain(HINSTANCE hDllHandle, DWORD dwReason, LPVOID /*
         v_hPrivateHeap = HeapCreate(0, 0x1000, 0);
 		v_icoOffDocIcon = (HICON)LoadImage(hDllHandle, MAKEINTRESOURCE(IDI_SMALLOFFDOC), IMAGE_ICON, 16, 16, 0);
 		{
+#pragma warning (disable: 4996)
 			DWORD dwVersion = GetVersion();
+#pragma warning (default: 4996)
 			v_fUnicodeAPI = ((dwVersion & 0x80000000) == 0);
 			v_fWindows2KPlus = ((v_fUnicodeAPI) && (LOBYTE(LOWORD(dwVersion)) > 4));
 		}

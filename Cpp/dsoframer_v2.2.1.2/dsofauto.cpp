@@ -18,6 +18,8 @@
  ***************************************************************************/
 #include "dsoframer.h"
 
+#pragma warning (disable: 4996)
+
 ////////////////////////////////////////////////////////////////////////
 // CDsoFramerControl - _FramerControl Implementation
 //
@@ -353,8 +355,8 @@ STDMETHODIMP CDsoFramerControl::Open(VARIANT Document, VARIANT ReadOnly, VARIANT
 	HRESULT   hr;
 	LPWSTR    pwszDocument  = LPWSTR_FROM_VARIANT(Document);
 	LPWSTR    pwszAltProgId = LPWSTR_FROM_VARIANT(ProgId);
-	LPWSTR    pwszUserName  = LPWSTR_FROM_VARIANT(WebUsername);
-	LPWSTR    pwszPassword  = LPWSTR_FROM_VARIANT(WebPassword);
+	//LPWSTR    pwszUserName  = LPWSTR_FROM_VARIANT(WebUsername);
+	//LPWSTR    pwszPassword  = LPWSTR_FROM_VARIANT(WebPassword);
     BOOL      fOpenReadOnly = BOOL_FROM_VARIANT(ReadOnly, FALSE);
 	CLSID     clsidAlt      = GUID_NULL;
 	RECT      rcPlace;
@@ -678,7 +680,6 @@ STDMETHODIMP CDsoFramerControl::Close()
 	char cTemp[32];
 	BOOL bOK = TRUE;
 	memset(cTemp,0,32);
-	HRESULT	  hr = S_FALSE;
 	if(m_pDocObjFrame && m_pDocObjFrame->m_bNewCreate){
 		ODS("CDsoFramerControl::Close  ready to Kill the app\n");
 		 
@@ -711,7 +712,7 @@ STDMETHODIMP CDsoFramerControl::Close()
 							ODS("CDsoFramerControl::Close  Finded the more opened documents \n");
 							break;
 						}
-						sprintf(cTemp,"WebOffice%ld",time(NULL));
+						sprintf(cTemp,"WebOffice%I64d",time(NULL));
 						_bstr_t bstr((char*) cTemp);
 						app->PutCaption(bstr);					
 						app.Detach();
@@ -737,7 +738,7 @@ STDMETHODIMP CDsoFramerControl::Close()
 						if(docs && docs->Count >1){
 							break;
 						}
-						sprintf(cTemp,"WebOffice%ld",time(NULL));
+						sprintf(cTemp,"WebOffice%I64d",time(NULL));
 						_bstr_t bstr((char*) cTemp); 
 
 						app->PutCaption(bstr);
@@ -1339,3 +1340,5 @@ STDMETHODIMP CDsoFramerControl::ProvideErrorInfo(HRESULT hres)
  // Fill in the error information as needed...
 	return DsoReportError(hres, NULL, m_pDispExcep);
 }
+
+#pragma warning (default: 4996)

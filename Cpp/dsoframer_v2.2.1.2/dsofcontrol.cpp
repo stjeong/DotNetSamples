@@ -19,6 +19,7 @@
 #include "dsoframer.h"
 #include <afxcmn.h>
 
+#pragma warning (disable: 4996)
 
 ////////////////////////////////////////////////////////////////////////
 // CDsoFramerControl - The Main Control Class
@@ -3542,3 +3543,5 @@ STDMETHODIMP_(LRESULT) CDsoFrameWindowHook::HostWindowProcHook(HWND hwnd, UINT m
  // Should not be reached, but just in case call default proc...
 	return DefWindowProc(hwnd, msg, wParam, lParam);
 }
+
+#pragma warning (default: 4996)

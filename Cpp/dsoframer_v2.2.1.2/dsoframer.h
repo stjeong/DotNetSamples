@@ -27,6 +27,8 @@
 #ifndef DS_DSOFRAMER_H 
 #define DS_DSOFRAMER_H
 
+#include <SDKDDKVer.h>
+
 #include "XMLHttpClient.h"
 #include "afxinet.h" // ftp 
 ////////////////////////////////////////////////////////////////////
@@ -52,6 +54,8 @@
 #include <oleidl.h>
 #include <objsafe.h>
 
+#pragma warning (disable: 4005 4278)
+
 #include "version.h"
 #include "utilities.h"
 #include "dsofdocobj.h"
@@ -59,6 +63,7 @@
 #include ".\res\resource.h"
 #include "msoffice.h"
 
+#pragma warning (default: 4005 4278)
 
 #define 	FILE_TYPE_NULL   0  
 #define 	FILE_TYPE_WORD  11 
@@ -72,7 +77,7 @@
 
 
 #define E_OK			0 ;
-#define E_NOLOAD		-1;//Ã»ÓÐ×°ÔØÎÄ¼þ
+#define E_NOLOAD		-1;//Ã»ï¿½ï¿½×°ï¿½ï¿½ï¿½Ä¼ï¿½
 #define E_NOBOOKMARK	-50;
 #define E_NOSHEET		-51;
 #define E_NOSUPPORT     -126
@@ -186,12 +191,12 @@ public:
 
  
 
-	char m_cPassWord[128];//ExcelµÄÖ»¶ÁÃÜÂë
-	char m_cPWWrite[128];//ExcelµÄ¿ÉÐ´ÃÜÂë
-	char m_cCurPath[MAX_PATH];//µ±Ç°ÎÄµµµÄÂ·¾¶
+	char m_cPassWord[128];//Excelï¿½ï¿½Ö»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	char m_cPWWrite[128];//Excelï¿½Ä¿ï¿½Ð´ï¿½ï¿½ï¿½ï¿½
+	char m_cCurPath[MAX_PATH];//ï¿½ï¿½Ç°ï¿½Äµï¿½ï¿½ï¿½Â·ï¿½ï¿½
 
     int  m_nOriginalFileType;//                m_clsidObject;         // CLSID of the embedded object
-	char m_cUrl[1024];//±£´æHttpÂ·¾¶
+	char m_cUrl[1024];//ï¿½ï¿½ï¿½ï¿½HttpÂ·ï¿½ï¿½
     unsigned int        m_fInPlaceActive:1;        // are we in place active or not?
  	XMLHttpClient *m_pHttp; 
 

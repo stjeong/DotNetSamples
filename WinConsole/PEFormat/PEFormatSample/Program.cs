@@ -58,22 +58,22 @@ namespace PEFormatSample
                     return;
                 }
 
-                string dllPath = pm.FileName;
-                DownloadPdb(pm.FileName, dllPath, rootPathToSave);
+                string modulePath = pm.FileName;
+                DownloadPdb(modulePath, rootPathToSave);
 
                 Console.WriteLine();
             }
         }
 
-        private static void DownloadPdb(string modulePath, string fileName, string rootPathToSave)
+        private static void DownloadPdb(string modulePath, string rootPathToSave)
         {
-            if (File.Exists(fileName) == false)
+            if (File.Exists(modulePath) == false)
             {
-                Console.WriteLine("NOT Found: " + fileName);
+                Console.WriteLine("NOT Found: " + modulePath);
                 return;
             }
 
-            PEImage pe = PEImage.ReadFromFile(fileName);
+            PEImage pe = PEImage.ReadFromFile(modulePath);
             if (pe == null)
             {
                 Console.WriteLine("Failed to read images");

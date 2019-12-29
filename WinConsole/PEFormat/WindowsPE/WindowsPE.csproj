@@ -49,5 +49,9 @@
     <Compile Include="PEUnmanaged.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="deploy_nuget.bat" />
+    <None Include="WindowsPE.nuspec" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

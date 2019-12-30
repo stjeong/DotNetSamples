@@ -1,0 +1,94 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{DD2CE10D-335B-4FB5-BAFF-9B09639515B8}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>SimpleDebugger</RootNamespace>
+    <AssemblyName>SimpleDebugger</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Debugger.cs" />
+    <Compile Include="Managed\HResult.cs" />
+    <Compile Include="Managed\ModuleInfo.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Win32\Enums.cs" />
+    <Compile Include="Win32\IDebugAdvanced.cs" />
+    <Compile Include="Win32\IDebugAdvanced2.cs" />
+    <Compile Include="Win32\IDebugAdvanced3.cs" />
+    <Compile Include="Win32\IDebugBreakpoint.cs" />
+    <Compile Include="Win32\IDebugBreakpoint2.cs" />
+    <Compile Include="Win32\IDebugBreakpoint3.cs" />
+    <Compile Include="Win32\IDebugClient.cs" />
+    <Compile Include="Win32\IDebugClient2.cs" />
+    <Compile Include="Win32\IDebugClient3.cs" />
+    <Compile Include="Win32\IDebugClient4.cs" />
+    <Compile Include="Win32\IDebugClient5.cs" />
+    <Compile Include="Win32\IDebugClient6.cs" />
+    <Compile Include="Win32\IDebugControl.cs" />
+    <Compile Include="Win32\IDebugControl2.cs" />
+    <Compile Include="Win32\IDebugControl3.cs" />
+    <Compile Include="Win32\IDebugControl4.cs" />
+    <Compile Include="Win32\IDebugControl5.cs" />
+    <Compile Include="Win32\IDebugControl6.cs" />
+    <Compile Include="Win32\IDebugDataSpaces.cs" />
+    <Compile Include="Win32\IDebugDataSpaces2.cs" />
+    <Compile Include="Win32\IDebugDataSpaces3.cs" />
+    <Compile Include="Win32\IDebugDataSpaces4.cs" />
+    <Compile Include="Win32\IDebugEventCallbacks.cs" />
+    <Compile Include="Win32\IDebugEventCallbacksWide.cs" />
+    <Compile Include="Win32\IDebugEventContextCallbacks.cs" />
+    <Compile Include="Win32\IDebugInputCallbacks.cs" />
+    <Compile Include="Win32\IDebugOutputCallbacks.cs" />
+    <Compile Include="Win32\IDebugOutputCallbacks2.cs" />
+    <Compile Include="Win32\IDebugOutputCallbacksWide.cs" />
+    <Compile Include="Win32\IDebugRegisters.cs" />
+    <Compile Include="Win32\IDebugRegisters2.cs" />
+    <Compile Include="Win32\IDebugSymbolGroup.cs" />
+    <Compile Include="Win32\IDebugSymbolGroup2.cs" />
+    <Compile Include="Win32\IDebugSymbols.cs" />
+    <Compile Include="Win32\IDebugSymbols2.cs" />
+    <Compile Include="Win32\IDebugSymbols3.cs" />
+    <Compile Include="Win32\IDebugSymbols4.cs" />
+    <Compile Include="Win32\IDebugSymbols5.cs" />
+    <Compile Include="Win32\IDebugSystemObjects.cs" />
+    <Compile Include="Win32\IDebugSystemObjects2.cs" />
+    <Compile Include="Win32\IDebugSystemObjects3.cs" />
+    <Compile Include="Win32\Structs.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

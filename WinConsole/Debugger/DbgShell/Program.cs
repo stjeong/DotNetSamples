@@ -74,7 +74,7 @@ namespace DbgShell
                         Console.Write(" ");
                         Console.ForegroundColor = ConsoleColor.Gray;
                         string command = Console.ReadLine();
-                        debugger.ExecuteWide(DEBUG_OUTCTL.THIS_CLIENT, command, DEBUG_EXECUTE.DEFAULT);
+                        debugger.ExecuteWide(command);
                     }
                 }
                 finally

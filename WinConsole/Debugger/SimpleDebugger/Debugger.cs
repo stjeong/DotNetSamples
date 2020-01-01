@@ -18,6 +18,12 @@ namespace SimpleDebugger
         IDebugClient5 _client;
         IDebugControl4 _control;
 
+        bool _outputText;
+        public void SetOutputText(bool output)
+        {
+            _outputText = output;
+        }
+
         public bool BreakpointHit { get; set; }
         public bool StateChanged { get; set; }
 
@@ -66,10 +72,25 @@ namespace SimpleDebugger
         {
             _control.OutputPromptWide(outputControl, format);
         }
-        
+            
+        public void FlushCallbacks()
+        {
+            _client.FlushCallbacks();
+        }
+
+        public int Execute(string command)
+        {
+            return _control.Execute(DEBUG_OUTCTL.THIS_CLIENT, command, DEBUG_EXECUTE.DEFAULT);
+        }
+
         public int Execute(DEBUG_OUTCTL outputControl, string command, DEBUG_EXECUTE flags)
         {
-            return _control.Execute(DEBUG_OUTCTL.THIS_CLIENT, command, DEBUG_EXECUTE.NOT_LOGGED);
+            return _control.Execute(outputControl, command, flags);
+        }
+
+        public int ExecuteWide(string command)
+        {
+            return _control.ExecuteWide(DEBUG_OUTCTL.THIS_CLIENT, command, DEBUG_EXECUTE.DEFAULT);
         }
 
         public int ExecuteWide(DEBUG_OUTCTL outputControl, string command, DEBUG_EXECUTE flags)
@@ -112,6 +133,11 @@ namespace SimpleDebugger
 
         public int Output([In] DEBUG_OUTPUT Mask, [In, MarshalAs(UnmanagedType.LPStr)] string Text)
         {
+            if (_outputText == false)
+            {
+                return 0;
+            }
+
             switch (Mask)
             {
                 case DEBUG_OUTPUT.DEBUGGEE:

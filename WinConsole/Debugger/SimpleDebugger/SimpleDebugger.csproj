@@ -90,5 +90,9 @@
     <Compile Include="Win32\IDebugSystemObjects3.cs" />
     <Compile Include="Win32\Structs.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="deploy_nuget.bat" />
+    <None Include="SimpleDebugger.nuspec" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

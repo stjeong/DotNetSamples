@@ -1,6 +1,6 @@
 
 SET BUILDCONFIG=Release
-SET PRJNAME=WindowsPE
+SET PRJNAME=SimpleDebugger
 
 FOR /F %%I IN ("%0") DO SET CURRENTDIR=%%~dpI
 

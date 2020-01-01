@@ -5,11 +5,11 @@
     <Deterministic>true</Deterministic>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{42CBEB47-F856-4484-88B8-093D00130547}</ProjectGuid>
+    <ProjectGuid>{AA6F086F-681C-49FE-A1DE-504FED357C81}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>DummyApp</RootNamespace>
-    <AssemblyName>DummyApp</AssemblyName>
-    <AssemblyName Condition=" '$(DummyAppAssemblyName)' != '' ">$(DummyAppAssemblyName)</AssemblyName>
+    <RootNamespace>DisplayStruct</RootNamespace>
+    <AssemblyName>DisplayStruct</AssemblyName>
+    <AssemblyName Condition=" '$(DisplayStructAssemblyName)' != '' ">$(DisplayStructAssemblyName)</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -45,6 +45,20 @@
   <ItemGroup>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\PEFormat\WindowsPE\WindowsPE.csproj">
+      <Project>{db03678e-dd4d-4ce5-807f-36fca0d8dc72}</Project>
+      <Name>WindowsPE</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SimpleDebugger\SimpleDebugger.csproj">
+      <Project>{dd2ce10d-335b-4fb5-baff-9b09639515b8}</Project>
+      <Name>SimpleDebugger</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <EmbeddedResource Include="files\DummyApp.exe" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

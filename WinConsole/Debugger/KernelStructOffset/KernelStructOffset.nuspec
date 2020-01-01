@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <metadata>
+        <id>KernelStructOffset</id>
+        <title>Get Structure offset using debugger on runtime</title>
+        <version>1.0.0</version>
+        <authors>SeongTae Jeong</authors>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>Get Structure offset(for example, _PEB) using Debugger on runtime</description>
+        <tags>Debuggeer, DbgEng</tags>
+        <projectUrl>https://github.com/stjeong/DotNetSamples/tree/master/WinConsole/Debugger</projectUrl>
+        <license type="expression">MIT</license>
+        <dependencies>
+          <group targetFramework=".NETFramework4.0" />
+        </dependencies>        
+    </metadata>
+</package>

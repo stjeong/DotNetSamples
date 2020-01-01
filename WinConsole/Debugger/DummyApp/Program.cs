@@ -14,7 +14,7 @@ namespace DummyApp
                 {
                     throw new ApplicationException("TEST");
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                 }
             }

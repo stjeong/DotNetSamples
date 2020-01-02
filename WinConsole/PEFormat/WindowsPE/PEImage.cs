@@ -17,6 +17,8 @@ namespace WindowsPE
 
         bool _is64BitHeader;
 
+        byte[] _bufferCached;
+
         IntPtr _baseAddress;
         string _filePath;
         int _memorySize;
@@ -191,6 +193,11 @@ namespace WindowsPE
                     br.Read(buffer.Buffer, 0, buffer.Length);
                 }
             }
+            else if (_bufferCached != null)
+            {
+                buffer = new BufferPtr(_bufferCached.Length);
+                Array.Copy(_bufferCached, 0, buffer.Buffer, 0, _bufferCached.Length);
+            }
 
             return GetSafeBuffer(buffer, rva);
         }
@@ -199,7 +206,11 @@ namespace WindowsPE
         {
             IntPtr ptr = IntPtr.Zero;
 
-            if (buffer != null)
+            if (_bufferCached != null)
+            {
+                ptr = buffer.GetPtr((int)rva);
+            }
+            else if (buffer != null)
             {
                 int startAddress = Rva2Raw((int)rva);
                 ptr = buffer.GetPtr(startAddress);
@@ -340,7 +351,21 @@ namespace WindowsPE
         public unsafe static PEImage ReadFromMemory(IntPtr baseAddress, int memorySize)
         {
             UnmanagedMemoryStream ums = new UnmanagedMemoryStream((byte*)baseAddress.ToPointer(), memorySize);
-            BinaryReader br = new BinaryReader(ums);
+            return ReadFromMemory(ums, baseAddress, memorySize);
+        }
+
+        public unsafe static PEImage ReadFromMemory(byte[] buffer, IntPtr baseAddress, int memorySize)
+        {
+            MemoryStream ms = new MemoryStream(buffer);
+            PEImage image = ReadFromMemory(ms, baseAddress, memorySize);
+            image._bufferCached = buffer;
+
+            return image;
+        }
+
+        public unsafe static PEImage ReadFromMemory(Stream stream, IntPtr baseAddress, int memorySize)
+        {
+            BinaryReader br = new BinaryReader(stream);
 
             PEImage image = ReadPEHeader(br);
             if (image == null)

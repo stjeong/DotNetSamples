@@ -14,16 +14,30 @@ namespace DisplayStruct
     {
         static void Main(string[] args)
         {
-            UnpackDummyApp();
-
             if (args.Length < 2)
             {
                 return;
             }
 
+            if (args.Length == 2)
+            {
+                UnpackDummyApp();
+            }
+
             string typeName = args[0];
             string moduleFullName = args[1];
             string moduleFileName = Path.GetFileNameWithoutExtension(moduleFullName);
+            int pid = 0;
+            Process child = null;
+            string proxyExePath = "DummyApp.exe";
+
+            if (args.Length >= 3)
+            {
+                if (Int32.TryParse(args[2], out pid) == false)
+                {
+                    proxyExePath = args[2];
+                }
+            }
 
             string rootPathToSave = Path.Combine(Environment.CurrentDirectory, "sym");
 
@@ -32,19 +46,22 @@ namespace DisplayStruct
                 debugger.SetOutputText(false);
                 debugger.FlushCallbacks();
 
-                ProcessStartInfo psi = new ProcessStartInfo();
-                psi.FileName = "DummyApp.exe";
-                psi.UseShellExecute = false;
-                psi.CreateNoWindow = true;
-                psi.LoadUserProfile = false;
+                if (pid == 0)
+                {
+                    ProcessStartInfo psi = new ProcessStartInfo();
+                    psi.FileName = proxyExePath;
+                    psi.UseShellExecute = false;
+                    psi.CreateNoWindow = true;
+                    psi.LoadUserProfile = false;
 
-                Process child = Process.Start(psi);
+                    child = Process.Start(psi);
+                    pid = child.Id;
+                }
+
                 bool attached = false;
 
                 try
                 {
-                    DownloadPdb(child, rootPathToSave, moduleFullName);
-
                     debugger.ModuleLoaded += (ModuleInfo modInfo) =>
                     {
                         if (modInfo.ModuleName.IndexOf(moduleFileName, StringComparison.OrdinalIgnoreCase) == -1)
@@ -52,20 +69,29 @@ namespace DisplayStruct
                             return;
                         }
 
+                        byte[] buffer;
+                        int readBytes = debugger.ReadMemory(modInfo.BaseOffset, modInfo.ModuleSize, out buffer);
+                        if (readBytes != modInfo.ModuleSize)
+                        {
+                            return;
+                        }
+
+                        DownloadPdb(modInfo.ModuleName, buffer, new IntPtr((long)modInfo.BaseOffset), (int)modInfo.ModuleSize, rootPathToSave);
+
                         RunDTSetCommand(debugger, rootPathToSave, moduleFullName, typeName);
 
                         debugger.SetOutputText(false);
-                        debugger.Execute(DEBUG_OUTCTL.IGNORE, "q", DEBUG_EXECUTE.NOT_LOGGED);
+                        debugger.Execute(DEBUG_OUTCTL.IGNORE, (child == null) ? "q" : "qd", DEBUG_EXECUTE.NOT_LOGGED);
                     };
 
-                    if (debugger.AttachTo(child.Id) == false)
+                    if (debugger.AttachTo(pid) == false)
                     {
                         Console.WriteLine("Failed to attach");
                         return;
                     }
 
                     attached = true;
-                    debugger.WaitForEvent();
+                    debugger.WaitForEvent(DEBUG_WAIT.DEFAULT, 1000 * 5);
                 }
                 finally
                 {
@@ -76,7 +102,10 @@ namespace DisplayStruct
 
                     try
                     {
-                        child.Kill();
+                        if (child != null)
+                        {
+                            child.Kill();
+                        }
                     }
                     catch { }
                 }
@@ -134,7 +163,7 @@ namespace DisplayStruct
 
             debugger.SetOutputText(true);
             {
-                string cmd = $"dt {Path.GetFileNameWithoutExtension(moduleFullName)}!{typeName}";
+                string cmd = $"dt {typeName}";
                 int result = debugger.Execute(cmd);
                 if (result != (int)HResult.S_OK)
                 {
@@ -144,30 +173,9 @@ namespace DisplayStruct
             }
         }
 
-        private static string DownloadPdb(Process child, string rootPathToSave, string moduleFullName)
+        private static string DownloadPdb(string modulePath, byte [] buffer, IntPtr baseOffset, int imageSize, string rootPathToSave)
         {
-            foreach (ProcessModule module in child.Modules)
-            {
-                if (module.FileName.EndsWith($"{moduleFullName}", StringComparison.OrdinalIgnoreCase) == true)
-                {
-                    string modulePath = module.FileName;
-                    PEImage pe = PEImage.ReadFromFile(modulePath);
-                    return DownloadPdb(modulePath, rootPathToSave);
-                }
-            }
-
-            return "";
-        }
-
-        private static string DownloadPdb(string modulePath, string rootPathToSave)
-        {
-            if (File.Exists(modulePath) == false)
-            {
-                Console.WriteLine("NOT Found: " + modulePath);
-                return null;
-            }
-
-            PEImage pe = PEImage.ReadFromFile(modulePath);
+            PEImage pe = PEImage.ReadFromMemory(buffer, baseOffset, imageSize);
             if (pe == null)
             {
                 Console.WriteLine("Failed to read images");

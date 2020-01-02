@@ -15,7 +15,17 @@ public class DbgOffset
 
     public static Dictionary<string, int> Get(string typeName, string moduleName)
     {
-        List<StructFieldInfo> list = GetList(typeName, moduleName);
+        return Get(typeName, moduleName, 0);
+    }
+
+    public static Dictionary<string, int> Get(string typeName, string moduleName, int pid)
+    {
+        return Get(typeName, moduleName, (pid == 0) ? null : pid.ToString());
+    }
+
+    public static Dictionary<string, int> Get(string typeName, string moduleName, string targetExePath)
+    {
+        List<StructFieldInfo> list = GetList(typeName, moduleName, targetExePath);
         Dictionary<string, int> dict = new Dictionary<string, int>();
 
         foreach (StructFieldInfo item in list)
@@ -26,20 +36,21 @@ public class DbgOffset
         return dict;
     }
 
-    private static List<StructFieldInfo> GetList(string typeName, string moduleName)
+    private static List<StructFieldInfo> GetList(string typeName, string moduleName, string pidOrPath)
     {
         UnpackDisplayStructApp();
 
         ProcessStartInfo psi = new ProcessStartInfo();
         psi.FileName = "DisplayStruct.exe";
         psi.UseShellExecute = false;
-        psi.Arguments = $"{typeName} {moduleName}";
+        psi.Arguments = $"{typeName} {moduleName}" + ((string.IsNullOrEmpty(pidOrPath) == true) ? "" : $" \"{pidOrPath}\"");
         psi.CreateNoWindow = true;
         psi.RedirectStandardOutput = true;
         psi.LoadUserProfile = false;
 
         Process child = Process.Start(psi);
         string text = child.StandardOutput.ReadToEnd();
+
         child.WaitForExit();
 
         return ParseOffset(text);

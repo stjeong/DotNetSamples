@@ -17,6 +17,7 @@ namespace SimpleDebugger
 
         IDebugClient5 _client;
         IDebugControl4 _control;
+        IDebugDataSpaces _debugDataSpace;
 
         bool _outputText;
         public void SetOutputText(bool output)
@@ -48,8 +49,17 @@ namespace SimpleDebugger
 
             _client = obj as IDebugClient5;
             _control = _client as IDebugControl4;
+            _debugDataSpace = _client as IDebugDataSpaces;
             _client.SetOutputCallbacks(this);
             _client.SetEventCallbacksWide(this);
+        }
+
+        public int ReadMemory(ulong address, uint size, out byte [] buf)
+        {
+            buf = new byte[size];
+
+            _debugDataSpace.ReadVirtual(address, buf, (uint)buf.Length, out uint readBytes);
+            return (int)readBytes;
         }
 
         public bool AttachTo(int pid)
@@ -118,6 +128,12 @@ namespace SimpleDebugger
 
         public void Dispose()
         {
+            if (_debugDataSpace != null)
+            {
+                Marshal.ReleaseComObject(_debugDataSpace);
+                _debugDataSpace = null;
+            }
+            
             if (_control != null)
             {
                 Marshal.ReleaseComObject(_control);

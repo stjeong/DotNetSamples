@@ -33,6 +33,9 @@ REM =====================================================
 msbuild %CURRENTDIR%KernelStructOffset.csproj /p:Configuration=%BUILDCONFIG%;DefineConstants="TRACE" /t:Rebuild
 if %ERRORLEVEL% GTR 0 goto BuildError
 
+
+if '%1' == 'local' goto EndOfBuild
+
 robocopy %CURRENTDIR%bin\%BUILDCONFIG% %CURRENTDIR%nuget\root\lib\net40
 robocopy %CURRENTDIR% %CURRENTDIR%nuget\root %PRJNAME%.nuspec
 

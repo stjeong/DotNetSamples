@@ -41,6 +41,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DbgOffset.cs" />
+    <Compile Include="EnvironmentBlockInfo.cs" />
+    <Compile Include="NativeMethods.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StructFieldInfo.cs" />
   </ItemGroup>

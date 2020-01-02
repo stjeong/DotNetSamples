@@ -3,7 +3,7 @@
     <metadata>
         <id>WindowsPE</id>
         <title>PE Parser written in C#</title>
-        <version>1.0.4</version>
+        <version>1.0.5</version>
         <authors>SeongTae Jeong</authors>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>It parses PE Header for x86/x64 from File and in-memory Image.</description>

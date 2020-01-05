@@ -96,6 +96,21 @@ namespace WindowsPE
             }
         }
 
+        public ExportFunctionInfo GetExportFunction(string functionName)
+        {
+            ExportFunctionInfo[] functions = GetExportFunctions();
+
+            for (int i = 0; i < functions?.Length; i++)
+            {
+                if (functions[i].Name == functionName)
+                {
+                    return functions[i];
+                }
+            }
+
+            return default(ExportFunctionInfo);
+        }
+
         public IEnumerable<ExportFunctionInfo> EnumerateExportFunctions()
         {
             ExportFunctionInfo[] functions = GetExportFunctions();

@@ -71,5 +71,15 @@ namespace WindowsPE
             ums.Position = index * sizeof(uint);
             return ums.ReadUInt32();
         }
+
+        public static IntPtr ReadPtr(this IntPtr ptr, int offset)
+        {
+            return Marshal.ReadIntPtr(ptr, offset);
+        }
+
+        public static uint ReadUInt32(this IntPtr ptr, int offset)
+        {
+            return (uint)Marshal.ReadInt32(ptr, offset);
+        }
     }
 }

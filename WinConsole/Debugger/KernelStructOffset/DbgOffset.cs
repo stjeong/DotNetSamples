@@ -10,6 +10,8 @@ namespace KernelStructOffset
 {
     public class DbgOffset
     {
+        static Dictionary<string, List<StructFieldInfo>> _cache = new Dictionary<string, List<StructFieldInfo>>();
+
         public static Dictionary<string, int> Get(string typeName)
         {
             return Get(typeName, "ntdll.dll");
@@ -27,7 +29,22 @@ namespace KernelStructOffset
 
         public static Dictionary<string, int> Get(string typeName, string moduleName, string targetExePath)
         {
+            if (_cache.ContainsKey(typeName) == true)
+            {
+                return ListToDict(_cache[typeName]);
+            }
+
             List<StructFieldInfo> list = GetList(typeName, moduleName, targetExePath);
+            if (list != null)
+            {
+                _cache.Add(typeName, list);
+            }
+
+            return ListToDict(list);
+        }
+
+        private static Dictionary<string, int> ListToDict(List<StructFieldInfo> list)
+        {
             Dictionary<string, int> dict = new Dictionary<string, int>();
 
             foreach (StructFieldInfo item in list)

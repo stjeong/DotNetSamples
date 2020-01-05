@@ -24,8 +24,6 @@ namespace KernelStructOffset
         [UnmanagedFunctionPointerAttribute(CallingConvention.Cdecl)]
         private delegate long GetTebDelegate();
 
-        public const string PROCESS_ENVIRONMENT_BLOCK = "ProcessEnvironmentBlock";
-
         static EnvironmentBlockInfo()
         {
             if (IntPtr.Size != 8)
@@ -66,39 +64,19 @@ namespace KernelStructOffset
         public static IntPtr GetPebAddress(out IntPtr tebAddress)
         {
             tebAddress = GetTebAddress();
-            var dict = GetTebOffset();
-
-            if (dict.ContainsKey(PROCESS_ENVIRONMENT_BLOCK) == false)
-            {
-                // Retry one more for x86 on x64 of Windows Server 2008 R2
-                dict = DbgOffset.Get("ole32!_TEB", "ole32.dll", "c:\\windows\\syswow64\\notepad.exe");
-            }
-
-            if (dict.ContainsKey(PROCESS_ENVIRONMENT_BLOCK) == false)
-            {
-                return IntPtr.Zero;
-            }
-
-            int offset = dict[PROCESS_ENVIRONMENT_BLOCK];
-            return Marshal.ReadIntPtr(tebAddress + offset);
+            _TEB teb = _TEB.Create(tebAddress);
+            return teb.ProcessEnvironmentBlock;
         }
 
-        private static Dictionary<string, int> GetTebOffset()
+        public static _PEB GetPeb()
         {
-            string typeInfo = GetTebOwner(out string moduleName);
-            return DbgOffset.Get(typeInfo, moduleName);
+            IntPtr pebAddress = EnvironmentBlockInfo.GetPebAddress(out _);
+            return GetPeb(pebAddress);
         }
 
-        private static string GetTebOwner(out string moduleName)
+        public static _PEB GetPeb(IntPtr pebAddress)
         {
-            if (IntPtr.Size == 4 && Environment.Is64BitOperatingSystem == true)
-            {
-                moduleName = "ntdll.dll";
-                return "_TEB32";
-            }
-
-            moduleName = "ntdll.dll";
-            return "_TEB";
+            return _PEB.Create(pebAddress);
         }
     }
 }

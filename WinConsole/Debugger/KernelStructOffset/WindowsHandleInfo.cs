@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 
-namespace EnumHandles
+namespace KernelStructOffset
 {
     public class WindowsHandleInfo : IDisposable
     {
@@ -46,8 +45,26 @@ namespace EnumHandles
 
                 unsafe
                 {
+                    /*
                     Span<SYSTEM_HANDLE_ENTRY> handles = new Span<SYSTEM_HANDLE_ENTRY>((_ptr + _handleOffset).ToPointer(), _handleCount);
                     return handles[index];
+                    */
+
+                    IntPtr entryPtr = IntPtr.Zero;
+
+                    if (IntPtr.Size == 8)
+                    {
+                        IntPtr handleTable = new IntPtr(_ptr.ToInt64() + _handleOffset);
+                        entryPtr = new IntPtr(handleTable.ToInt64() + sizeof(SYSTEM_HANDLE_ENTRY) * index);
+                    }
+                    else
+                    {
+                        IntPtr handleTable = new IntPtr(_ptr.ToInt32() + _handleOffset);
+                        entryPtr = new IntPtr(handleTable.ToInt32() + sizeof(SYSTEM_HANDLE_ENTRY) * index);
+                    }
+
+                    SYSTEM_HANDLE_ENTRY entry = (SYSTEM_HANDLE_ENTRY)Marshal.PtrToStructure(entryPtr, typeof(SYSTEM_HANDLE_ENTRY));
+                    return entry;
                 }
             }
         }

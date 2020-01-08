@@ -49,6 +49,69 @@ namespace KernelStructOffset
     }
 
     [StructLayout(LayoutKind.Sequential)]
+    public struct SYSTEM_HANDLE_INFORMATION
+    {
+        public int HandleCount;
+        public SYSTEM_HANDLE_ENTRY Handles; /* Handles[0] */
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct GENERIC_MAPPING
+    {
+        public uint GenericRead;
+        public uint GenericWrite;
+        public uint GenericExecute;
+        public uint GenericAll;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct OBJECT_NAME_INFORMATION
+    {
+        public _UNICODE_STRING Name;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct OBJECT_TYPE_INFORMATION
+    {
+        public _UNICODE_STRING Name;
+        public uint TotalNumberOfObjects;
+        public uint TotalNumberOfHandles;
+        public uint TotalPagedPoolUsage;
+        public uint TotalNonPagedPoolUsage;
+        public uint TotalNamePoolUsage;
+        public uint TotalHandleTableUsage;
+        public uint HighWaterNumberOfObjects;
+        public uint HighWaterNumberOfHandles;
+        public uint HighWaterPagedPoolUsage;
+        public uint HighWaterNonPagedPoolUsage;
+        public uint HighWaterNamePoolUsage;
+        public uint HighWaterHandleTableUsage;
+        public uint InvalidAttributes;
+        public GENERIC_MAPPING GenericMapping;
+        public uint ValidAccess;
+        public byte SecurityRequired;
+        public byte MaintainHandleCount;
+        public ushort MaintainTypeList;
+
+        /*
+enum _POOL_TYPE
+{
+	NonPagedPool,
+	PagedPool,
+	NonPagedPoolMustSucceed,
+	DontUseThisType,
+	NonPagedPoolCacheAligned,
+	PagedPoolCacheAligned,
+	NonPagedPoolCacheAlignedMustS
+}
+        */
+
+        public int PoolType;
+        public uint PagedPoolUsage;
+        public uint NonPagedPoolUsage;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
     public struct _UNICODE_STRING
     {
         public ushort Length;

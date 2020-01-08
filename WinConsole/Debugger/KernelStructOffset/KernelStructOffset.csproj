@@ -49,6 +49,8 @@
     <Compile Include="NativeMethods.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StructFieldInfo.cs" />
+    <Compile Include="SYSTEM_HANDLE_ENTRY.cs" />
+    <Compile Include="WindowsHandleInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="files\SimpleDebugger.dll" />

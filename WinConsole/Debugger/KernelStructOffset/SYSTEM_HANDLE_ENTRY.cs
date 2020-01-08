@@ -1,4 +1,5 @@
-﻿using System;
+﻿using KernelStructOffset;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -7,7 +8,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace EnumHandles
+namespace KernelStructOffset
 {
     [StructLayout(LayoutKind.Sequential)]
     public struct SYSTEM_HANDLE_ENTRY

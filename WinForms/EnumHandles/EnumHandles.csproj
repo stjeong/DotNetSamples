@@ -69,12 +69,8 @@
     <Compile Include="Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
-    <Compile Include="NativeMemory.cs" />
-    <Compile Include="NativeMethods.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SYSTEM_HANDLE_ENTRY.cs" />
-    <Compile Include="WindowsHandleInfo.cs" />
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>
@@ -105,6 +101,12 @@
     <Content Include="TextFile1.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\WinConsole\Debugger\KernelStructOffset\KernelStructOffset.csproj">
+      <Project>{bde45a00-9b56-43c8-aa84-38f2d5bbfa52}</Project>
+      <Name>KernelStructOffset</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

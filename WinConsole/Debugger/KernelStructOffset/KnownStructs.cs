@@ -22,7 +22,7 @@ namespace KernelStructOffset
 
         public string GetText()
         {
-            if (Buffer == IntPtr.Zero)
+            if (Buffer == IntPtr.Zero || MaximumLength == 0)
             {
                 return "";
             }

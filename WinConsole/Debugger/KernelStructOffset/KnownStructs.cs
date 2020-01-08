@@ -11,6 +11,41 @@ namespace KernelStructOffset
     {
         public IntPtr Flink;
         public IntPtr Blink;
+
+        internal unsafe IntPtr Unlink()
+        {
+            _LIST_ENTRY* pNext = (_LIST_ENTRY*)Flink.ToPointer();
+            _LIST_ENTRY* pPrev = (_LIST_ENTRY*)Blink.ToPointer();
+
+            IntPtr thisLink = pNext->Blink;
+            _LIST_ENTRY* thisItem = (_LIST_ENTRY*)thisLink.ToPointer();
+            thisItem->Blink = IntPtr.Zero;
+            thisItem->Flink = IntPtr.Zero;
+
+            pNext->Blink = new IntPtr(pPrev);
+            pPrev->Flink = new IntPtr(pNext);
+
+            return thisLink;
+        }
+
+        internal unsafe void LinkTo(IntPtr hiddenModuleLink)
+        {
+            if (hiddenModuleLink == IntPtr.Zero)
+            {
+                return;
+            }
+
+            _LIST_ENTRY* nextItem = (_LIST_ENTRY*)Flink.ToPointer();
+            _LIST_ENTRY* thisItem = (_LIST_ENTRY*)nextItem->Blink.ToPointer();
+
+            _LIST_ENTRY* targetItem = (_LIST_ENTRY*)hiddenModuleLink.ToPointer();
+
+            targetItem->Flink = new IntPtr(nextItem);
+            targetItem->Blink = new IntPtr(thisItem);
+
+            thisItem->Flink = hiddenModuleLink;
+            nextItem->Blink = hiddenModuleLink;
+        }
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -98,8 +133,8 @@ namespace KernelStructOffset
     public unsafe struct _PEB_LDR_DATA
     {
         public fixed byte Reserved1[8];
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 3)]
-        public IntPtr[] Reserved2;
+        public IntPtr Reserved2;
+        public _LIST_ENTRY InLoadOrderModuleList;
         public _LIST_ENTRY InMemoryOrderModuleList;
 
         public static _PEB_LDR_DATA Create(IntPtr ldrAddress)
@@ -108,10 +143,31 @@ namespace KernelStructOffset
             return ldrData;
         }
 
-        public IEnumerable<_LDR_DATA_TABLE_ENTRY> EnumerateModules()
+        public IEnumerable<_LDR_DATA_TABLE_ENTRY> EnumerateLoadOrderModules()
+        {
+            IntPtr startLink = InLoadOrderModuleList.Flink;
+            _LDR_DATA_TABLE_ENTRY item = _LDR_DATA_TABLE_ENTRY.CreateFromLoadOrder(startLink);
+
+            while (true)
+            {
+                if (item.DllBase != IntPtr.Zero)
+                {
+                    yield return item;
+                }
+
+                if (item.InLoadOrderLinks.Flink == startLink)
+                {
+                    break;
+                }
+
+                item = _LDR_DATA_TABLE_ENTRY.CreateFromLoadOrder(item.InLoadOrderLinks.Flink);
+            }
+        }
+
+        public IEnumerable<_LDR_DATA_TABLE_ENTRY> EnumerateMemoryOrderModules()
         {
             IntPtr startLink = InMemoryOrderModuleList.Flink;
-            _LDR_DATA_TABLE_ENTRY item = _LDR_DATA_TABLE_ENTRY.Create(startLink);
+            _LDR_DATA_TABLE_ENTRY item = _LDR_DATA_TABLE_ENTRY.CreateFromMemoryOrder(startLink);
 
             while (true)
             {
@@ -125,15 +181,21 @@ namespace KernelStructOffset
                     break;
                 }
 
-                item = _LDR_DATA_TABLE_ENTRY.Create(item.InMemoryOrderLinks.Flink);
+                item = _LDR_DATA_TABLE_ENTRY.CreateFromMemoryOrder(item.InMemoryOrderLinks.Flink);
             }
         }
 
-        public _LDR_DATA_TABLE_ENTRY Find(string dllName)
+        public _LDR_DATA_TABLE_ENTRY Find(string dllFileName)
         {
-            foreach (_LDR_DATA_TABLE_ENTRY entry in EnumerateModules())
+            return Find(dllFileName, true);
+        }
+
+        public _LDR_DATA_TABLE_ENTRY Find(string dllFileName, bool memoryOrder)
+        {
+            foreach (_LDR_DATA_TABLE_ENTRY entry in 
+                (memoryOrder == true) ? EnumerateMemoryOrderModules() : EnumerateLoadOrderModules())
             {
-                if (entry.FullDllName.GetText().EndsWith(dllName, StringComparison.OrdinalIgnoreCase) == true)
+                if (entry.FullDllName.GetText().EndsWith(dllFileName, StringComparison.OrdinalIgnoreCase) == true)
                 {
                     return entry;
                 }
@@ -141,14 +203,38 @@ namespace KernelStructOffset
 
             return default(_LDR_DATA_TABLE_ENTRY);
         }
+
+        public unsafe void UnhideDLL(DllOrderLink hiddenModuleLink)
+        {
+            _LDR_DATA_TABLE_ENTRY dllLink = EnumerateMemoryOrderModules().First();
+            
+            dllLink.InMemoryOrderLinks.LinkTo(hiddenModuleLink.MemoryOrderLink);
+            dllLink.InLoadOrderLinks.LinkTo(hiddenModuleLink.LoadOrderLink);
+        }
+
+        public unsafe DllOrderLink HideDLL(string fileName)
+        {
+            _LDR_DATA_TABLE_ENTRY dllLink = Find(fileName);
+
+            if (dllLink.DllBase == IntPtr.Zero)
+            {
+                return null;
+            }
+
+            DllOrderLink orderLink = new DllOrderLink();
+
+            orderLink.MemoryOrderLink = dllLink.InMemoryOrderLinks.Unlink();
+            orderLink.LoadOrderLink = dllLink.InLoadOrderLinks.Unlink();
+
+            return orderLink;
+        }
     }
 
     // https://docs.microsoft.com/en-us/windows/win32/api/winternl/ns-winternl-peb_ldr_data
     [StructLayout(LayoutKind.Sequential)]
     public unsafe struct _LDR_DATA_TABLE_ENTRY
     {
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 2)]
-        public IntPtr[] Reserved1;
+        public _LIST_ENTRY InLoadOrderLinks;
         public _LIST_ENTRY InMemoryOrderLinks;
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 2)]
         public IntPtr[] Reserved2;
@@ -170,7 +256,7 @@ namespace KernelStructOffset
 
         public uint TimeDateStamp;
 
-        public static _LDR_DATA_TABLE_ENTRY Create(IntPtr memoryOrderLink)
+        public static _LDR_DATA_TABLE_ENTRY CreateFromMemoryOrder(IntPtr memoryOrderLink)
         {
             IntPtr head = memoryOrderLink - Marshal.SizeOf(typeof(_LIST_ENTRY));
 
@@ -179,5 +265,16 @@ namespace KernelStructOffset
 
             return entry;
         }
+
+        public static _LDR_DATA_TABLE_ENTRY CreateFromLoadOrder(IntPtr loadOrderLink)
+        {
+            IntPtr head = loadOrderLink;
+
+            _LDR_DATA_TABLE_ENTRY entry = (_LDR_DATA_TABLE_ENTRY)Marshal.PtrToStructure(
+                head, typeof(_LDR_DATA_TABLE_ENTRY));
+
+            return entry;
+        }
+
     }
 }

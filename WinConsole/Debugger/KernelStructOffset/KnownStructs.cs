@@ -36,7 +36,7 @@ namespace KernelStructOffset
     public unsafe struct _TEB
     {
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 12)]
-        public IntPtr [] Reserved1;
+        public IntPtr[] Reserved1;
         public IntPtr ProcessEnvironmentBlock;
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 399)]
         public IntPtr[] Reserved2;
@@ -107,6 +107,40 @@ namespace KernelStructOffset
             _PEB_LDR_DATA ldrData = (_PEB_LDR_DATA)Marshal.PtrToStructure(ldrAddress, typeof(_PEB_LDR_DATA));
             return ldrData;
         }
+
+        public IEnumerable<_LDR_DATA_TABLE_ENTRY> EnumerateModules()
+        {
+            IntPtr startLink = InMemoryOrderModuleList.Flink;
+            _LDR_DATA_TABLE_ENTRY item = _LDR_DATA_TABLE_ENTRY.Create(startLink);
+
+            while (true)
+            {
+                if (item.DllBase != IntPtr.Zero)
+                {
+                    yield return item;
+                }
+
+                if (item.InMemoryOrderLinks.Flink == startLink)
+                {
+                    break;
+                }
+
+                item = _LDR_DATA_TABLE_ENTRY.Create(item.InMemoryOrderLinks.Flink);
+            }
+        }
+
+        public _LDR_DATA_TABLE_ENTRY Find(string dllName)
+        {
+            foreach (_LDR_DATA_TABLE_ENTRY entry in EnumerateModules())
+            {
+                if (entry.FullDllName.GetText().EndsWith(dllName, StringComparison.OrdinalIgnoreCase) == true)
+                {
+                    return entry;
+                }
+            }
+
+            return default(_LDR_DATA_TABLE_ENTRY);
+        }
     }
 
     // https://docs.microsoft.com/en-us/windows/win32/api/winternl/ns-winternl-peb_ldr_data
@@ -114,7 +148,7 @@ namespace KernelStructOffset
     public unsafe struct _LDR_DATA_TABLE_ENTRY
     {
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 2)]
-        public IntPtr [] Reserved1;
+        public IntPtr[] Reserved1;
         public _LIST_ENTRY InMemoryOrderLinks;
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 2)]
         public IntPtr[] Reserved2;
@@ -144,30 +178,6 @@ namespace KernelStructOffset
                 head, typeof(_LDR_DATA_TABLE_ENTRY));
 
             return entry;
-        }
-
-        public static _LDR_DATA_TABLE_ENTRY Find(IntPtr memoryOrderLink, string dllName)
-        {
-            _LDR_DATA_TABLE_ENTRY item = _LDR_DATA_TABLE_ENTRY.Create(memoryOrderLink);
-
-            while (true)
-            {
-                string fullDllName = item.FullDllName.GetText();
-
-                if (fullDllName.EndsWith(dllName, StringComparison.OrdinalIgnoreCase) == true)
-                {
-                    return item;
-                }
-
-                if (item.InMemoryOrderLinks.Flink == memoryOrderLink)
-                {
-                    break;
-                }
-
-                item = _LDR_DATA_TABLE_ENTRY.Create(item.InMemoryOrderLinks.Flink);
-            }
-
-            return default(_LDR_DATA_TABLE_ENTRY);
         }
     }
 }

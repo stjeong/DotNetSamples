@@ -1,6 +1,4 @@
-﻿// InstallDriver.cpp : Defines the entry point for the console application.
-//
-
+﻿
 #include "stdafx.h"
 
 int InstallDriver(wchar_t *pDriverFilePath, wchar_t *pDriverName);
@@ -12,6 +10,8 @@ int StopDeviceDriver(wchar_t *pDriverName);
 
 // [install]
 //  InstallDriver 1 "[경로]" "[DriverName]"
+//  or
+//  sc create "[DriverName]" binPath= "[경로]" type= kernel start= demand
 //
 // [uninstall]
 //  InstallDriver 0 "[DriverName]"

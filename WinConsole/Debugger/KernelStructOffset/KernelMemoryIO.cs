@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace KernelStructOffset
@@ -129,6 +130,30 @@ namespace KernelStructOffset
             return 0;
         }
 
+        public unsafe int WriteMemory<T>(void *ptr, T instance) where T : struct
+        {
+            return WriteMemory<T>(new IntPtr(ptr), instance);
+        }
+
+        public unsafe int WriteMemory<T>(IntPtr ptr, T instance) where T : struct
+        {
+            if (this.IsInitialized == false)
+            {
+                return 0;
+            }
+
+            int size = Marshal.SizeOf(instance);
+            byte[] buffer = new byte[size];
+
+            fixed (byte* ptrBuffer = buffer)
+            {
+                IntPtr targetBuffer = new IntPtr(ptrBuffer);
+                Marshal.StructureToPtr(instance, targetBuffer, true);
+
+                return WriteMemory(ptr, buffer);
+            }
+        }
+
         public int ReadMemory(IntPtr position, byte[] buffer)
         {
             if (this.IsInitialized == false)
@@ -157,6 +182,32 @@ namespace KernelStructOffset
             }
 
             return 0;
+        }
+
+        public unsafe T ReadMemory<T>(void* ptr) where T : struct
+        {
+            return ReadMemory<T>(new IntPtr(ptr));
+        }
+
+        public unsafe T ReadMemory<T>(IntPtr ptr) where T : struct
+        {
+            T dummy = new T();
+            int size = Marshal.SizeOf(dummy);
+
+            byte[] buffer = new byte[size];
+
+            if (ReadMemory(ptr, buffer) != buffer.Length)
+            {
+                return default(T);
+            }
+
+            fixed (byte* ptrBuffer = buffer)
+            {
+                IntPtr ptrTarget = new IntPtr(ptrBuffer);
+                T instance = (T)Marshal.PtrToStructure(ptrTarget, typeof(T));
+
+                return instance;
+            }
         }
     }
 }

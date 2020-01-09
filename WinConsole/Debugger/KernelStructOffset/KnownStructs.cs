@@ -7,6 +7,23 @@ using System.Text;
 namespace KernelStructOffset
 {
     [StructLayout(LayoutKind.Sequential)]
+    public struct _CLIENT_ID
+    {
+        public IntPtr UniqueProcess;
+        public IntPtr UniqueThread;
+
+        public int Pid
+        {
+            get { return this.UniqueProcess.ToInt32(); }
+        }
+
+        public int Tid
+        {
+            get { return this.UniqueThread.ToInt32(); }
+        }
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
     public struct _LIST_ENTRY
     {
         public IntPtr Flink;

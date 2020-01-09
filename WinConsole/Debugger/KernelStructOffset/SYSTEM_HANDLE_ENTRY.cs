@@ -56,8 +56,15 @@ namespace KernelStructOffset
 
             try
             {
-                handleTypeName = GetHandleType(handle);
                 int addAccessRights = 0;
+                dupHandle = DuplicateHandle(handle, addAccessRights);
+
+                if (dupHandle == IntPtr.Zero)
+                {
+                    return "";
+                }
+
+                handleTypeName = GetHandleType(dupHandle);
 
                 switch (handleTypeName)
                 {
@@ -66,17 +73,13 @@ namespace KernelStructOffset
 
                     case "Process":
                         addAccessRights = (int)(ProcessAccessRights.PROCESS_VM_READ | ProcessAccessRights.PROCESS_QUERY_INFORMATION);
+                        NativeMethods.CloseHandle(dupHandle);
+
+                        dupHandle = DuplicateHandle(handle, addAccessRights);
                         break;
 
                     default:
                         break;
-                }
-
-                dupHandle = DuplicateHandle(handle, addAccessRights);
-
-                if (dupHandle == IntPtr.Zero)
-                {
-                    return "";
                 }
 
                 string devicePath = "";

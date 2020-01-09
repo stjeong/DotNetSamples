@@ -34,7 +34,7 @@ namespace KernelStructOffset
             _ptr = IntPtr.Zero;
         }
 
-        public SYSTEM_HANDLE_ENTRY this[int index]
+        public _SYSTEM_HANDLE_TABLE_ENTRY_INFO_EX this[int index]
         {
             get
             {
@@ -46,7 +46,8 @@ namespace KernelStructOffset
                 unsafe
                 {
                     /*
-                    Span<SYSTEM_HANDLE_ENTRY> handles = new Span<SYSTEM_HANDLE_ENTRY>((_ptr + _handleOffset).ToPointer(), _handleCount);
+
+                    Span<_SYSTEM_HANDLE_TABLE_ENTRY_INFO_EX> handles = new Span<_SYSTEM_HANDLE_TABLE_ENTRY_INFO_EX>((_ptr + _handleOffset).ToPointer(), _handleCount);
                     return handles[index];
                     */
 
@@ -55,15 +56,16 @@ namespace KernelStructOffset
                     if (IntPtr.Size == 8)
                     {
                         IntPtr handleTable = new IntPtr(_ptr.ToInt64() + _handleOffset);
-                        entryPtr = new IntPtr(handleTable.ToInt64() + sizeof(SYSTEM_HANDLE_ENTRY) * index);
+                        entryPtr = new IntPtr(handleTable.ToInt64() + sizeof(_SYSTEM_HANDLE_TABLE_ENTRY_INFO_EX) * index);
                     }
                     else
                     {
                         IntPtr handleTable = new IntPtr(_ptr.ToInt32() + _handleOffset);
-                        entryPtr = new IntPtr(handleTable.ToInt32() + sizeof(SYSTEM_HANDLE_ENTRY) * index);
+                        entryPtr = new IntPtr(handleTable.ToInt32() + sizeof(_SYSTEM_HANDLE_TABLE_ENTRY_INFO_EX) * index);
                     }
 
-                    SYSTEM_HANDLE_ENTRY entry = (SYSTEM_HANDLE_ENTRY)Marshal.PtrToStructure(entryPtr, typeof(SYSTEM_HANDLE_ENTRY));
+                    _SYSTEM_HANDLE_TABLE_ENTRY_INFO_EX entry = 
+                        (_SYSTEM_HANDLE_TABLE_ENTRY_INFO_EX)Marshal.PtrToStructure(entryPtr, typeof(_SYSTEM_HANDLE_TABLE_ENTRY_INFO_EX));
                     return entry;
                 }
             }
@@ -79,7 +81,7 @@ namespace KernelStructOffset
 
             while (true)
             {
-                ret = NativeMethods.NtQuerySystemInformation(SYSTEM_INFORMATION_CLASS.SystemHandleInformation, ptr, guessSize, out requiredSize);
+                ret = NativeMethods.NtQuerySystemInformation(SYSTEM_INFORMATION_CLASS.SystemExtendedHandleInformation, ptr, guessSize, out requiredSize);
 
                 if (ret == NT_STATUS.STATUS_INFO_LENGTH_MISMATCH)
                 {
@@ -95,12 +97,14 @@ namespace KernelStructOffset
                     typedef struct _SYSTEM_HANDLE_INFORMATION
                     {
                         ULONG HandleCount;
-                        SYSTEM_HANDLE Handles[1];
+                        _SYSTEM_HANDLE_TABLE_ENTRY_INFO_EX Handles[1];
                     } SYSTEM_HANDLE_INFORMATION, *PSYSTEM_HANDLE_INFORMATION;
                     */
 
                     _handleCount = Marshal.ReadInt32(ptr);
-                    _handleOffset = Marshal.OffsetOf(typeof(SYSTEM_HANDLE_INFORMATION), "Handles").ToInt32();
+
+                    _SYSTEM_HANDLE_TABLE_ENTRY_INFO_EX dummy = new _SYSTEM_HANDLE_TABLE_ENTRY_INFO_EX();
+                    _handleOffset = Marshal.OffsetOf(typeof(_SYSTEM_HANDLE_TABLE_ENTRY_INFO_EX), nameof(dummy.HandleValue)).ToInt32();
                     _ptr = ptr;
                     break;
                 }

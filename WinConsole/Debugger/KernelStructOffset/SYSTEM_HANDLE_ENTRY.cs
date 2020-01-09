@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace KernelStructOffset
 {
     [StructLayout(LayoutKind.Sequential)]
-    public struct SYSTEM_HANDLE_ENTRY
+    public struct _SYSTEM_HANDLE_TABLE_ENTRY_INFO
     {
         public int OwnerPid;
         public byte ObjectType;
@@ -19,8 +19,25 @@ namespace KernelStructOffset
         public short HandleValue;
         public IntPtr ObjectPointer;
         public int AccessMask;
+    }
 
-        private const int STANDARD_RIGHTS_ALL = 0x001F0000;
+    [StructLayout(LayoutKind.Sequential)]
+    public struct _SYSTEM_HANDLE_TABLE_ENTRY_INFO_EX
+    {
+        public IntPtr ObjectPointer;
+        public IntPtr UniqueProcessId;
+        public IntPtr HandleValue;
+        public uint GrantedAccess;
+        public ushort CreatorBackTraceIndex;
+        public ushort ObjectTypeIndex;
+        public uint HandleAttributes;
+        public uint Reserved;
+
+        public int OwnerPid
+        {
+            get { return UniqueProcessId.ToInt32(); }
+        }
+
         private static Dictionary<string, string> _deviceMap;
         private const int MAX_PATH = 260;
         private const string networkDevicePrefix = "\\Device\\LanmanRedirector\\";
@@ -32,25 +49,36 @@ namespace KernelStructOffset
 
         public string GetName(out string handleTypeName)
         {
-            IntPtr handle = new IntPtr(HandleValue);
+            IntPtr handle = HandleValue;
             IntPtr dupHandle = IntPtr.Zero;
             handleTypeName = "";
+            int ownerPid = UniqueProcessId.ToInt32();
 
             try
             {
-                dupHandle = DuplicateHandle(handle, out bool isRemoteHandle);
+                handleTypeName = GetHandleType(handle);
+                int addAccessRights = 0;
 
-                if (isRemoteHandle == true && dupHandle == IntPtr.Zero)
+                switch (handleTypeName)
+                {
+                    case "EtwRegistration":
+                        return "";
+
+                    case "Process":
+                        addAccessRights = (int)(ProcessAccessRights.PROCESS_VM_READ | ProcessAccessRights.PROCESS_QUERY_INFORMATION);
+                        break;
+
+                    default:
+                        break;
+                }
+
+                dupHandle = DuplicateHandle(handle, addAccessRights);
+
+                if (dupHandle == IntPtr.Zero)
                 {
                     return "";
                 }
 
-                if (dupHandle != IntPtr.Zero)
-                {
-                    handle = dupHandle;
-                }
-
-                handleTypeName = GetHandleType(handle);
                 string devicePath = "";
 
                 switch (handleTypeName)
@@ -65,10 +93,10 @@ namespace KernelStructOffset
 
                     case "Thread":
                         {
-                            string processName = GetProcessName(this.OwnerPid);
+                            string processName = GetProcessName(ownerPid);
                             int threadId = NativeMethods.GetThreadId(dupHandle);
 
-                            return $"{processName}({this.OwnerPid}): {threadId}";
+                            return $"{processName}({ownerPid}): {threadId}";
                         }
 
                     case "Directory":
@@ -82,7 +110,7 @@ namespace KernelStructOffset
                     case "Token":
                     case "WindowStation":
                     case "File":
-                        devicePath = GetObjectNameFromHandle(handle);
+                        devicePath = GetObjectNameFromHandle(dupHandle);
 
                         if (string.IsNullOrEmpty(devicePath) == true)
                         {
@@ -116,7 +144,7 @@ namespace KernelStructOffset
             try
             {
                 processHandle = NativeMethods.OpenProcess(
-                    ProcessAccessRights.PROCESS_QUERY_INFORMATION | ProcessAccessRights.PROCESS_VM_READ, false, OwnerPid);
+                    ProcessAccessRights.PROCESS_QUERY_INFORMATION | ProcessAccessRights.PROCESS_VM_READ, false, ownerPid);
 
                 if (processHandle == IntPtr.Zero)
                 {
@@ -136,8 +164,14 @@ namespace KernelStructOffset
 
         private string GetProcessName(IntPtr processHandle)
         {
+            if (processHandle == IntPtr.Zero)
+            {
+                return "";
+            }
+
             StringBuilder sb = new StringBuilder(4096);
-            NativeMethods.GetModuleFileNameEx(processHandle, IntPtr.Zero, sb, 4096);
+            uint getResult = NativeMethods.GetModuleFileNameEx(processHandle, IntPtr.Zero, sb, sb.Capacity);
+            int error = Marshal.GetLastWin32Error();
 
             try
             {
@@ -145,7 +179,7 @@ namespace KernelStructOffset
             }
             catch (System.ArgumentException)
             {
-                return sb.ToString();
+                return "";
             }
         }
 
@@ -302,32 +336,29 @@ namespace KernelStructOffset
             return "(unknown)";
         }
 
-        private IntPtr DuplicateHandle(IntPtr handle, out bool isRemoteHandle)
+        private IntPtr DuplicateHandle(IntPtr handle, int addAccessRights)
         {
             IntPtr currentProcess = NativeMethods.GetCurrentProcess();
             int processId = NativeMethods.GetCurrentProcessId();
-            isRemoteHandle = (OwnerPid != processId);
+            int ownerPid = UniqueProcessId.ToInt32();
 
             IntPtr processHandle = IntPtr.Zero;
             IntPtr objectHandle = IntPtr.Zero;
 
             try
             {
-                if (isRemoteHandle == true)
+                processHandle = NativeMethods.OpenProcess(ProcessAccessRights.PROCESS_DUP_HANDLE, false, ownerPid);
+                if (processHandle == IntPtr.Zero)
                 {
-                    processHandle = NativeMethods.OpenProcess(
-                        ProcessAccessRights.PROCESS_DUP_HANDLE, false, OwnerPid);
-                    if (processHandle == IntPtr.Zero)
-                    {
-                        return IntPtr.Zero;
-                    }
+                    return IntPtr.Zero;
+                }
 
-                    bool queryResult = NativeMethods.DuplicateHandle(processHandle, handle, currentProcess,
-                        out objectHandle, STANDARD_RIGHTS_ALL, false, DuplicateHandleOptions.DUPLICATE_SAME_ACCESS);
-                    if (queryResult == true)
-                    {
-                        return objectHandle;
-                    }
+                bool dupResult = NativeMethods.DuplicateHandle(processHandle, handle, currentProcess,
+                    out objectHandle, (int)NativeFileAccess.STANDARD_RIGHTS_ALL | addAccessRights, false,
+                     (addAccessRights == 0) ? DuplicateHandleOptions.DUPLICATE_SAME_ACCESS : 0);
+                if (dupResult == true)
+                {
+                    return objectHandle;
                 }
 
                 return IntPtr.Zero;

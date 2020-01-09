@@ -43,7 +43,7 @@ namespace EnumHandles
                 {
                     for (int i = 0; i < whi.HandleCount; i++)
                     {
-                        SYSTEM_HANDLE_ENTRY she = whi[i];
+                        _SYSTEM_HANDLE_TABLE_ENTRY_INFO_EX she = whi[i];
 
                         if (she.OwnerPid != processId)
                         {

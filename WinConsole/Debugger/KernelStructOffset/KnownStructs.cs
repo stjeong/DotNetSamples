@@ -49,10 +49,17 @@ namespace KernelStructOffset
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    public struct SYSTEM_HANDLE_INFORMATION
+    public struct _SYSTEM_HANDLE_INFORMATION
     {
         public int HandleCount;
-        public SYSTEM_HANDLE_ENTRY Handles; /* Handles[0] */
+        public _SYSTEM_HANDLE_TABLE_ENTRY_INFO Handles; /* Handles[0] */
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct _SYSTEM_HANDLE_INFORMATION_EX
+    {
+        public int HandleCount;
+        public _SYSTEM_HANDLE_TABLE_ENTRY_INFO_EX Handles; /* Handles[0] */
     }
 
     [StructLayout(LayoutKind.Sequential)]

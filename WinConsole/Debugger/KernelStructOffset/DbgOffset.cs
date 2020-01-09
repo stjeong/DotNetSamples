@@ -10,46 +10,79 @@ namespace KernelStructOffset
 {
     public class DbgOffset
     {
-        static Dictionary<string, List<StructFieldInfo>> _cache = new Dictionary<string, List<StructFieldInfo>>();
+        static Dictionary<string, DbgOffset> _cache = new Dictionary<string, DbgOffset>();
 
-        public static Dictionary<string, int> Get(string typeName)
+        Dictionary<string, StructFieldInfo> _fieldDict = new Dictionary<string, StructFieldInfo>();
+
+        public static DbgOffset Get(string typeName)
         {
             return Get(typeName, "ntdll.dll");
         }
 
-        public static Dictionary<string, int> Get(string typeName, string moduleName)
+        public static DbgOffset Get(string typeName, string moduleName)
         {
             return Get(typeName, moduleName, 0);
         }
 
-        public static Dictionary<string, int> Get(string typeName, string moduleName, int pid)
+        public static DbgOffset Get(string typeName, string moduleName, int pid)
         {
             return Get(typeName, moduleName, (pid == 0) ? null : pid.ToString());
         }
 
-        public static Dictionary<string, int> Get(string typeName, string moduleName, string targetExePath)
+        public static DbgOffset Get(string typeName, string moduleName, string targetExePath)
         {
             if (_cache.ContainsKey(typeName) == true)
             {
-                return ListToDict(_cache[typeName]);
+                return _cache[typeName];
             }
 
             List<StructFieldInfo> list = GetList(typeName, moduleName, targetExePath);
-            if (list != null)
+            if (list == null)
             {
-                _cache.Add(typeName, list);
+                return null;
             }
 
-            return ListToDict(list);
+            DbgOffset instance = new DbgOffset(list);
+            _cache.Add(typeName, instance);
+
+            return _cache[typeName];
         }
 
-        private static Dictionary<string, int> ListToDict(List<StructFieldInfo> list)
+        private DbgOffset(List<StructFieldInfo> list)
         {
-            Dictionary<string, int> dict = new Dictionary<string, int>();
+            _fieldDict = ListToDict(list);
+        }
+
+        public IntPtr GetPointer(IntPtr baseAddress, string fieldName)
+        {
+            if (_fieldDict.ContainsKey(fieldName) == false)
+            {
+                return IntPtr.Zero;
+            }
+
+            return baseAddress + _fieldDict[fieldName].Offset;
+        }
+
+        public int this[string fieldName]
+        {
+            get
+            {
+                if (_fieldDict.ContainsKey(fieldName) == false)
+                {
+                    return -1;
+                }
+
+                return _fieldDict[fieldName].Offset;
+            }
+        }
+
+        private static Dictionary<string, StructFieldInfo> ListToDict(List<StructFieldInfo> list)
+        {
+            Dictionary<string, StructFieldInfo> dict = new Dictionary<string, StructFieldInfo>();
 
             foreach (StructFieldInfo item in list)
             {
-                dict.Add(item.Name, item.Offset);
+                dict.Add(item.Name, item);
             }
 
             return dict;

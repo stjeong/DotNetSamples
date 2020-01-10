@@ -35,12 +35,14 @@ namespace KernelStructOffset
             _LIST_ENTRY* pPrev = (_LIST_ENTRY*)Blink.ToPointer();
 
             IntPtr thisLink = pNext->Blink;
+
+            pNext->Blink = Blink;
+            pPrev->Flink = Flink;
+
             _LIST_ENTRY* thisItem = (_LIST_ENTRY*)thisLink.ToPointer();
+            
             thisItem->Blink = IntPtr.Zero;
             thisItem->Flink = IntPtr.Zero;
-
-            pNext->Blink = new IntPtr(pPrev);
-            pPrev->Flink = new IntPtr(pNext);
 
             return thisLink;
         }
@@ -55,10 +57,9 @@ namespace KernelStructOffset
             _LIST_ENTRY* nextItem = (_LIST_ENTRY*)Flink.ToPointer();
             _LIST_ENTRY* thisItem = (_LIST_ENTRY*)nextItem->Blink.ToPointer();
 
-            _LIST_ENTRY* targetItem = (_LIST_ENTRY*)hiddenModuleLink.ToPointer();
-
-            targetItem->Flink = new IntPtr(nextItem);
-            targetItem->Blink = new IntPtr(thisItem);
+            _LIST_ENTRY* newItem = (_LIST_ENTRY*)hiddenModuleLink.ToPointer();
+            newItem->Flink = Flink;
+            newItem->Blink = new IntPtr(thisItem);
 
             thisItem->Flink = hiddenModuleLink;
             nextItem->Blink = hiddenModuleLink;

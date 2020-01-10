@@ -13,7 +13,8 @@ namespace KernelStructOffset
     [StructLayout(LayoutKind.Sequential)]
     public struct _SYSTEM_HANDLE_TABLE_ENTRY_INFO
     {
-        public int OwnerPid;
+        public short UniqueProcessId;
+        public short CreatorBackTraceIndex;
         public byte ObjectType;
         public byte HandleFlags;
         public short HandleValue;
@@ -74,7 +75,6 @@ namespace KernelStructOffset
                     case "Process":
                         addAccessRights = (int)(ProcessAccessRights.PROCESS_VM_READ | ProcessAccessRights.PROCESS_QUERY_INFORMATION);
                         NativeMethods.CloseHandle(dupHandle);
-
                         dupHandle = DuplicateHandle(handle, addAccessRights);
                         break;
 
@@ -174,7 +174,10 @@ namespace KernelStructOffset
 
             StringBuilder sb = new StringBuilder(4096);
             uint getResult = NativeMethods.GetModuleFileNameEx(processHandle, IntPtr.Zero, sb, sb.Capacity);
-            int error = Marshal.GetLastWin32Error();
+            if (getResult == 0)
+            {
+                return "";
+            }
 
             try
             {
@@ -339,38 +342,38 @@ namespace KernelStructOffset
             return "(unknown)";
         }
 
-        private IntPtr DuplicateHandle(IntPtr handle, int addAccessRights)
+        private IntPtr DuplicateHandle(IntPtr targetHandle, int addAccessRights)
         {
             IntPtr currentProcess = NativeMethods.GetCurrentProcess();
             int processId = NativeMethods.GetCurrentProcessId();
             int ownerPid = UniqueProcessId.ToInt32();
 
-            IntPtr processHandle = IntPtr.Zero;
-            IntPtr objectHandle = IntPtr.Zero;
+            IntPtr targetProcessHandle = IntPtr.Zero;
+            IntPtr duplicatedHandle = IntPtr.Zero;
 
             try
             {
-                processHandle = NativeMethods.OpenProcess(ProcessAccessRights.PROCESS_DUP_HANDLE, false, ownerPid);
-                if (processHandle == IntPtr.Zero)
+                targetProcessHandle = NativeMethods.OpenProcess(ProcessAccessRights.PROCESS_DUP_HANDLE, false, ownerPid);
+                if (targetProcessHandle == IntPtr.Zero)
                 {
                     return IntPtr.Zero;
                 }
 
-                bool dupResult = NativeMethods.DuplicateHandle(processHandle, handle, currentProcess,
-                    out objectHandle, (int)NativeFileAccess.STANDARD_RIGHTS_ALL | addAccessRights, false,
+                bool dupResult = NativeMethods.DuplicateHandle(targetProcessHandle, targetHandle, currentProcess,
+                    out duplicatedHandle, (int)addAccessRights, false,
                      (addAccessRights == 0) ? DuplicateHandleOptions.DUPLICATE_SAME_ACCESS : 0);
                 if (dupResult == true)
                 {
-                    return objectHandle;
+                    return duplicatedHandle;
                 }
 
                 return IntPtr.Zero;
             }
             finally
             {
-                if (processHandle != IntPtr.Zero)
+                if (targetProcessHandle != IntPtr.Zero)
                 {
-                    NativeMethods.CloseHandle(processHandle);
+                    NativeMethods.CloseHandle(targetProcessHandle);
                 }
             }
         }

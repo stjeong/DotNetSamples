@@ -107,14 +107,11 @@ namespace HideProcess
             _LIST_ENTRY baseEntry = memoryIO.ReadMemory<_LIST_ENTRY>(baseLink);
 
             IntPtr nextItem = baseEntry.Flink;
-            IntPtr prevItem = baseEntry.Blink;
-            Console.WriteLine($"nextItem: {nextItem.ToInt64():x}");
-            Console.WriteLine($"prevItem: {prevItem.ToInt64():x}");
 
             memoryIO.WriteMemory<IntPtr>(deletedLink + 0              /* deletedLink.Flink */, nextItem);
-            memoryIO.WriteMemory<IntPtr>(deletedLink + sizeof(IntPtr) /* deletedLink.Blink */, prevItem);
+            memoryIO.WriteMemory<IntPtr>(deletedLink + sizeof(IntPtr) /* deletedLink.Blink */, baseLink);
 
-            memoryIO.WriteMemory<IntPtr>(prevItem + 0               /* prevItem.Flink */, deletedLink);
+            memoryIO.WriteMemory<IntPtr>(baseLink + 0               /* baseLink.Flink */, deletedLink);
             memoryIO.WriteMemory<IntPtr>(nextItem + sizeof(IntPtr)  /* nextItem.Blink */, deletedLink);
         }
 

@@ -258,7 +258,7 @@ namespace KernelStructOffset
         [return: MarshalAs(UnmanagedType.Bool)]
         internal static extern bool IsWow64Process([In] IntPtr hProcess, [Out] out bool lpSystemInfo);
 
-        [DllImport("psapi.dll")]
+        [DllImport("psapi.dll", SetLastError = true)]
         internal static extern uint GetModuleFileNameEx(IntPtr hProcess,
             IntPtr hModule,
             [Out] StringBuilder lpBaseName,

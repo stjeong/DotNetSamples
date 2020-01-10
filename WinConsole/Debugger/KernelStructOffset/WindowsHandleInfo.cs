@@ -73,7 +73,7 @@ namespace KernelStructOffset
 
         private void Initialize()
         {
-            int guessSize = 1024;
+            int guessSize = 4096;
             int requiredSize = 0;
             NT_STATUS ret;
 

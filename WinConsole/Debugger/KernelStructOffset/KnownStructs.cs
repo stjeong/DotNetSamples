@@ -75,8 +75,14 @@ namespace KernelStructOffset
     [StructLayout(LayoutKind.Sequential)]
     public struct _SYSTEM_HANDLE_INFORMATION_EX
     {
-        public int HandleCount;
+        public IntPtr HandleCount;
+        public IntPtr Reserved;
         public _SYSTEM_HANDLE_TABLE_ENTRY_INFO_EX Handles; /* Handles[0] */
+
+        public int NumberOfHandles
+        {
+            get { return HandleCount.ToInt32(); }
+        }
     }
 
     [StructLayout(LayoutKind.Sequential)]

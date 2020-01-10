@@ -101,10 +101,10 @@ namespace KernelStructOffset
                     } SYSTEM_HANDLE_INFORMATION, *PSYSTEM_HANDLE_INFORMATION;
                     */
 
-                    _handleCount = Marshal.ReadInt32(ptr);
+                    _handleCount = Marshal.ReadIntPtr(ptr).ToInt32();
 
-                    _SYSTEM_HANDLE_TABLE_ENTRY_INFO_EX dummy = new _SYSTEM_HANDLE_TABLE_ENTRY_INFO_EX();
-                    _handleOffset = Marshal.OffsetOf(typeof(_SYSTEM_HANDLE_TABLE_ENTRY_INFO_EX), nameof(dummy.HandleValue)).ToInt32();
+                    _SYSTEM_HANDLE_INFORMATION_EX dummy = new _SYSTEM_HANDLE_INFORMATION_EX();
+                    _handleOffset = Marshal.OffsetOf(typeof(_SYSTEM_HANDLE_INFORMATION_EX), nameof(dummy.Handles)).ToInt32();
                     _ptr = ptr;
                     break;
                 }

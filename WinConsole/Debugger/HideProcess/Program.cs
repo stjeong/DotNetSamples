@@ -111,7 +111,7 @@ namespace HideProcess
             memoryIO.WriteMemory<IntPtr>(deletedLink + 0              /* deletedLink.Flink */, nextItem);
             memoryIO.WriteMemory<IntPtr>(deletedLink + sizeof(IntPtr) /* deletedLink.Blink */, baseLink);
 
-            memoryIO.WriteMemory<IntPtr>(baseLink + 0               /* prevItem.Flink */, deletedLink);
+            memoryIO.WriteMemory<IntPtr>(baseLink + 0               /* baseLink.Flink */, deletedLink);
             memoryIO.WriteMemory<IntPtr>(nextItem + sizeof(IntPtr)  /* nextItem.Blink */, deletedLink);
         }
 

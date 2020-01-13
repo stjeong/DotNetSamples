@@ -54,7 +54,7 @@ namespace SimpleDebugger
             _client.SetEventCallbacksWide(this);
         }
 
-        public int ReadMemory(ulong address, uint size, out byte [] buf)
+        public int ReadMemory(ulong address, uint size, out byte[] buf)
         {
             buf = new byte[size];
 
@@ -82,7 +82,7 @@ namespace SimpleDebugger
         {
             _control.OutputPromptWide(outputControl, format);
         }
-            
+
         public void FlushCallbacks()
         {
             _client.FlushCallbacks();
@@ -133,7 +133,7 @@ namespace SimpleDebugger
                 Marshal.ReleaseComObject(_debugDataSpace);
                 _debugDataSpace = null;
             }
-            
+
             if (_control != null)
             {
                 Marshal.ReleaseComObject(_control);
@@ -189,9 +189,9 @@ namespace SimpleDebugger
         public int GetInterestMask([Out] out DEBUG_EVENT Mask)
         {
             Mask = DEBUG_EVENT.BREAKPOINT | DEBUG_EVENT.CHANGE_DEBUGGEE_STATE
-                    | DEBUG_EVENT.CHANGE_ENGINE_STATE | DEBUG_EVENT.CHANGE_SYMBOL_STATE 
-                    | DEBUG_EVENT.CREATE_PROCESS | DEBUG_EVENT.CREATE_THREAD | DEBUG_EVENT.EXCEPTION | DEBUG_EVENT.EXIT_PROCESS 
-                    | DEBUG_EVENT.EXIT_THREAD | DEBUG_EVENT.LOAD_MODULE | DEBUG_EVENT.SESSION_STATUS | DEBUG_EVENT.SYSTEM_ERROR 
+                    | DEBUG_EVENT.CHANGE_ENGINE_STATE | DEBUG_EVENT.CHANGE_SYMBOL_STATE
+                    | DEBUG_EVENT.CREATE_PROCESS | DEBUG_EVENT.CREATE_THREAD | DEBUG_EVENT.EXCEPTION | DEBUG_EVENT.EXIT_PROCESS
+                    | DEBUG_EVENT.EXIT_THREAD | DEBUG_EVENT.LOAD_MODULE | DEBUG_EVENT.SESSION_STATUS | DEBUG_EVENT.SYSTEM_ERROR
                     | DEBUG_EVENT.UNLOAD_MODULE;
 
             return 0;
@@ -231,7 +231,7 @@ namespace SimpleDebugger
             return 0;
         }
 
-        public int CreateProcess([In] ulong ImageFileHandle, [In] ulong Handle, [In] ulong BaseOffset, [In] uint ModuleSize, 
+        public int CreateProcess([In] ulong ImageFileHandle, [In] ulong Handle, [In] ulong BaseOffset, [In] uint ModuleSize,
             [In, MarshalAs(UnmanagedType.LPStr)] string ModuleName, [In, MarshalAs(UnmanagedType.LPStr)] string ImageName,
             [In] uint CheckSum, [In] uint TimeDateStamp, [In] ulong InitialThreadHandle, [In] ulong ThreadDataOffset, [In] ulong StartOffset)
         {
@@ -255,8 +255,17 @@ namespace SimpleDebugger
         {
             if (ModuleLoaded != null)
             {
-                ModuleInfo modInfo = new ModuleInfo(ImageFileHandle, BaseOffset, ModuleSize, ModuleName, ImageName, CheckSum, TimeDateStamp);
-                ModuleLoaded(modInfo);
+                ModuleInfo modInfo = default(ModuleInfo);
+
+                try
+                {
+                    modInfo = new ModuleInfo(ImageFileHandle, BaseOffset, ModuleSize, ModuleName, ImageName, CheckSum, TimeDateStamp);
+                    ModuleLoaded(modInfo);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.ToString());
+                }
             }
 
             return 0;

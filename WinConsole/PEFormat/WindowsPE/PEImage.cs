@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -20,8 +21,22 @@ namespace WindowsPE
         byte[] _bufferCached;
 
         IntPtr _baseAddress;
+        public IntPtr BaseAddress
+        {
+            get { return _baseAddress; }
+        }
+        
         string _filePath;
+        public string ModulePath
+        {
+            get { return _filePath; }
+        }
+
         int _memorySize;
+        public int MemorySize
+        {
+            get { return _memorySize; }
+        }
 
         static bool IsValidNTHeaders(int signature)
         {
@@ -363,6 +378,23 @@ namespace WindowsPE
             return image;
         }
 
+        public unsafe static PEImage FromLoadedModule(string moduleName)
+        {
+            foreach (ProcessModule pm in Process.GetCurrentProcess().Modules)
+            {
+                if (pm.ModuleName.Equals(moduleName, StringComparison.OrdinalIgnoreCase) == true)
+                {
+                    PEImage image = ReadFromMemory(pm.BaseAddress, pm.ModuleMemorySize);
+                    image._filePath = pm.FileName;
+                    image._baseAddress = pm.BaseAddress;
+                    image._memorySize = pm.ModuleMemorySize;
+                    return image;
+                }
+            }
+
+            return null;
+        }
+
         public unsafe static PEImage ReadFromMemory(IntPtr baseAddress, int memorySize)
         {
             UnmanagedMemoryStream ums = new UnmanagedMemoryStream((byte*)baseAddress.ToPointer(), memorySize);
@@ -411,5 +443,167 @@ namespace WindowsPE
             }
         }
 
+        public static string DownloadPdb(string modulePath, byte[] buffer, IntPtr baseOffset, int imageSize, string rootPathToSave)
+        {
+            PEImage pe = PEImage.ReadFromMemory(buffer, baseOffset, imageSize);
+
+            if (pe == null)
+            {
+                Console.WriteLine("Failed to read images");
+                return null;
+            }
+
+            return pe.DownloadPdb(modulePath, rootPathToSave);
+        }
+
+        public string DownloadPdb(string modulePath, string rootPathToSave)
+        {
+            Uri baseUri = new Uri("https://msdl.microsoft.com/download/symbols/");
+            string pdbDownloadedPath = string.Empty;
+
+            foreach (CodeViewRSDS codeView in EnumerateCodeViewDebugInfo())
+            {
+                if (string.IsNullOrEmpty(codeView.PdbFileName) == true)
+                {
+                    continue;
+                }
+
+                string pdbFileName = codeView.PdbFileName;
+                if (Path.IsPathRooted(codeView.PdbFileName) == true)
+                {
+                    pdbFileName = Path.GetFileName(codeView.PdbFileName);
+                }
+
+                string localPath = Path.Combine(rootPathToSave, pdbFileName);
+                string localFolder = Path.GetDirectoryName(localPath);
+
+                if (Directory.Exists(localFolder) == false)
+                {
+                    try
+                    {
+                        Directory.CreateDirectory(localFolder);
+                    }
+                    catch (DirectoryNotFoundException)
+                    {
+                        Console.WriteLine("NOT Found on local: " + codeView.PdbLocalPath);
+                        continue;
+                    }
+                }
+
+                if (File.Exists(localPath) == true)
+                {
+                    if (Path.GetExtension(localPath).Equals(".pdb", StringComparison.OrdinalIgnoreCase) == true)
+                    {
+                        pdbDownloadedPath = localPath;
+                    }
+
+                    continue;
+                }
+
+                if (CopyPdbFromLocal(modulePath, codeView.PdbFileName, localPath) == true)
+                {
+                    continue;
+                }
+
+                Uri target = new Uri(baseUri, codeView.PdbUriPath);
+                Uri pdbLocation = GetPdbLocation(target);
+
+                if (pdbLocation == null)
+                {
+                    string underscorePath = ProbeWithUnderscore(target.AbsoluteUri);
+                    pdbLocation = GetPdbLocation(new Uri(underscorePath));
+                }
+
+                if (pdbLocation != null)
+                {
+                    DownloadPdbFile(pdbLocation, localPath);
+
+                    if (Path.GetExtension(localPath).Equals(".pdb", StringComparison.OrdinalIgnoreCase) == true)
+                    {
+                        pdbDownloadedPath = localPath;
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Not Found on symbol server: " + codeView.PdbFileName);
+                }
+            }
+
+            return pdbDownloadedPath;
+        }
+
+        private static string ProbeWithUnderscore(string path)
+        {
+            path = path.Remove(path.Length - 1);
+            path = path.Insert(path.Length, "_");
+            return path;
+        }
+
+        private static Uri GetPdbLocation(Uri target)
+        {
+            System.Net.HttpWebRequest req = System.Net.WebRequest.Create(target) as System.Net.HttpWebRequest;
+            req.Method = "HEAD";
+
+            try
+            {
+                using (System.Net.HttpWebResponse resp = req.GetResponse() as System.Net.HttpWebResponse)
+                {
+                    return resp.ResponseUri;
+                }
+            }
+            catch (System.Net.WebException)
+            {
+                return null;
+            }
+        }
+
+        private static bool CopyPdbFromLocal(string modulePath, string pdbFileName, string localTargetPath)
+        {
+            if (File.Exists(pdbFileName) == true)
+            {
+                File.Copy(pdbFileName, localTargetPath);
+                return File.Exists(localTargetPath);
+            }
+
+            string fileName = Path.GetFileName(pdbFileName);
+            string pdbPath = Path.Combine(Environment.CurrentDirectory, fileName);
+
+            if (File.Exists(pdbPath) == true)
+            {
+                File.Copy(pdbPath, localTargetPath);
+                return File.Exists(localTargetPath);
+            }
+
+            pdbPath = Path.ChangeExtension(modulePath, ".pdb");
+            if (File.Exists(pdbPath) == true)
+            {
+                File.Copy(pdbPath, localTargetPath);
+                return File.Exists(localTargetPath);
+            }
+
+            return false;
+        }
+
+        private static void DownloadPdbFile(Uri target, string pathToSave)
+        {
+            System.Net.HttpWebRequest req = System.Net.WebRequest.Create(target) as System.Net.HttpWebRequest;
+
+            using (System.Net.HttpWebResponse resp = req.GetResponse() as System.Net.HttpWebResponse)
+            using (FileStream fs = new FileStream(pathToSave, FileMode.CreateNew, FileAccess.Write, FileShare.None))
+            using (BinaryWriter bw = new BinaryWriter(fs))
+            {
+                BinaryReader reader = new BinaryReader(resp.GetResponseStream());
+                long contentLength = resp.ContentLength;
+
+                while (contentLength > 0)
+                {
+                    byte[] buffer = new byte[4096];
+                    int readBytes = reader.Read(buffer, 0, buffer.Length);
+                    bw.Write(buffer, 0, readBytes);
+
+                    contentLength -= readBytes;
+                }
+            }
+        }
     }
 }

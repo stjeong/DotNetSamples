@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace KernelStructOffset
@@ -61,6 +62,21 @@ namespace KernelStructOffset
             }
 
             return baseAddress + _fieldDict[fieldName].Offset;
+        }
+
+        public unsafe bool TryRead<T>(IntPtr baseAddress, string fieldName, out T value) where T: struct
+        {
+            value = default(T);
+
+            if (_fieldDict.ContainsKey(fieldName) == false)
+            {
+                return false;
+            }
+
+            IntPtr address = baseAddress + _fieldDict[fieldName].Offset;
+            value = (T)Marshal.PtrToStructure(address, typeof(T));
+
+            return true;
         }
 
         public int this[string fieldName]

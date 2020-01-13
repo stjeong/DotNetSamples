@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using WindowsPE;
 
 namespace DisplayStruct
@@ -53,6 +54,7 @@ namespace DisplayStruct
                     psi.UseShellExecute = false;
                     psi.CreateNoWindow = true;
                     psi.LoadUserProfile = false;
+                    psi.WorkingDirectory = Path.GetDirectoryName(typeof(Program).Assembly.Location);
 
                     child = Process.Start(psi);
                     pid = child.Id;
@@ -125,6 +127,8 @@ namespace DisplayStruct
             }
 
             Type pgType = typeof(Program);
+            string dirPath = Path.GetDirectoryName(pgType.Assembly.Location);
+            string filePath = Path.Combine(dirPath, fileName);
 
             using (Stream manifestResourceStream =
                 pgType.Assembly.GetManifestResourceStream($@"{pgType.Namespace}.files.{fileName}"))
@@ -134,7 +138,7 @@ namespace DisplayStruct
                     byte[] buf = new byte[br.BaseStream.Length];
                     br.Read(buf, 0, buf.Length);
 
-                    File.WriteAllBytes(fileName, buf);
+                    File.WriteAllBytes(filePath, buf);
                 }
             }
         }

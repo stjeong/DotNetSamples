@@ -54,6 +54,14 @@ namespace KernelStructOffset
             _fieldDict = ListToDict(list);
         }
 
+        public IEnumerable<string> Keys
+        {
+            get
+            {
+                return _fieldDict.Keys;
+            }
+        }
+
         public IntPtr GetPointer(IntPtr baseAddress, string fieldName)
         {
             if (_fieldDict.ContainsKey(fieldName) == false)
@@ -111,6 +119,7 @@ namespace KernelStructOffset
             ProcessStartInfo psi = new ProcessStartInfo();
             psi.FileName = "DisplayStruct.exe";
             psi.UseShellExecute = false;
+            psi.WorkingDirectory = Path.GetDirectoryName(typeof(DbgOffset).Assembly.Location);
             psi.Arguments = $"{typeName} {moduleName}" + ((string.IsNullOrEmpty(pidOrPath) == true) ? "" : $" \"{pidOrPath}\"");
             psi.CreateNoWindow = true;
             psi.RedirectStandardOutput = true;
@@ -219,6 +228,9 @@ namespace KernelStructOffset
                 return;
             }
 
+            string dirPath = Path.GetDirectoryName(typeof(DbgOffset).Assembly.Location);
+            string filePath = Path.Combine(dirPath, fileName);
+
             Type type = typeof(StructFieldInfo);
 
             using (Stream manifestResourceStream =
@@ -228,8 +240,7 @@ namespace KernelStructOffset
                 {
                     byte[] buf = new byte[br.BaseStream.Length];
                     br.Read(buf, 0, buf.Length);
-
-                    File.WriteAllBytes(fileName, buf);
+                    File.WriteAllBytes(filePath, buf);
                 }
             }
         }

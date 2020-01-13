@@ -42,11 +42,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\Debugger\KernelStructOffset\KnownStructs.cs">
+      <Link>KnownStructs.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Debugger\KernelStructOffset\ManagedStructs.cs">
+      <Link>ManagedStructs.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Debugger\KernelStructOffset\NativeMethods.cs">
+      <Link>NativeMethods.cs</Link>
+    </Compile>
     <Compile Include="BufferPtr.cs" />
     <Compile Include="ExtensionHelper.cs" />
+    <Compile Include="PdbDump.cs" />
+    <Compile Include="PdbStore.cs" />
     <Compile Include="PEImage.cs" />
     <Compile Include="PEManaged.cs" />
-    <Compile Include="PEUnmanaged.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

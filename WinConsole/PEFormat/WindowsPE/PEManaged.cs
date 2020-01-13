@@ -23,33 +23,4 @@ namespace WindowsPE
         }
     }
 
-    public struct CodeViewRSDS
-    {
-        public uint CvSignature;
-        public Guid Signature;
-        public uint Age;
-        public string PdbFileName;
-
-        public string PdbLocalPath
-        {
-            get
-            {
-                string fileName = Path.GetFileName(PdbFileName);
-
-                string uid = Signature.ToString("N") + Age;
-                return Path.Combine(fileName, uid, fileName);
-            }
-        }
-
-        public string PdbUriPath
-        {
-            get
-            {
-                string fileName = Path.GetFileName(PdbFileName);
-
-                string uid = Signature.ToString("N") + Age;
-                return $"{fileName}/{uid}/{fileName}";
-            }
-        }
-    }
 }

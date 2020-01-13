@@ -9,6 +9,69 @@ using System.Text;
 
 namespace KernelStructOffset
 {
+    public enum SYM_TYPE
+    {
+        SymNone = 0,
+        SymCoff,
+        SymCv,
+        SymPdb,
+        SymExport,
+        SymDeferred,
+        SymSym,       // .sym file
+        SymDia,
+        SymVirtual,
+        NumSymTypes
+    }
+
+    public enum SymOpt : uint
+    {
+        SYMOPT_UNDNAME = 0x00000002,
+        SYMOPT_DEFERRED_LOADS = 0x00000004,
+        SYMOPT_LOAD_LINES = 0x00000010,
+        SYMOPT_IGNORE_NT_SYMPATH = 0x00001000,
+        SYMOPT_DEBUG = 0x80000000,
+    }
+
+    [Flags]
+    public enum ProcessAccessRights
+    {
+        PROCESS_VM_READ = 0x10,
+        PROCESS_DUP_HANDLE = 0x00000040,
+        PROCESS_QUERY_INFORMATION = 0x0400,
+    }
+
+    public enum CodeViewSignature : uint
+    {
+        RSDS = 0x53445352, // SDSR
+    }
+
+    public enum DebugDirectoryType : uint
+    {
+        IMAGE_DEBUG_TYPE_UNKNOWN = 0,
+        IMAGE_DEBUG_TYPE_COFF = 1,
+        IMAGE_DEBUG_TYPE_CODEVIEW = 2,
+        IMAGE_DEBUG_TYPE_FPO = 3,
+        IMAGE_DEBUG_TYPE_MISC = 4,
+        IMAGE_DEBUG_TYPE_EXCEPTION = 5,
+        IMAGE_DEBUG_TYPE_FIXUP = 6,
+        IMAGE_DEBUG_TYPE_OMAP_TO_SRC = 7,
+        IMAGE_DEBUG_TYPE_OMAP_FROM_SRC = 8,
+        IMAGE_DEBUG_TYPE_BORLAND = 9,
+        IMAGE_DEBUG_TYPE_RESERVED10 = 10,
+        IMAGE_DEBUG_TYPE_CLSID = 11,
+        IMAGE_DEBUG_TYPE_VC_FEATURE = 12,
+        IMAGE_DEBUG_TYPE_POGO = 13,
+        IMAGE_DEBUG_TYPE_ILTCG = 14,
+        IMAGE_DEBUG_TYPE_MPX = 15,
+        IMAGE_DEBUG_TYPE_REPRO = 16,
+    }
+
+    public enum MachineType : ushort
+    {
+        IMAGE_FILE_MACHINE_I386 = 0x014C,
+        IMAGE_FILE_MACHINE_IA64 = 0x0200,
+        IMAGE_FILE_MACHINE_AMD64 = 0x8664,
+    }
 
     [Flags]
     public enum NativeFileAccess : uint
@@ -35,6 +98,44 @@ namespace KernelStructOffset
         FILE_GENERIC_READ = (STANDARD_RIGHTS_READ | FILE_READ_DATA | FILE_READ_ATTRIBUTES | FILE_READ_EA | SYNCHRONIZE),
         FILE_GENERIC_WRITE = (STANDARD_RIGHTS_WRITE | FILE_WRITE_DATA | FILE_WRITE_ATTRIBUTES | FILE_WRITE_EA | FILE_APPEND_DATA | SYNCHRONIZE),
         SPECIAL = 0
+    }
+
+    public enum MagicType : ushort
+    {
+        IMAGE_NT_OPTIONAL_HDR32_MAGIC = 0x10b,
+        IMAGE_NT_OPTIONAL_HDR64_MAGIC = 0x20b
+    }
+
+    public enum SubSystemType : ushort
+    {
+        IMAGE_SUBSYSTEM_UNKNOWN = 0,
+        IMAGE_SUBSYSTEM_NATIVE = 1,
+        IMAGE_SUBSYSTEM_WINDOWS_GUI = 2,
+        IMAGE_SUBSYSTEM_WINDOWS_CUI = 3,
+        IMAGE_SUBSYSTEM_POSIX_CUI = 7,
+        IMAGE_SUBSYSTEM_WINDOWS_CE_GUI = 9,
+        IMAGE_SUBSYSTEM_EFI_APPLICATION = 10,
+        IMAGE_SUBSYSTEM_EFI_BOOT_SERVICE_DRIVER = 11,
+        IMAGE_SUBSYSTEM_EFI_RUNTIME_DRIVER = 12,
+        IMAGE_SUBSYSTEM_EFI_ROM = 13,
+        IMAGE_SUBSYSTEM_XBOX = 14
+    }
+
+    public enum DllCharacteristicsType : ushort
+    {
+        RES_0 = 0x0001,
+        RES_1 = 0x0002,
+        RES_2 = 0x0004,
+        RES_3 = 0x0008,
+        IMAGE_DLL_CHARACTERISTICS_DYNAMIC_BASE = 0x0040,
+        IMAGE_DLL_CHARACTERISTICS_FORCE_INTEGRITY = 0x0080,
+        IMAGE_DLL_CHARACTERISTICS_NX_COMPAT = 0x0100,
+        IMAGE_DLLCHARACTERISTICS_NO_ISOLATION = 0x0200,
+        IMAGE_DLLCHARACTERISTICS_NO_SEH = 0x0400,
+        IMAGE_DLLCHARACTERISTICS_NO_BIND = 0x0800,
+        RES_4 = 0x1000,
+        IMAGE_DLLCHARACTERISTICS_WDM_DRIVER = 0x2000,
+        IMAGE_DLLCHARACTERISTICS_TERMINAL_SERVER_AWARE = 0x8000
     }
 
     public enum NativeFileMode : uint
@@ -132,14 +233,6 @@ namespace KernelStructOffset
         ObjectAllTypesInformation = 3,
         ObjectHandleFlagInformation = 4,
         ObjectSessionInformation = 5,
-    }
-
-    [Flags]
-    public enum ProcessAccessRights
-    {
-        PROCESS_VM_READ = 0x10,
-        PROCESS_DUP_HANDLE = 0x00000040,
-        PROCESS_QUERY_INFORMATION = 0x0400,
     }
 
     [Flags]
@@ -313,13 +406,65 @@ namespace KernelStructOffset
         [ReliabilityContract(Consistency.WillNotCorruptState, Cer.Success)]
         [DllImport("kernel32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
-        internal static extern bool CloseHandle(
-            [In] IntPtr hObject);
+        public static extern bool CloseHandle([In] IntPtr hObject);
 
         [DllImport("kernel32.dll", SetLastError = true)]
         internal static extern int QueryDosDevice(
             [In] string lpDeviceName,
             [Out] StringBuilder lpTargetPath,
             [In] int ucchMax);
+
+        public const int MAX_PATH = 260;
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+
+        internal static extern void GetSystemInfo(ref SYSTEM_INFO Info);
+
+        [DllImport("Dbghelp.dll", SetLastError = true)]
+        internal static extern uint SymGetOptions();
+
+        [DllImport("Dbghelp.dll", SetLastError = true)]
+        internal static extern uint SymSetOptions(uint SymOptions);
+
+        [DllImport("Dbghelp.dll", SetLastError = true)]
+        internal static extern bool SymInitialize(IntPtr hProcess, string UserSearchPath, bool fInvadeProcess);
+
+        [DllImport("Dbghelp.dll", SetLastError = true)]
+        internal static unsafe extern ulong SymLoadModuleEx(IntPtr hProcess,
+          IntPtr hFile,
+          string ImageName,
+          string ModuleName,
+          long BaseOfDll,
+          uint DllSize,
+          _MODLOAD_DATA* Data,
+          uint Flags);
+
+        [DllImport("kernel32", SetLastError = true, CharSet = CharSet.Ansi)]
+        public static extern IntPtr LoadLibrary([MarshalAs(UnmanagedType.LPStr)]string lpFileName);
+
+        [DllImport("Dbghelp.dll", SetLastError = true)]
+        internal static unsafe extern bool SymGetModuleInfo64(IntPtr hProcess, ulong qwAddr, ref _IMAGEHLP_MODULE64 ModuleInfo);
+
+        [DllImport("dbghelp.dll", SetLastError = true, CharSet = CharSet.Unicode, EntryPoint = "SymEnumSymbolsW")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        internal static extern bool SymEnumSymbols(IntPtr hProcess,
+                                                    ulong modBase,
+                                                    string mask,
+                                                    native_SYM_ENUMERATESYMBOLS_CALLBACK callback,
+                                                    IntPtr pUserContext);
+
+        [DllImport("dbghelp.dll", SetLastError = true, CharSet = CharSet.Unicode, EntryPoint = "SymEnumTypesW")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        internal static extern bool SymEnumTypes(IntPtr hProcess, ulong BaseOfDll,
+            native_SYM_ENUMERATESYMBOLS_CALLBACK callback, IntPtr UserContext);
+
+        [return: MarshalAs(UnmanagedType.Bool)]
+        internal delegate bool native_SYM_ENUMERATESYMBOLS_CALLBACK( /* SYMBOL_INFO* */ IntPtr symInfo,
+                                                                                     uint symbolSize,
+                                                                                     IntPtr pUserContext);
+
+        [return: MarshalAs(UnmanagedType.Bool)]
+        [DllImport("dbghelp.dll", SetLastError = true, EntryPoint = "SymCleanup")]
+        internal static extern bool SymCleanup(IntPtr hProcess);
     }
 }

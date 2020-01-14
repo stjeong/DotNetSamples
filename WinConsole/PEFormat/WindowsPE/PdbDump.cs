@@ -1,5 +1,4 @@
-﻿using KernelStructOffset;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -22,7 +21,6 @@ namespace WindowsPE
         public PdbDump(string pdbFilePath, IntPtr baseAddress, int memorySize)
         {
             uint options = NativeMethods.SymGetOptions();
-            Console.WriteLine($"SymGetOptions: {options}");
 
             options &= ~(uint)SymOpt.SYMOPT_DEFERRED_LOADS;
             options |= (uint)SymOpt.SYMOPT_LOAD_LINES;

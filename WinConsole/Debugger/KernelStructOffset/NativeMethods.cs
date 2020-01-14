@@ -7,7 +7,11 @@ using System.Runtime.ConstrainedExecution;
 using System.Runtime.InteropServices;
 using System.Text;
 
+#if _KSOBUILD
 namespace KernelStructOffset
+#else
+namespace WindowsPE
+#endif
 {
     public enum SYM_TYPE
     {
@@ -376,6 +380,9 @@ namespace KernelStructOffset
         [DllImport("kernel32.dll", SetLastError = true)]
         internal static extern int GetThreadId(IntPtr threadHandle);
 
+        [DllImport("kernel32.dll")]
+        public static extern uint GetCurrentThreadId();
+
         [DllImport("kernel32.dll", SetLastError = true)]
         internal static extern IntPtr OpenProcess(
             [In] ProcessAccessRights dwDesiredAccess,
@@ -466,5 +473,9 @@ namespace KernelStructOffset
         [return: MarshalAs(UnmanagedType.Bool)]
         [DllImport("dbghelp.dll", SetLastError = true, EntryPoint = "SymCleanup")]
         internal static extern bool SymCleanup(IntPtr hProcess);
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto)]
+        public static extern IntPtr SendMessage(IntPtr hWnd, int Msg, int wParam, ref IntPtr lParam);
+
     }
 }

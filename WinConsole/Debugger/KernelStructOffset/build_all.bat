@@ -30,7 +30,7 @@ robocopy %CURRENTDIR%..\DisplayStruct\bin\%BUILDCONFIG%\ %CURRENTDIR%files Displ
 
 REM =====================================================
 
-msbuild %CURRENTDIR%KernelStructOffset.csproj /p:Configuration=%BUILDCONFIG%;DefineConstants="TRACE" /t:Rebuild
+msbuild %CURRENTDIR%KernelStructOffset.csproj /p:Configuration=%BUILDCONFIG%;DefineConstants="TRACE;_KSOBUILD" /t:Rebuild
 if %ERRORLEVEL% GTR 0 goto BuildError
 
 

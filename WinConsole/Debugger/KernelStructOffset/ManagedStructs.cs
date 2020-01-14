@@ -6,7 +6,11 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 
+#if _KSOBUILD
 namespace KernelStructOffset
+#else
+namespace WindowsPE
+#endif
 {
     [StructLayout(LayoutKind.Sequential)]
     public struct StructFieldInfo

@@ -4,8 +4,25 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 
+#if _KSOBUILD
 namespace KernelStructOffset
+#else
+namespace WindowsPE
+#endif
 {
+    public enum WM_MESSAGE
+    {
+        WM_COPYDATA = 0x004A,
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct COPYDATASTRUCT
+    {
+        public IntPtr dwData;    // Any value the sender chooses.  Perhaps its main window handle?
+        public int cbData;       // The count of bytes in the message.
+        public IntPtr lpData;    // The address of the message.
+    }
+
     [StructLayout(LayoutKind.Sequential)]
     public struct IMAGE_DOS_HEADER
     {
@@ -269,6 +286,30 @@ enum _POOL_TYPE
             _PEB peb = (_PEB)Marshal.PtrToStructure(pebAddress, typeof(_PEB));
             return peb;
         }
+
+#if _KSOBUILD
+        public static IEnumerable<IntPtr> EnumerateHeaps(IntPtr pebAddress)
+        {
+            DbgOffset pebOffset = DbgOffset.Get("_PEB");
+
+            IntPtr processHeapsPtr = pebOffset.GetPointer(pebAddress, "ProcessHeaps").ReadPtr();
+            if (processHeapsPtr == IntPtr.Zero)
+            {
+                yield break;
+            }
+
+            if (pebOffset.TryRead<int>(pebAddress, "NumberOfHeaps", out int numberOfHeaps) == false)
+            {
+                yield break;
+            }
+
+            for (int i = 0; i < numberOfHeaps; i++)
+            {
+                IntPtr entryPtr = processHeapsPtr + (IntPtr.Size * i);
+                yield return entryPtr.ReadPtr();
+            }
+        }
+#endif
     }
 
     // https://docs.microsoft.com/en-us/windows/win32/api/winternl/ns-winternl-peb_ldr_data

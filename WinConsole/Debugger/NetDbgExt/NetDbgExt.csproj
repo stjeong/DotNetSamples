@@ -1,0 +1,212 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{83B42353-3413-4167-AB9C-B686AE657134}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>NetDbgExt</RootNamespace>
+    <AssemblyName>NetDbgExt</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+    <LangVersion>8.0</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup>
+    <DllExportIdent>6F8208D3-E980-43F0-8FC9-91A101EEC8BB</DllExportIdent>
+    <DllExportMetaLibName>DllExport.dll</DllExportMetaLibName>
+    <DllExportNamespace>NetDbgExt</DllExportNamespace>
+    <DllExportDDNSCecil>true</DllExportDDNSCecil>
+    <DllExportSkipOnAnyCpu>false</DllExportSkipOnAnyCpu>
+    <DllExportPlatform>Auto</DllExportPlatform>
+    <DllExportOrdinalsBase>1</DllExportOrdinalsBase>
+    <DllExportGenExpLib>false</DllExportGenExpLib>
+    <DllExportOurILAsm>false</DllExportOurILAsm>
+    <DllExportLeaveIntermediateFiles>false</DllExportLeaveIntermediateFiles>
+    <DllExportTimeout>30000</DllExportTimeout>
+    <DllExportPeCheck>2</DllExportPeCheck>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="DllExport, PublicKeyToken=8337224c9ad9e356">
+      <HintPath>$(SolutionDir)packages.offline\DllExport\gcache\metalib\$(DllExportNamespace)\$(DllExportMetaLibName)</HintPath>
+      <Private>False</Private>
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\SimpleDebugger\Win32\Enums.cs">
+      <Link>Win32\Enums.cs</Link>
+    </Compile>
+    <Compile Include="..\SimpleDebugger\Win32\IDebugAdvanced.cs">
+      <Link>Win32\IDebugAdvanced.cs</Link>
+    </Compile>
+    <Compile Include="..\SimpleDebugger\Win32\IDebugAdvanced2.cs">
+      <Link>Win32\IDebugAdvanced2.cs</Link>
+    </Compile>
+    <Compile Include="..\SimpleDebugger\Win32\IDebugAdvanced3.cs">
+      <Link>Win32\IDebugAdvanced3.cs</Link>
+    </Compile>
+    <Compile Include="..\SimpleDebugger\Win32\IDebugBreakpoint.cs">
+      <Link>Win32\IDebugBreakpoint.cs</Link>
+    </Compile>
+    <Compile Include="..\SimpleDebugger\Win32\IDebugBreakpoint2.cs">
+      <Link>Win32\IDebugBreakpoint2.cs</Link>
+    </Compile>
+    <Compile Include="..\SimpleDebugger\Win32\IDebugBreakpoint3.cs">
+      <Link>Win32\IDebugBreakpoint3.cs</Link>
+    </Compile>
+    <Compile Include="..\SimpleDebugger\Win32\IDebugClient.cs">
+      <Link>Win32\IDebugClient.cs</Link>
+    </Compile>
+    <Compile Include="..\SimpleDebugger\Win32\IDebugClient2.cs">
+      <Link>Win32\IDebugClient2.cs</Link>
+    </Compile>
+    <Compile Include="..\SimpleDebugger\Win32\IDebugClient3.cs">
+      <Link>Win32\IDebugClient3.cs</Link>
+    </Compile>
+    <Compile Include="..\SimpleDebugger\Win32\IDebugClient4.cs">
+      <Link>Win32\IDebugClient4.cs</Link>
+    </Compile>
+    <Compile Include="..\SimpleDebugger\Win32\IDebugClient5.cs">
+      <Link>Win32\IDebugClient5.cs</Link>
+    </Compile>
+    <Compile Include="..\SimpleDebugger\Win32\IDebugClient6.cs">
+      <Link>Win32\IDebugClient6.cs</Link>
+    </Compile>
+    <Compile Include="..\SimpleDebugger\Win32\IDebugControl.cs">
+      <Link>Win32\IDebugControl.cs</Link>
+    </Compile>
+    <Compile Include="..\SimpleDebugger\Win32\IDebugControl2.cs">
+      <Link>Win32\IDebugControl2.cs</Link>
+    </Compile>
+    <Compile Include="..\SimpleDebugger\Win32\IDebugControl3.cs">
+      <Link>Win32\IDebugControl3.cs</Link>
+    </Compile>
+    <Compile Include="..\SimpleDebugger\Win32\IDebugControl4.cs">
+      <Link>Win32\IDebugControl4.cs</Link>
+    </Compile>
+    <Compile Include="..\SimpleDebugger\Win32\IDebugControl5.cs">
+      <Link>Win32\IDebugControl5.cs</Link>
+    </Compile>
+    <Compile Include="..\SimpleDebugger\Win32\IDebugControl6.cs">
+      <Link>Win32\IDebugControl6.cs</Link>
+    </Compile>
+    <Compile Include="..\SimpleDebugger\Win32\IDebugDataSpaces.cs">
+      <Link>Win32\IDebugDataSpaces.cs</Link>
+    </Compile>
+    <Compile Include="..\SimpleDebugger\Win32\IDebugDataSpaces2.cs">
+      <Link>Win32\IDebugDataSpaces2.cs</Link>
+    </Compile>
+    <Compile Include="..\SimpleDebugger\Win32\IDebugDataSpaces3.cs">
+      <Link>Win32\IDebugDataSpaces3.cs</Link>
+    </Compile>
+    <Compile Include="..\SimpleDebugger\Win32\IDebugDataSpaces4.cs">
+      <Link>Win32\IDebugDataSpaces4.cs</Link>
+    </Compile>
+    <Compile Include="..\SimpleDebugger\Win32\IDebugEventCallbacks.cs">
+      <Link>Win32\IDebugEventCallbacks.cs</Link>
+    </Compile>
+    <Compile Include="..\SimpleDebugger\Win32\IDebugEventCallbacksWide.cs">
+      <Link>Win32\IDebugEventCallbacksWide.cs</Link>
+    </Compile>
+    <Compile Include="..\SimpleDebugger\Win32\IDebugEventContextCallbacks.cs">
+      <Link>Win32\IDebugEventContextCallbacks.cs</Link>
+    </Compile>
+    <Compile Include="..\SimpleDebugger\Win32\IDebugInputCallbacks.cs">
+      <Link>Win32\IDebugInputCallbacks.cs</Link>
+    </Compile>
+    <Compile Include="..\SimpleDebugger\Win32\IDebugOutputCallbacks.cs">
+      <Link>Win32\IDebugOutputCallbacks.cs</Link>
+    </Compile>
+    <Compile Include="..\SimpleDebugger\Win32\IDebugOutputCallbacks2.cs">
+      <Link>Win32\IDebugOutputCallbacks2.cs</Link>
+    </Compile>
+    <Compile Include="..\SimpleDebugger\Win32\IDebugOutputCallbacksWide.cs">
+      <Link>Win32\IDebugOutputCallbacksWide.cs</Link>
+    </Compile>
+    <Compile Include="..\SimpleDebugger\Win32\IDebugRegisters.cs">
+      <Link>Win32\IDebugRegisters.cs</Link>
+    </Compile>
+    <Compile Include="..\SimpleDebugger\Win32\IDebugRegisters2.cs">
+      <Link>Win32\IDebugRegisters2.cs</Link>
+    </Compile>
+    <Compile Include="..\SimpleDebugger\Win32\IDebugSymbolGroup.cs">
+      <Link>Win32\IDebugSymbolGroup.cs</Link>
+    </Compile>
+    <Compile Include="..\SimpleDebugger\Win32\IDebugSymbolGroup2.cs">
+      <Link>Win32\IDebugSymbolGroup2.cs</Link>
+    </Compile>
+    <Compile Include="..\SimpleDebugger\Win32\IDebugSymbols.cs">
+      <Link>Win32\IDebugSymbols.cs</Link>
+    </Compile>
+    <Compile Include="..\SimpleDebugger\Win32\IDebugSymbols2.cs">
+      <Link>Win32\IDebugSymbols2.cs</Link>
+    </Compile>
+    <Compile Include="..\SimpleDebugger\Win32\IDebugSymbols3.cs">
+      <Link>Win32\IDebugSymbols3.cs</Link>
+    </Compile>
+    <Compile Include="..\SimpleDebugger\Win32\IDebugSymbols4.cs">
+      <Link>Win32\IDebugSymbols4.cs</Link>
+    </Compile>
+    <Compile Include="..\SimpleDebugger\Win32\IDebugSymbols5.cs">
+      <Link>Win32\IDebugSymbols5.cs</Link>
+    </Compile>
+    <Compile Include="..\SimpleDebugger\Win32\IDebugSystemObjects.cs">
+      <Link>Win32\IDebugSystemObjects.cs</Link>
+    </Compile>
+    <Compile Include="..\SimpleDebugger\Win32\IDebugSystemObjects2.cs">
+      <Link>Win32\IDebugSystemObjects2.cs</Link>
+    </Compile>
+    <Compile Include="..\SimpleDebugger\Win32\IDebugSystemObjects3.cs">
+      <Link>Win32\IDebugSystemObjects3.cs</Link>
+    </Compile>
+    <Compile Include="..\SimpleDebugger\Win32\Structs.cs">
+      <Link>Win32\Structs.cs</Link>
+    </Compile>
+    <Compile Include="HelperExtension.cs" />
+    <Compile Include="NativeMethods.cs" />
+    <Compile Include="UnmanagedMain.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Util.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <ImportGroup Label=".NET DllExport">
+    <Import Project="$(SolutionDir)packages.offline\DllExport\tools\net.r_eg.DllExport.targets" Condition="Exists($([MSBuild]::Escape('$(SolutionDir)packages.offline\DllExport\tools\net.r_eg.DllExport.targets')))" Label="8337224c9ad9e356" />
+  </ImportGroup>
+  <Target Name="DllExportRestorePkg" BeforeTargets="PrepareForBuild">
+    <Error Condition="!Exists('$(SolutionDir)DllExport.bat')" Text="DllExport.bat is not found. Path: '$(SolutionDir)' - https://github.com/3F/DllExport" />
+    <Exec Condition="('$(DllExportModImported)' != 'true' Or !Exists('$(SolutionDir)packages.offline\DllExport\tools\net.r_eg.DllExport.targets')) And Exists('$(SolutionDir)DllExport.bat')" Command="DllExport.bat -packages packages.offline -dxp-version actual  -action Restore" WorkingDirectory="$(SolutionDir)" />
+  </Target>
+  <Target Name="DllExportRPkgDynamicImport" BeforeTargets="PostBuildEvent" DependsOnTargets="GetFrameworkPaths" Condition="'$(DllExportModImported)' != 'true' And '$(DllExportRPkgDyn)' != 'false'">
+    <MSBuild BuildInParallel="true" UseResultsCache="true" Projects="$(MSBuildProjectFullPath)" Properties="DllExportRPkgDyn=true" Targets="Build" />
+  </Target>
+</Project>

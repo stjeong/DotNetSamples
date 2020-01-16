@@ -13,6 +13,14 @@ namespace KernelStructOffset
 namespace WindowsPE
 #endif
 {
+    public enum DebugNotifySession
+    {
+        Active = 0x0,
+        Inactive = 0x01,
+        Accessible = 0x02,
+        InAccessible = 0x03,
+    }
+
     public enum SYM_TYPE
     {
         SymNone = 0,
@@ -477,5 +485,7 @@ namespace WindowsPE
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
         public static extern IntPtr SendMessage(IntPtr hWnd, int Msg, int wParam, ref IntPtr lParam);
 
+        [DllImport("kernel32.dll")]
+        public static extern void OutputDebugString(string lpOutputString);
     }
 }

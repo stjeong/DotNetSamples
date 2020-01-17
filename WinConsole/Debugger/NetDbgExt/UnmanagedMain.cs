@@ -1,22 +1,16 @@
 ﻿using Microsoft.Diagnostics.Runtime.Interop;
 using System;
 using System.Runtime.InteropServices;
+using WindowsPE;
+using KernelStructOffset;
 
 namespace NetDbgExt
 {
-    public enum DebugNotifySession
-    {
-        Active = 0x0,
-        Inactive = 0x01,
-        Accessible = 0x02,
-        InAccessible = 0x03,
-    }
-
     // DbgShell/ClrMemDiag/Debugger/
     // https://github.com/microsoft/DbgShell/tree/master/ClrMemDiag/Debugger
 
-    // .load D:\...\DotNetSamples\WinLib\NetDbgExt\bin\Debug\x64\NetDbgExt.dll
-    // .unload D:\...\DotNetSamples\WinLib\NetDbgExt\bin\Debug\x64\NetDbgExt.dll
+    // .load C:\...\DotNetSamples\WinConsole\Debugger\NetDbgExt\bin\Debug\x64\NetDbgExt.dll
+    // .unload C:\...\DotNetSamples\WinConsole\Debugger\NetDbgExt\bin\Debug\x64\NetDbgExt.dll
     public class UnmanagedMain
     {
         [DllExport(CallingConvention = CallingConvention.StdCall)]

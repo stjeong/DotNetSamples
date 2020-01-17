@@ -132,6 +132,7 @@ namespace WindowsPE
         }
     }
 
+#if _INCLUDE_MANAGED_STRUCTS
     [StructLayout(LayoutKind.Sequential)]
     public struct _SYSTEM_HANDLE_INFORMATION
     {
@@ -151,6 +152,7 @@ namespace WindowsPE
             get { return HandleCount.ToInt32(); }
         }
     }
+#endif
 
     [StructLayout(LayoutKind.Sequential)]
     public struct GENERIC_MAPPING
@@ -388,6 +390,7 @@ enum _POOL_TYPE
             return default(_LDR_DATA_TABLE_ENTRY);
         }
 
+#if _INCLUDE_MANAGED_STRUCTS
         public unsafe void UnhideDLL(DllOrderLink hiddenModuleLink)
         {
             _LDR_DATA_TABLE_ENTRY dllLink = EnumerateMemoryOrderModules().First();
@@ -412,6 +415,7 @@ enum _POOL_TYPE
 
             return orderLink;
         }
+#endif
     }
 
     // https://docs.microsoft.com/en-us/windows/win32/api/winternl/ns-winternl-peb_ldr_data
@@ -762,6 +766,7 @@ enum _POOL_TYPE
         public uint AddressOfRawData;
         public uint PointerToRawData;
 
+#if _INCLUDE_MANAGED_STRUCTS
         internal unsafe CodeViewRSDS GetCodeViewHeader(IntPtr codeViewPtr)
         {
             CodeView_Header dir = (CodeView_Header)Marshal.PtrToStructure(codeViewPtr, typeof(CodeView_Header));
@@ -784,6 +789,7 @@ enum _POOL_TYPE
                     throw new ApplicationException("Push the author to impl this: " + dir.Signature);
             }
         }
+#endif
     }
 
     [StructLayout(LayoutKind.Sequential)]

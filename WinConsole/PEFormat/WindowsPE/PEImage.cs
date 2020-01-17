@@ -182,6 +182,7 @@ namespace WindowsPE
             return list.ToArray();
         }
 
+#if _INCLUDE_MANAGED_STRUCTS
         public IEnumerable<CodeViewRSDS> EnumerateCodeViewDebugInfo()
         {
             foreach (IMAGE_DEBUG_DIRECTORY debugDir in EnumerateDebugDir())
@@ -204,6 +205,7 @@ namespace WindowsPE
                 }
             }
         }
+#endif
 
         IntPtr GetSafeBuffer(uint rva, uint size, out BufferPtr buffer)
         {

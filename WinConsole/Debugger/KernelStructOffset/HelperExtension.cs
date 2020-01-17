@@ -20,5 +20,11 @@ namespace KernelStructOffset
                 return new IntPtr(*ptrLong);
             }
         }
+
+        public unsafe static void WriteValue<T>(this IntPtr ptr, T value) where T : unmanaged
+        {
+            T* pValue = (T*)ptr.ToPointer();
+            *pValue = value;
+        }
     }
 }

@@ -63,6 +63,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\KernelStructOffset\HelperExtension.cs">
+      <Link>HelperExtension.cs</Link>
+    </Compile>
+    <Compile Include="..\KernelStructOffset\KnownStructs.cs">
+      <Link>KnownStructs.cs</Link>
+    </Compile>
+    <Compile Include="..\KernelStructOffset\NativeMethods.cs">
+      <Link>NativeMethods.cs</Link>
+    </Compile>
     <Compile Include="..\SimpleDebugger\Win32\Enums.cs">
       <Link>Win32\Enums.cs</Link>
     </Compile>
@@ -192,8 +201,6 @@
     <Compile Include="..\SimpleDebugger\Win32\Structs.cs">
       <Link>Win32\Structs.cs</Link>
     </Compile>
-    <Compile Include="HelperExtension.cs" />
-    <Compile Include="NativeMethods.cs" />
     <Compile Include="UnmanagedMain.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Util.cs" />

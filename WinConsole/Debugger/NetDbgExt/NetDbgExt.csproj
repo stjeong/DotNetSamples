@@ -209,4 +209,7 @@
   <Target Name="DllExportRPkgDynamicImport" BeforeTargets="PostBuildEvent" DependsOnTargets="GetFrameworkPaths" Condition="'$(DllExportModImported)' != 'true' And '$(DllExportRPkgDyn)' != 'false'">
     <MSBuild BuildInParallel="true" UseResultsCache="true" Projects="$(MSBuildProjectFullPath)" Properties="DllExportRPkgDyn=true" Targets="Build" />
   </Target>
+  <PropertyGroup>
+    <PostBuildEvent>IF EXIST "$(ProjectDir)postBuildScript.bat" $(ProjectDir)postBuildScript.bat $(TargetDir)</PostBuildEvent>
+  </PropertyGroup>
 </Project>

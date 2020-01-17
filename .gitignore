@@ -339,3 +339,4 @@ ASALocalRun/
 
 # BeatPulse healthcheck temp database
 healthchecksdb
+/WinConsole/Debugger/NetDbgExt/postBuildScript.bat

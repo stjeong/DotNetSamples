@@ -10,6 +10,11 @@ namespace WindowsPE
     public class PEImage
     {
         IMAGE_DOS_HEADER _dosHeader;
+        public IMAGE_DOS_HEADER DosHeader
+        {
+            get { return _dosHeader; }
+        }
+
         IMAGE_FILE_HEADER _fileHeader;
         IMAGE_OPTIONAL_HEADER32 _optionalHeader32;
         IMAGE_OPTIONAL_HEADER64 _optionalHeader64;
@@ -123,7 +128,7 @@ namespace WindowsPE
                 }
             }
 
-            return default(ExportFunctionInfo);
+            return default;
         }
 
         public IEnumerable<ExportFunctionInfo> EnumerateExportFunctions()
@@ -145,8 +150,7 @@ namespace WindowsPE
 
             IMAGE_SECTION_HEADER section = GetSection((int)Export.VirtualAddress);
 
-            BufferPtr buffer = null;
-            IntPtr sectionPtr = GetSafeBuffer(0, (uint)section.VirtualAddress + (uint)section.SizeOfRawData, out buffer);
+            GetSafeBuffer(0, (uint)section.VirtualAddress + (uint)section.SizeOfRawData, out BufferPtr buffer);
             List<ExportFunctionInfo> list = new List<ExportFunctionInfo>();
 
             try
@@ -163,7 +167,7 @@ namespace WindowsPE
                     uint namePos = br.ReadUInt32();
                     IntPtr namePtr = GetSafeBuffer(buffer, namePos);
 
-                    ExportFunctionInfo efi = new ExportFunctionInfo();
+                    ExportFunctionInfo efi;
                     efi.Name = Marshal.PtrToStringAnsi(namePtr);
 
                     efi.NameOrdinal = GetSafeBuffer(buffer, dir.AddressOfNameOrdinals).ReadUInt16ByIndex(i);
@@ -192,8 +196,7 @@ namespace WindowsPE
                     continue;
                 }
 
-                BufferPtr buffer = null;
-                IntPtr debugDirPtr = GetSafeBuffer(debugDir.AddressOfRawData, debugDir.SizeOfData, out buffer);
+                IntPtr debugDirPtr = GetSafeBuffer(debugDir.AddressOfRawData, debugDir.SizeOfData, out BufferPtr buffer);
 
                 try
                 {
@@ -210,7 +213,6 @@ namespace WindowsPE
         IntPtr GetSafeBuffer(uint rva, uint size, out BufferPtr buffer)
         {
             buffer = null;
-            IntPtr debugDirPtr = IntPtr.Zero;
 
             if (_baseAddress == IntPtr.Zero)
             {
@@ -236,7 +238,7 @@ namespace WindowsPE
 
         IntPtr GetSafeBuffer(BufferPtr buffer, uint rva)
         {
-            IntPtr ptr = IntPtr.Zero;
+            IntPtr ptr;
 
             if (_bufferCached != null)
             {
@@ -262,8 +264,7 @@ namespace WindowsPE
                 yield break;
             }
 
-            BufferPtr buffer = null;
-            IntPtr debugDirPtr = GetSafeBuffer(Debug.VirtualAddress, Debug.Size, out buffer);
+            IntPtr debugDirPtr = GetSafeBuffer(Debug.VirtualAddress, Debug.Size, out BufferPtr buffer);
 
             try
             {
@@ -277,7 +278,7 @@ namespace WindowsPE
                     IMAGE_DEBUG_DIRECTORY dir = (IMAGE_DEBUG_DIRECTORY)Marshal.PtrToStructure(debugDirPtr, typeof(IMAGE_DEBUG_DIRECTORY));
                     yield return dir;
 
-                    debugDirPtr = debugDirPtr + sizeOfDir;
+                    debugDirPtr += sizeOfDir;
                 }
             }
             finally
@@ -317,7 +318,7 @@ namespace WindowsPE
             // IMAGE_DOS_HEADER 를 읽어들이고,
             IMAGE_DOS_HEADER dosHeader = br.Read<IMAGE_DOS_HEADER>();
             {
-                if (dosHeader.isValid == false)
+                if (dosHeader.IsValid == false)
                 {
                     return null;
                 }
@@ -351,7 +352,7 @@ namespace WindowsPE
                 image._is64BitHeader = true;
             }
 
-            ushort optionalHeaderSize = ntFileHeader.SizeOfOptionalHeader;
+            // ushort optionalHeaderSize = ntFileHeader.SizeOfOptionalHeader;
             // optionalHeaderSize
             // 32bit PE == 0xe0(224)bytes
             // 64bit PE == 0xF0(240)bytes

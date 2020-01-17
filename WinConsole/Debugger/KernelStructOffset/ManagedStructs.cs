@@ -6,6 +6,8 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 
+#pragma warning disable IDE1006 // Naming Styles
+
 #if _KSOBUILD
 namespace KernelStructOffset
 #else
@@ -250,8 +252,7 @@ namespace WindowsPE
 
             while (i > 0 && (i = devicePath.LastIndexOf('\\', i - 1)) != -1)
             {
-                string drive;
-                if (_deviceMap.TryGetValue(devicePath.Substring(0, i), out drive))
+                if (_deviceMap.TryGetValue(devicePath.Substring(0, i), out string drive))
                 {
                     dosPath = string.Concat(drive, devicePath.Substring(i));
                     return dosPath.Length != 0;
@@ -314,7 +315,6 @@ namespace WindowsPE
             FileNameFromHandleState state = obj as FileNameFromHandleState;
 
             int guessSize = 1024;
-            int requiredSize = 0;
             NT_STATUS ret;
 
             IntPtr ptr = Marshal.AllocHGlobal(guessSize);
@@ -324,7 +324,7 @@ namespace WindowsPE
                 while (true)
                 {
                     ret = NativeMethods.NtQueryObject(state.Handle,
-                        OBJECT_INFORMATION_CLASS.ObjectNameInformation, ptr, guessSize, out requiredSize);
+                        OBJECT_INFORMATION_CLASS.ObjectNameInformation, ptr, guessSize, out int requiredSize);
 
                     if (ret == NT_STATUS.STATUS_INFO_LENGTH_MISMATCH)
                     {
@@ -356,7 +356,6 @@ namespace WindowsPE
         private string GetHandleType(IntPtr handle)
         {
             int guessSize = 1024;
-            int requiredSize = 0;
             NT_STATUS ret;
 
             IntPtr ptr = Marshal.AllocHGlobal(guessSize);
@@ -366,7 +365,7 @@ namespace WindowsPE
                 while (true)
                 {
                     ret = NativeMethods.NtQueryObject(handle,
-                        OBJECT_INFORMATION_CLASS.ObjectTypeInformation, ptr, guessSize, out requiredSize);
+                        OBJECT_INFORMATION_CLASS.ObjectTypeInformation, ptr, guessSize, out int requiredSize);
 
                     if (ret == NT_STATUS.STATUS_INFO_LENGTH_MISMATCH)
                     {
@@ -399,7 +398,6 @@ namespace WindowsPE
         private IntPtr DuplicateHandle(IntPtr targetHandle, int addAccessRights)
         {
             IntPtr currentProcess = NativeMethods.GetCurrentProcess();
-            int processId = NativeMethods.GetCurrentProcessId();
             int ownerPid = UniqueProcessId.ToInt32();
 
             IntPtr targetProcessHandle = IntPtr.Zero;
@@ -435,7 +433,7 @@ namespace WindowsPE
         class FileNameFromHandleState : IDisposable
         {
             private ManualResetEvent _mr;
-            private IntPtr _handle;
+            private readonly IntPtr _handle;
             private string _fileName;
             private bool _retValue;
 

@@ -4,6 +4,8 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 
+#pragma warning disable IDE1006 // Naming Styles
+
 #if _KSOBUILD
 namespace KernelStructOffset
 #else
@@ -49,14 +51,14 @@ namespace WindowsPE
         public UInt16[] e_res2;    // Reserved words
         public Int32 e_lfanew;      // File address of new exe header
 
-        private string _e_magic
+        private string Magic
         {
             get { return new string(e_magic); }
         }
 
-        public bool isValid
+        public bool IsValid
         {
-            get { return _e_magic == "MZ"; }
+            get { return Magic == "MZ"; }
         }
     }
 
@@ -387,7 +389,7 @@ enum _POOL_TYPE
                 }
             }
 
-            return default(_LDR_DATA_TABLE_ENTRY);
+            return default;
         }
 
 #if _INCLUDE_MANAGED_STRUCTS
@@ -408,10 +410,11 @@ enum _POOL_TYPE
                 return null;
             }
 
-            DllOrderLink orderLink = new DllOrderLink();
-
-            orderLink.MemoryOrderLink = dllLink.InMemoryOrderLinks.Unlink();
-            orderLink.LoadOrderLink = dllLink.InLoadOrderLinks.Unlink();
+            DllOrderLink orderLink = new DllOrderLink()
+            {
+                MemoryOrderLink = dllLink.InMemoryOrderLinks.Unlink(),
+                LoadOrderLink = dllLink.InLoadOrderLinks.Unlink(),
+            };
 
             return orderLink;
         }
@@ -775,7 +778,7 @@ enum _POOL_TYPE
             {
                 case (uint)CodeViewSignature.RSDS:
                     _CodeViewRSDS item = (_CodeViewRSDS)Marshal.PtrToStructure(codeViewPtr, typeof(_CodeViewRSDS));
-                    CodeViewRSDS rsds = new CodeViewRSDS();
+                    CodeViewRSDS rsds;
                     rsds.CvSignature = item.CvSignature;
                     rsds.Signature = item.Signature;
                     rsds.Age = item.Age;
@@ -858,9 +861,9 @@ enum _POOL_TYPE
     public struct _IMAGEHLP_LINE64
     {
         public uint SizeOfStruct;           // set to sizeof(IMAGEHLP_LINE64)
-        IntPtr Key;                    // internal
+        public IntPtr Key;                    // internal
         public uint LineNumber;             // line number in file
-        IntPtr FileName;               // full filename
+        public IntPtr FileName;               // full filename
         public ulong Address;                // first instruction of line
     }
 
@@ -1005,7 +1008,7 @@ enum _POOL_TYPE
         {
             _SYMBOL_INFO info = (_SYMBOL_INFO)Marshal.PtrToStructure(baseAddress, typeof(_SYMBOL_INFO));
 
-            SYMBOL_INFO si = new SYMBOL_INFO();
+            SYMBOL_INFO si;
             si.SizeOfStruct = info.SizeOfStruct;
             si.TypeIndex = info.TypeIndex;
             si.Reserved0 = info.Reserved[0];

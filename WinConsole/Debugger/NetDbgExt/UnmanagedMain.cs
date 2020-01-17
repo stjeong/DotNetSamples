@@ -34,16 +34,16 @@ namespace NetDbgExt
             switch (notify)
             {
                 case DebugNotifySession.Active:
-                    NativeMethods.OutputDebugString("DEBUG_NOTIFY_SESSION_ACTIVE");
+                    NativeMethods.OutputDebugString($"DEBUG_NOTIFY_SESSION_ACTIVE: {argument}");
                     break;
                 case DebugNotifySession.Inactive:
-                    NativeMethods.OutputDebugString("DEBUG_NOTIFY_SESSION_INACTIVE");
+                    NativeMethods.OutputDebugString($"DEBUG_NOTIFY_SESSION_INACTIVE: {argument}");
                     break;
                 case DebugNotifySession.Accessible:
-                    NativeMethods.OutputDebugString("DEBUG_NOTIFY_SESSION_ACCESSIBLE");
+                    NativeMethods.OutputDebugString($"DEBUG_NOTIFY_SESSION_ACCESSIBLE: {argument}");
                     break;
                 case DebugNotifySession.InAccessible:
-                    NativeMethods.OutputDebugString("DEBUG_NOTIFY_SESSION_INACCESSIBLE");
+                    NativeMethods.OutputDebugString($"DEBUG_NOTIFY_SESSION_INACCESSIBLE: {argument}");
                     break;
             }
         }
@@ -55,18 +55,16 @@ namespace NetDbgExt
         }
 
         [DllExport(CallingConvention = CallingConvention.StdCall)]
+#pragma warning disable IDE1006 // Naming Styles
         public static uint printdt(IDebugClient pDebugClient, [MarshalAs(UnmanagedType.LPStr)] string args)
+#pragma warning restore IDE1006 // Naming Styles
         {
-            IDebugControl dbgControl = pDebugClient as IDebugControl;
-            if (dbgControl == null)
+            if (!(pDebugClient is IDebugControl dbgControl))
             {
                 return 0;
             }
 
-            DEBUG_VALUE dbgValue;
-            uint remainderIndex;
-
-            int result = dbgControl.Evaluate(args, DEBUG_VALUE_TYPE.INT64, out dbgValue, out remainderIndex);
+            int result = dbgControl.Evaluate(args, DEBUG_VALUE_TYPE.INT64, out DEBUG_VALUE dbgValue, out _);
             if (result != 0)
             {
                 return 0;

@@ -58,6 +58,13 @@ namespace WindowsPE
             return BitConverter.ToUInt32(buf, 0);
         }
 
+        public static unsafe byte ReadByte(this IntPtr ptr, int position)
+        {
+            UnmanagedMemoryStream ums = new UnmanagedMemoryStream((byte*)ptr.ToPointer(), (position + 1));
+            ums.Position = position;
+            return (byte)ums.ReadByte();
+        }
+
         public static unsafe ushort ReadUInt16ByIndex(this IntPtr ptr, int index)
         {
             UnmanagedMemoryStream ums = new UnmanagedMemoryStream((byte*)ptr.ToPointer(), (index + 1) * sizeof(ushort));
@@ -80,6 +87,16 @@ namespace WindowsPE
         public static uint ReadUInt32(this IntPtr ptr, int offset)
         {
             return (uint)Marshal.ReadInt32(ptr, offset);
+        }
+
+        public static ulong ReadUInt64(this IntPtr ptr)
+        {
+            return (ulong)Marshal.ReadInt64(ptr, 0);
+        }
+
+        public static ulong ReadUInt64(this IntPtr ptr, int offset)
+        {
+            return (ulong)Marshal.ReadInt64(ptr, offset);
         }
     }
 }

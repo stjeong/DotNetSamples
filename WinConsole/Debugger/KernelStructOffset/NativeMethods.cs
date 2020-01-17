@@ -45,11 +45,22 @@ namespace WindowsPE
     }
 
     [Flags]
-    public enum ProcessAccessRights
+    public enum ProcessAccessRights : uint
     {
         PROCESS_VM_READ = 0x10,
         PROCESS_DUP_HANDLE = 0x00000040,
         PROCESS_QUERY_INFORMATION = 0x0400,
+    }
+
+    [Flags]
+    public enum ThreadAccessRights : uint
+    {
+        THREAD_QUERY_INFORMATION = 0x00000040,
+
+        // Vista or later
+        THREAD_ALL_ACCESS = (uint)0xFFFF | NativeFileAccess.SYNCHRONIZE | NativeFileAccess.STANDARD_RIGHTS_REQUIRED,
+        // XP or below
+        // THREAD_ALL_ACCESS = (uint)0x3FF | NativeFileAccess.SYNCHRONIZE | NativeFileAccess.STANDARD_RIGHTS_REQUIRED,
     }
 
     public enum CodeViewSignature : uint
@@ -248,12 +259,6 @@ namespace WindowsPE
     }
 
     [Flags]
-    public enum ThreadAccessRights
-    {
-        THREAD_QUERY_INFORMATION = 0x00000040,
-    }
-
-    [Flags]
     public enum DuplicateHandleOptions
     {
         DUPLICATE_CLOSE_SOURCE = 0x1,
@@ -278,6 +283,7 @@ namespace WindowsPE
 
     public static class NativeMethods
     {
+        internal const int DBG_TERMINATE_THREAD = 0x40010003;
         private const int FORMAT_MESSAGE_FROM_SYSTEM = 0x00001000;
         private static readonly StringBuilder m_sbSysMsg = new StringBuilder(1024);
 
@@ -396,6 +402,15 @@ namespace WindowsPE
             [In] ProcessAccessRights dwDesiredAccess,
             [In, MarshalAs(UnmanagedType.Bool)] bool bInheritHandle,
             [In] int dwProcessId);
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        internal static extern IntPtr OpenThread(
+            [In] ThreadAccessRights dwDesiredAccess,
+            [In, MarshalAs(UnmanagedType.Bool)] bool bInheritHandle,
+            [In] int dwProcessId);
+
+        [DllImport("kernel32.dll")]
+        internal static extern bool TerminateThread(IntPtr hThread, uint dwExitCode);
 
         [DllImport("kernel32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]

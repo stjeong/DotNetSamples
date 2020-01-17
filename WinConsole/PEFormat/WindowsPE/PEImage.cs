@@ -18,10 +18,15 @@ namespace WindowsPE
         IMAGE_FILE_HEADER _fileHeader;
         IMAGE_OPTIONAL_HEADER32 _optionalHeader32;
         IMAGE_OPTIONAL_HEADER64 _optionalHeader64;
+        IMAGE_COR20_HEADER? _corHeader;
 
         IMAGE_SECTION_HEADER[] _sections;
 
         bool _is64BitHeader;
+        public bool Is64Bitness
+        {
+            get { return _is64BitHeader; }
+        }
 
         byte[] _bufferCached;
 
@@ -30,7 +35,9 @@ namespace WindowsPE
         {
             get { return _baseAddress; }
         }
-        
+
+        bool _readFromFile = false;
+
         string _filePath;
         public string ModulePath
         {
@@ -59,11 +66,11 @@ namespace WindowsPE
         {
             get
             {
-                return CLRRuntimeHeader.VirtualAddress != 0;
+                return CLRRuntimeHeaderDirectory.VirtualAddress != 0;
             }
         }
 
-        public IMAGE_DATA_DIRECTORY CLRRuntimeHeader
+        public IMAGE_DATA_DIRECTORY CLRRuntimeHeaderDirectory
         {
             get
             {
@@ -78,7 +85,7 @@ namespace WindowsPE
             }
         }
 
-        public IMAGE_DATA_DIRECTORY Export
+        public IMAGE_DATA_DIRECTORY ExportDirectory
         {
             get
             {
@@ -110,10 +117,14 @@ namespace WindowsPE
 
         public IEnumerable<IMAGE_SECTION_HEADER> EnumerateSections()
         {
-            for (int i = 0; i < _sections?.Length; i++)
-            {
-                yield return _sections[i];
-            }
+            return _sections;
+        }
+
+        public IEnumerable<VTableFixups> EnumerateVTableFixups()
+        {
+            IMAGE_COR20_HEADER corHeader = GetClrDirectoryHeader();
+            VTableFixups[] vtfs = Reads<VTableFixups>(corHeader.VTableFixups.VirtualAddress, corHeader.VTableFixups.Size);
+            return vtfs;
         }
 
         public ExportFunctionInfo GetExportFunction(string functionName)
@@ -133,30 +144,108 @@ namespace WindowsPE
 
         public IEnumerable<ExportFunctionInfo> EnumerateExportFunctions()
         {
-            ExportFunctionInfo[] functions = GetExportFunctions();
+            return GetExportFunctions();
+        }
 
-            for (int i = 0; i < functions?.Length; i++)
+        public unsafe byte[] ReadBytes(uint rvaAddress, int nBytes)
+        {
+            byte[] byteBuffer = new byte[nBytes];
+
+            IMAGE_SECTION_HEADER section = GetSection((int)rvaAddress);
+            GetSafeBuffer(0, (uint)section.EndAddress, out BufferPtr buffer);
+
+            try
             {
-                yield return functions[i];
+                IntPtr bytePos = GetSafeBuffer(buffer, rvaAddress);
+                int maxRead = Math.Min((int)(rvaAddress + nBytes), (int)section.EndAddress);
+
+                for (int i = (int)rvaAddress; i < maxRead; i++)
+                {
+                    int pos = (int)(i - rvaAddress);
+                    byteBuffer[pos] = bytePos.ReadByte(pos);
+                }
             }
+            finally
+            {
+                buffer.Clear();
+            }
+
+            return byteBuffer;
+        }
+
+        public unsafe T Read<T>(uint rvaAddress) where T : struct
+        {
+            IMAGE_SECTION_HEADER section = GetSection((int)rvaAddress);
+            GetSafeBuffer(0, (uint)section.VirtualAddress + (uint)section.SizeOfRawData, out BufferPtr buffer);
+
+            try
+            {
+                IntPtr bytePos = GetSafeBuffer(buffer, rvaAddress);
+                return (T)Marshal.PtrToStructure(bytePos, typeof(T));
+            }
+            finally
+            {
+                buffer.Clear();
+            }
+        }
+
+        public unsafe T [] Reads<T>(uint rvaAddress, uint totalSize) where T : struct
+        {
+            IMAGE_SECTION_HEADER section = GetSection((int)rvaAddress);
+            GetSafeBuffer(0, (uint)section.VirtualAddress + (uint)section.SizeOfRawData, out BufferPtr buffer);
+
+            List<T> list = new List<T>();
+
+            uint entrySize = (uint)Marshal.SizeOf(default(T));
+            uint count = totalSize / entrySize;
+
+            try
+            {
+                for (uint i = 0; i < count; i++)
+                {
+                    IntPtr bytePos = GetSafeBuffer(buffer, rvaAddress + (i * entrySize));
+                    list.Add((T)Marshal.PtrToStructure(bytePos, typeof(T)));
+                }
+            }
+            finally
+            {
+                buffer.Clear();
+            }
+
+            return list.ToArray();
+        }
+
+        public IMAGE_COR20_HEADER GetClrDirectoryHeader()
+        {
+            if (CLRRuntimeHeaderDirectory.VirtualAddress == 0)
+            {
+                return default;
+            }
+
+            if (_corHeader == null)
+            {
+                _corHeader = Read<IMAGE_COR20_HEADER>(CLRRuntimeHeaderDirectory.VirtualAddress);
+            }
+
+            return _corHeader.Value;
         }
 
         public unsafe ExportFunctionInfo[] GetExportFunctions()
         {
-            if (Export.VirtualAddress == 0)
+            if (ExportDirectory.VirtualAddress == 0)
             {
                 return null;
             }
 
-            IMAGE_SECTION_HEADER section = GetSection((int)Export.VirtualAddress);
+            IMAGE_SECTION_HEADER section = GetSection((int)ExportDirectory.VirtualAddress);
 
             GetSafeBuffer(0, (uint)section.VirtualAddress + (uint)section.SizeOfRawData, out BufferPtr buffer);
             List<ExportFunctionInfo> list = new List<ExportFunctionInfo>();
 
             try
             {
-                IntPtr exportDir = GetSafeBuffer(buffer, Export.VirtualAddress);
-                IMAGE_EXPORT_DIRECTORY dir = (IMAGE_EXPORT_DIRECTORY)Marshal.PtrToStructure(exportDir, typeof(IMAGE_EXPORT_DIRECTORY));
+                IntPtr exportDirPos = GetSafeBuffer(buffer, ExportDirectory.VirtualAddress);
+                IMAGE_EXPORT_DIRECTORY dir = (IMAGE_EXPORT_DIRECTORY)Marshal.PtrToStructure(exportDirPos, typeof(IMAGE_EXPORT_DIRECTORY));
 
                 IntPtr nameListPtr = GetSafeBuffer(buffer, dir.AddressOfNames);
                 UnmanagedMemoryStream ums = new UnmanagedMemoryStream((byte*)nameListPtr.ToPointer(), dir.NumberOfNames * sizeof(int));
@@ -186,7 +275,6 @@ namespace WindowsPE
             return list.ToArray();
         }
 
-#if _INCLUDE_MANAGED_STRUCTS
         public IEnumerable<CodeViewRSDS> EnumerateCodeViewDebugInfo()
         {
             foreach (IMAGE_DEBUG_DIRECTORY debugDir in EnumerateDebugDir())
@@ -208,13 +296,12 @@ namespace WindowsPE
                 }
             }
         }
-#endif
 
         IntPtr GetSafeBuffer(uint rva, uint size, out BufferPtr buffer)
         {
             buffer = null;
 
-            if (_baseAddress == IntPtr.Zero)
+            if (_readFromFile == true)
             {
                 int startAddress = Rva2Raw((int)rva);
                 int endAddress = startAddress + (int)size;
@@ -389,6 +476,7 @@ namespace WindowsPE
                 {
                     PEImage image = ReadFromMemory(pm.BaseAddress, pm.ModuleMemorySize);
                     image._filePath = pm.FileName;
+                    image._readFromFile = false;
                     image._baseAddress = pm.BaseAddress;
                     image._memorySize = pm.ModuleMemorySize;
                     return image;
@@ -423,6 +511,7 @@ namespace WindowsPE
                 return null;
             }
 
+            image._readFromFile = false;
             image._baseAddress = baseAddress;
             image._memorySize = memorySize;
 
@@ -440,7 +529,10 @@ namespace WindowsPE
                     return null;
                 }
 
+                image._readFromFile = true;
                 image._filePath = filePath;
+                image._baseAddress = new IntPtr((image._is64BitHeader == true) ? (long)image._optionalHeader64.ImageBase
+                                        : image._optionalHeader32.ImageBase);
 
                 return image;
             }

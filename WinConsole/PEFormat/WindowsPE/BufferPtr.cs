@@ -8,7 +8,7 @@ namespace WindowsPE
 {
     public class BufferPtr : IDisposable
     {
-        byte[] _buffer;
+        readonly byte[] _buffer;
         GCHandle _pinHandle;
 
         public byte [] Buffer

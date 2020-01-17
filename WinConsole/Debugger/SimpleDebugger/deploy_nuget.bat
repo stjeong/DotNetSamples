@@ -5,6 +5,7 @@ SET PRJNAME=SimpleDebugger
 FOR /F %%I IN ("%0") DO SET CURRENTDIR=%%~dpI
 
 msbuild %CURRENTDIR%%PRJNAME%.csproj /p:Configuration=%BUILDCONFIG%;DefineConstants="TRACE" /t:Rebuild
+if %ERRORLEVEL% GTR 0 goto BuildError
 
 robocopy %CURRENTDIR%bin\%BUILDCONFIG% %CURRENTDIR%nuget\root\lib\net40
 robocopy %CURRENTDIR% %CURRENTDIR%nuget\root %PRJNAME%.nuspec

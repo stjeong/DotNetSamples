@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{DB03678E-DD4D-4CE5-807F-36FCA0D8DC72}</ProjectGuid>
+    <ProjectGuid>{D9CD2747-6955-4875-BF2D-1F1956008A79}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>WindowsPE</RootNamespace>
-    <AssemblyName>WindowsPE</AssemblyName>
+    <RootNamespace>DetourFunc</RootNamespace>
+    <AssemblyName>DetourFunc</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -18,23 +18,22 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;_INCLUDE_MANAGED_STRUCTS</DefineConstants>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <NoWarn>CA1031;IDE1006</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE;_INCLUDE_MANAGED_STRUCTS</DefineConstants>
+    <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <NoWarn>CA1031</NoWarn>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="SharpDisasm, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\SharpDisasm.1.1.11\lib\net40\SharpDisasm.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -44,27 +43,20 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\Debugger\KernelStructOffset\KnownStructs.cs">
-      <Link>KnownStructs.cs</Link>
-    </Compile>
-    <Compile Include="..\..\Debugger\KernelStructOffset\ManagedStructs.cs">
-      <Link>ManagedStructs.cs</Link>
-    </Compile>
-    <Compile Include="..\..\Debugger\KernelStructOffset\NativeMethods.cs">
-      <Link>NativeMethods.cs</Link>
-    </Compile>
-    <Compile Include="BufferPtr.cs" />
-    <Compile Include="ExtensionHelper.cs" />
-    <Compile Include="ILDecoder.cs" />
-    <Compile Include="PdbDump.cs" />
-    <Compile Include="PdbStore.cs" />
-    <Compile Include="PEImage.cs" />
-    <Compile Include="PEManaged.cs" />
+    <Compile Include="MethodReplacer.cs" />
+    <Compile Include="NativeMethods.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="deploy_nuget.bat" />
-    <None Include="WindowsPE.nuspec" />
+    <None Include="DetourFunc.nuspec" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\WindowsPE\WindowsPE.csproj">
+      <Project>{db03678e-dd4d-4ce5-807f-36fca0d8dc72}</Project>
+      <Name>WindowsPE</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

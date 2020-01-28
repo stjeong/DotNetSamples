@@ -6,11 +6,13 @@ using System.Linq;
 using System.Text;
 using WindowsPE;
 
+#pragma warning disable IDE0051, CA1031
+
 namespace PEFormatSample
 {
     class Program
     {
-        static void Main(string[] args)
+        static void Main(string[] _)
         {
             //// Is DLL managed/unmanaged?
             //CheckDlls();
@@ -41,7 +43,7 @@ namespace PEFormatSample
             {
                 Console.WriteLine($"[{pm.FileName}, 0x{pm.BaseAddress.ToString("x")}]");
 
-                PEImage pe = null;
+                PEImage pe;
 
                 if (fromFile == true)
                 {
@@ -233,7 +235,7 @@ namespace PEFormatSample
             {
                 Console.WriteLine($"[{pm.FileName}, 0x{pm.BaseAddress.ToString("x")}]");
 
-                PEImage pe = null;
+                PEImage pe;
 
                 if (fromFile == true)
                 {
@@ -279,7 +281,7 @@ namespace PEFormatSample
             {
                 Console.WriteLine($"[{pm.FileName}, 0x{pm.BaseAddress.ToString("x")}]");
 
-                PEImage pe = null;
+                PEImage pe;
 
                 if (fromFile == true)
                 {

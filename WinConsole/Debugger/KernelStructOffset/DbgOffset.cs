@@ -11,9 +11,9 @@ namespace KernelStructOffset
 {
     public class DbgOffset
     {
-        static Dictionary<string, DbgOffset> _cache = new Dictionary<string, DbgOffset>();
+        static readonly Dictionary<string, DbgOffset> _cache = new Dictionary<string, DbgOffset>();
 
-        Dictionary<string, StructFieldInfo> _fieldDict = new Dictionary<string, StructFieldInfo>();
+        readonly Dictionary<string, StructFieldInfo> _fieldDict = new Dictionary<string, StructFieldInfo>();
 
         public static DbgOffset Get(string typeName)
         {
@@ -72,9 +72,9 @@ namespace KernelStructOffset
             return baseAddress + _fieldDict[fieldName].Offset;
         }
 
-        public unsafe bool TryRead<T>(IntPtr baseAddress, string fieldName, out T value) where T: struct
+        public unsafe bool TryRead<T>(IntPtr baseAddress, string fieldName, out T value) where T : struct
         {
-            value = default(T);
+            value = default;
 
             if (_fieldDict.ContainsKey(fieldName) == false)
             {
@@ -116,14 +116,16 @@ namespace KernelStructOffset
         {
             UnpackDisplayStructApp();
 
-            ProcessStartInfo psi = new ProcessStartInfo();
-            psi.FileName = "DisplayStruct.exe";
-            psi.UseShellExecute = false;
-            psi.WorkingDirectory = Path.GetDirectoryName(typeof(DbgOffset).Assembly.Location);
-            psi.Arguments = $"{typeName} {moduleName}" + ((string.IsNullOrEmpty(pidOrPath) == true) ? "" : $" \"{pidOrPath}\"");
-            psi.CreateNoWindow = true;
-            psi.RedirectStandardOutput = true;
-            psi.LoadUserProfile = false;
+            ProcessStartInfo psi = new ProcessStartInfo()
+            {
+                FileName = "DisplayStruct.exe",
+                UseShellExecute = false,
+                WorkingDirectory = Path.GetDirectoryName(typeof(DbgOffset).Assembly.Location),
+                Arguments = $"{typeName} {moduleName}" + ((string.IsNullOrEmpty(pidOrPath) == true) ? "" : $" \"{pidOrPath}\""),
+                CreateNoWindow = true,
+                RedirectStandardOutput = true,
+                LoadUserProfile = false,
+            };
 
             Process child = Process.Start(psi);
             string text = child.StandardOutput.ReadToEnd();
@@ -146,15 +148,13 @@ namespace KernelStructOffset
                     break;
                 }
 
-                int offsetEndPos = 0;
-                int offset = ReadOffset(line, out offsetEndPos);
+                int offset = ReadOffset(line, out int offsetEndPos);
                 if (offsetEndPos == -1 || offset == -1)
                 {
                     continue;
                 }
 
-                int nameEndPos = 0;
-                string name = ReadFieldName(line, offsetEndPos, out nameEndPos);
+                string name = ReadFieldName(line, offsetEndPos, out int nameEndPos);
                 if (string.IsNullOrEmpty(name) == true || nameEndPos == -1)
                 {
                     continue;

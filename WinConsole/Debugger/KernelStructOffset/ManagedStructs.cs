@@ -27,6 +27,34 @@ namespace WindowsPE
             Offset = offset;
             Type = type;
         }
+
+        public static bool operator ==(StructFieldInfo t1, StructFieldInfo t2)
+        {
+            return t1.Equals(t2);
+        }
+
+        public static bool operator !=(StructFieldInfo t1, StructFieldInfo t2)
+        {
+            return !t1.Equals(t2);
+        }
+
+        public override bool Equals(object obj)
+        {
+            StructFieldInfo target = (StructFieldInfo)obj;
+
+            if (target.Name == this.Name)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return this.Name?.GetHashCode() ?? 0;
+        }
+
     }
 
     public class DllOrderLink
@@ -42,6 +70,33 @@ namespace WindowsPE
         public Guid Signature;
         public uint Age;
         public string PdbFileName;
+
+        public static bool operator == (CodeViewRSDS t1, CodeViewRSDS t2)
+        {
+            return t1.Equals(t2);
+        }
+
+        public static bool operator != (CodeViewRSDS t1, CodeViewRSDS t2)
+        {
+            return !t1.Equals(t2);
+        }
+
+        public override bool Equals(object obj)
+        {
+            CodeViewRSDS target = (CodeViewRSDS)obj;
+
+            if (target.Signature == this.Signature && target.Age == this.Age)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return Signature.GetHashCode() + Age.GetHashCode();
+        }
 
         public string PdbLocalPath
         {
@@ -76,6 +131,33 @@ namespace WindowsPE
         public short HandleValue;
         public IntPtr ObjectPointer;
         public int AccessMask;
+
+        public static bool operator ==(_SYSTEM_HANDLE_TABLE_ENTRY_INFO t1, _SYSTEM_HANDLE_TABLE_ENTRY_INFO t2)
+        {
+            return t1.Equals(t2);
+        }
+
+        public static bool operator !=(_SYSTEM_HANDLE_TABLE_ENTRY_INFO t1, _SYSTEM_HANDLE_TABLE_ENTRY_INFO t2)
+        {
+            return !t1.Equals(t2);
+        }
+
+        public override int GetHashCode()
+        {
+            return this.ObjectPointer.GetHashCode();
+        }
+
+        public override bool Equals(object obj)
+        {
+            _SYSTEM_HANDLE_TABLE_ENTRY_INFO target = (_SYSTEM_HANDLE_TABLE_ENTRY_INFO)obj;
+
+            if (target.ObjectPointer == this.ObjectPointer)
+            {
+                return true;
+            }
+
+            return false;
+        }
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -499,6 +581,33 @@ namespace WindowsPE
                     _mr = null;
                 }
             }
+        }
+
+        public static bool operator ==(_SYSTEM_HANDLE_TABLE_ENTRY_INFO_EX t1, _SYSTEM_HANDLE_TABLE_ENTRY_INFO_EX t2)
+        {
+            return t1.Equals(t2);
+        }
+
+        public static bool operator !=(_SYSTEM_HANDLE_TABLE_ENTRY_INFO_EX t1, _SYSTEM_HANDLE_TABLE_ENTRY_INFO_EX t2)
+        {
+            return !t1.Equals(t2);
+        }
+
+        public override int GetHashCode()
+        {
+            return this.ObjectPointer.GetHashCode();
+        }
+
+        public override bool Equals(object obj)
+        {
+            _SYSTEM_HANDLE_TABLE_ENTRY_INFO_EX target = (_SYSTEM_HANDLE_TABLE_ENTRY_INFO_EX)obj;
+
+            if (target.ObjectPointer == this.ObjectPointer)
+            {
+                return true;
+            }
+
+            return false;
         }
     }
 }

@@ -60,22 +60,31 @@ namespace WindowsPE
 
         public static unsafe byte ReadByte(this IntPtr ptr, int position)
         {
-            UnmanagedMemoryStream ums = new UnmanagedMemoryStream((byte*)ptr.ToPointer(), (position + 1));
-            ums.Position = position;
+            UnmanagedMemoryStream ums = new UnmanagedMemoryStream((byte*)ptr.ToPointer(), (position + 1))
+            {
+                Position = position,
+            };
+            
             return (byte)ums.ReadByte();
         }
 
         public static unsafe ushort ReadUInt16ByIndex(this IntPtr ptr, int index)
         {
-            UnmanagedMemoryStream ums = new UnmanagedMemoryStream((byte*)ptr.ToPointer(), (index + 1) * sizeof(ushort));
-            ums.Position = index * sizeof(ushort);
+            UnmanagedMemoryStream ums = new UnmanagedMemoryStream((byte*)ptr.ToPointer(), (index + 1) * sizeof(ushort))
+            {
+                Position = index * sizeof(ushort),
+            };
+
             return ums.ReadUInt16();
         }
 
         public static unsafe uint ReadUInt32ByIndex(this IntPtr ptr, int index)
         {
-            UnmanagedMemoryStream ums = new UnmanagedMemoryStream((byte*)ptr.ToPointer(), (index + 1) * sizeof(uint));
-            ums.Position = index * sizeof(uint);
+            UnmanagedMemoryStream ums = new UnmanagedMemoryStream((byte*)ptr.ToPointer(), (index + 1) * sizeof(uint))
+            {
+                Position = index * sizeof(uint),
+            };
+
             return ums.ReadUInt32();
         }
 
@@ -97,6 +106,35 @@ namespace WindowsPE
         public static ulong ReadUInt64(this IntPtr ptr, int offset)
         {
             return (ulong)Marshal.ReadInt64(ptr, offset);
+        }
+        public static void WriteInt64(this IntPtr ptr, long value)
+        {
+            Marshal.WriteInt64(ptr, value);
+        }
+
+        public static void WriteInt32(this IntPtr ptr, int value)
+        {
+            Marshal.WriteInt32(ptr, value);
+        }
+
+        public static long ReadInt64(this IntPtr ptr)
+        {
+            return Marshal.ReadInt64(ptr, 0);
+        }
+
+        public static int ReadInt32(this IntPtr ptr)
+        {
+            return Marshal.ReadInt32(ptr, 0);
+        }
+
+        public static ulong ToUInt64(this IntPtr ptr)
+        {
+            return (ulong)ptr.ToInt64();
+        }
+
+        public static uint ToUInt32(this IntPtr ptr)
+        {
+            return (uint)ptr.ToInt32();
         }
     }
 }

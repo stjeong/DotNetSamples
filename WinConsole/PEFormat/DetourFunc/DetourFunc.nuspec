@@ -1,14 +1,14 @@
 <?xml version="1.0"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <metadata>
-        <id>WindowsPE</id>
-        <title>PE Parser written in C#</title>
-        <version>1.1.6</version>
+        <id>DetourFunc</id>
+        <title>Detours Win32/.NET Methods</title>
+        <version>1.0.0</version>
         <authors>SeongTae Jeong</authors>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
-        <description>It parses PE Header for x86/x64 from File and in-memory Image.</description>
+        <description>Detours Win32/.NET Methods.</description>
         <tags>PE</tags>
-        <projectUrl>https://github.com/stjeong/DotNetSamples/tree/master/WinConsole/PEFormat/WindowsPE</projectUrl>
+        <projectUrl>https://github.com/stjeong/DotNetSamples/tree/master/WinConsole/PEFormat/DetourFunc</projectUrl>
         <license type="expression">MIT</license>
         <dependencies>
           <group targetFramework=".NETFramework4.0" />

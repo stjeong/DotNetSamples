@@ -35,25 +35,44 @@ namespace WindowsPE
         NumSymTypes
     }
 
+    [Flags]
     public enum SymOpt : uint
     {
-        SYMOPT_UNDNAME = 0x00000002,
-        SYMOPT_DEFERRED_LOADS = 0x00000004,
-        SYMOPT_LOAD_LINES = 0x00000010,
-        SYMOPT_IGNORE_NT_SYMPATH = 0x00001000,
-        SYMOPT_DEBUG = 0x80000000,
+        UNDNAME = 0x2,
+        DEFERRED_LOADS = 0x4,
+        LOAD_LINES = 0x10,
+        IGNORE_NT_SYMPATH = 0x1000,
+        DEBUG = 0x80000000,
+    }
+
+    // Memory Protection Constants
+    // https://docs.microsoft.com/en-us/windows/win32/memory/memory-protection-constants
+    [Flags]
+    public enum PageAccessRights : uint
+    {
+        NONE = 0x0,
+        PAGE_NOACCESS = 0x01,
+        PAGE_READONLY = 0x02,
+        PAGE_READWRITE = 0x04,
+        PAGE_EXECUTE = 0x10,
+        PAGE_EXECUTE_READ = 0x20,
+        PAGE_EXECUTE_READWRITE = 0x40,
     }
 
     [Flags]
     public enum ProcessAccessRights : uint
     {
+        PROCESS_VM_OPERATION = 0x0008,
         PROCESS_VM_READ = 0x10,
+        PROCESS_VM_WRITE = 0x0020,
         PROCESS_DUP_HANDLE = 0x00000040,
         PROCESS_QUERY_INFORMATION = 0x0400,
     }
 
     [Flags]
+#pragma warning disable CA2217 // Do not mark enums with FlagsAttribute
     public enum ThreadAccessRights : uint
+#pragma warning restore CA2217 // Do not mark enums with FlagsAttribute
     {
         THREAD_QUERY_INFORMATION = 0x00000040,
 
@@ -97,7 +116,9 @@ namespace WindowsPE
     }
 
     [Flags]
+#pragma warning disable CA2217 // Do not mark enums with FlagsAttribute
     public enum NativeFileAccess : uint
+#pragma warning restore CA2217 // Do not mark enums with FlagsAttribute
     {
         FILE_SPECIAL = 0,
         FILE_APPEND_DATA = (0x0004), // file
@@ -144,6 +165,7 @@ namespace WindowsPE
         IMAGE_SUBSYSTEM_XBOX = 14
     }
 
+    [Flags]
     public enum DllCharacteristicsType : ushort
     {
         RES_0 = 0x0001,
@@ -304,7 +326,7 @@ namespace WindowsPE
             }
         }
 
-        [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Auto)]
+        [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
         internal static extern SafeFileHandle CreateFile(string fileName,
                                                        [MarshalAs(UnmanagedType.U4)] NativeFileAccess fileAccess,
                                                        [MarshalAs(UnmanagedType.U4)] NativeFileShare fileShare,
@@ -343,7 +365,7 @@ namespace WindowsPE
                                                           ref int pBytesReturned,
                                                           IntPtr Overlapped);
 
-        [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Auto)]
+        [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
         internal static extern int FormatMessage(int dwFlags,
                                                 IntPtr lpSource,
                                                 int dwMessageId,
@@ -353,7 +375,7 @@ namespace WindowsPE
                                                 IntPtr lpArguments);
 
         [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Ansi)]
-        public static extern bool GetOverlappedResult(SafeHandle hDevice, IntPtr lpOverlapped, out int lpNumberOfBytesTransferred, bool bWait);
+        internal static extern bool GetOverlappedResult(SafeHandle hDevice, IntPtr lpOverlapped, out int lpNumberOfBytesTransferred, bool bWait);
 
         [DllImport("kernel32.dll", SetLastError = true)]
         internal static extern IntPtr VirtualAlloc(IntPtr lpAddress, UIntPtr dwSize, AllocationType flAllocationType,
@@ -369,7 +391,7 @@ namespace WindowsPE
         [return: MarshalAs(UnmanagedType.Bool)]
         internal static extern bool IsWow64Process([In] IntPtr hProcess, [Out] out bool lpSystemInfo);
 
-        [DllImport("psapi.dll", SetLastError = true)]
+        [DllImport("psapi.dll", SetLastError = true, CharSet = CharSet.Unicode)]
         internal static extern uint GetModuleFileNameEx(IntPtr hProcess,
             IntPtr hModule,
             [Out] StringBuilder lpBaseName,
@@ -395,7 +417,7 @@ namespace WindowsPE
         internal static extern int GetThreadId(IntPtr threadHandle);
 
         [DllImport("kernel32.dll")]
-        public static extern uint GetCurrentThreadId();
+        internal static extern uint GetCurrentThreadId();
 
         [DllImport("kernel32.dll", SetLastError = true)]
         internal static extern IntPtr OpenProcess(
@@ -436,9 +458,9 @@ namespace WindowsPE
         [ReliabilityContract(Consistency.WillNotCorruptState, Cer.Success)]
         [DllImport("kernel32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool CloseHandle([In] IntPtr hObject);
+        internal static extern bool CloseHandle([In] IntPtr hObject);
 
-        [DllImport("kernel32.dll", SetLastError = true)]
+        [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
         internal static extern int QueryDosDevice(
             [In] string lpDeviceName,
             [Out] StringBuilder lpTargetPath,
@@ -456,10 +478,10 @@ namespace WindowsPE
         [DllImport("Dbghelp.dll", SetLastError = true)]
         internal static extern uint SymSetOptions(uint SymOptions);
 
-        [DllImport("Dbghelp.dll", SetLastError = true)]
+        [DllImport("Dbghelp.dll", SetLastError = true, CharSet = CharSet.Unicode)]
         internal static extern bool SymInitialize(IntPtr hProcess, string UserSearchPath, bool fInvadeProcess);
 
-        [DllImport("Dbghelp.dll", SetLastError = true)]
+        [DllImport("Dbghelp.dll", SetLastError = true, CharSet = CharSet.Unicode)]
         internal static unsafe extern ulong SymLoadModuleEx(IntPtr hProcess,
           IntPtr hFile,
           string ImageName,
@@ -470,7 +492,9 @@ namespace WindowsPE
           uint Flags);
 
         [DllImport("kernel32", SetLastError = true, CharSet = CharSet.Ansi)]
-        public static extern IntPtr LoadLibrary([MarshalAs(UnmanagedType.LPStr)]string lpFileName);
+#pragma warning disable CA2101
+        internal static extern IntPtr LoadLibrary([MarshalAs(UnmanagedType.LPStr)]string lpFileName);
+#pragma warning restore CA2101
 
         [DllImport("Dbghelp.dll", SetLastError = true)]
         internal static unsafe extern bool SymGetModuleInfo64(IntPtr hProcess, ulong qwAddr, ref _IMAGEHLP_MODULE64 ModuleInfo);
@@ -497,10 +521,16 @@ namespace WindowsPE
         [DllImport("dbghelp.dll", SetLastError = true, EntryPoint = "SymCleanup")]
         internal static extern bool SymCleanup(IntPtr hProcess);
 
-        [DllImport("user32.dll", CharSet = CharSet.Auto)]
-        public static extern IntPtr SendMessage(IntPtr hWnd, int Msg, int wParam, ref IntPtr lParam);
+        [DllImport("user32.dll")]
+        internal static extern IntPtr SendMessage(IntPtr hWnd, int Msg, int wParam, ref IntPtr lParam);
+
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
+        internal static extern void OutputDebugString(string lpOutputString);
 
         [DllImport("kernel32.dll")]
-        public static extern void OutputDebugString(string lpOutputString);
+        internal static extern bool VirtualProtectEx(IntPtr hProcess, IntPtr lpAddress, UIntPtr dwSize, PageAccessRights flNewProtect, out PageAccessRights lpflOldProtect);
+
+        [DllImport("kernel32.dll")]
+        internal static extern bool FlushInstructionCache(IntPtr hProcess, IntPtr lpBaseAddress, UIntPtr dwSize);
     }
 }

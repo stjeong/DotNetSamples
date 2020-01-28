@@ -12,9 +12,9 @@ namespace WindowsPE
     public class PdbDump : IDisposable
     {
         IntPtr _hProcess = IntPtr.Zero;
-        string _pdbFilePath;
-        IntPtr _baseAddress;
-        int _memorySize;
+        readonly string _pdbFilePath;
+        readonly IntPtr _baseAddress;
+        readonly int _memorySize;
 
         bool _symInitialized = false;
 
@@ -22,13 +22,13 @@ namespace WindowsPE
         {
             uint options = NativeMethods.SymGetOptions();
 
-            options &= ~(uint)SymOpt.SYMOPT_DEFERRED_LOADS;
-            options |= (uint)SymOpt.SYMOPT_LOAD_LINES;
-            options |= (uint)SymOpt.SYMOPT_IGNORE_NT_SYMPATH;
+            options &= ~(uint)SymOpt.DEFERRED_LOADS;
+            options |= (uint)SymOpt.LOAD_LINES;
+            options |= (uint)SymOpt.IGNORE_NT_SYMPATH;
 #if ENABLE_DEBUG_OUTPUT
             options |= (uint)SymOpt.SYMOPT_DEBUG;
 #endif
-            options |= (uint)SymOpt.SYMOPT_UNDNAME;
+            options |= (uint)SymOpt.UNDNAME;
 
             NativeMethods.SymSetOptions(options);
 
@@ -76,21 +76,6 @@ namespace WindowsPE
             }
 
             return store;
-        }
-
-        public void Dispose()
-        {
-            if (_hProcess != IntPtr.Zero)
-            {
-                NativeMethods.CloseHandle(_hProcess);
-                _hProcess = IntPtr.Zero;
-            }
-
-            if (_symInitialized == true)
-            {
-                NativeMethods.SymCleanup(_hProcess);
-                _symInitialized = false;
-            }
         }
 
         public IEnumerable<SYMBOL_INFO> EnumerateTypes()
@@ -142,16 +127,47 @@ namespace WindowsPE
 
         // It's possible even if processHandle is not real Handle. (For example processHandle == 0x493)
         // Also, base_addr and moduleSize can be arbitrary.
-        private static unsafe IntPtr LoadPdbModule(IntPtr processHandle, string pdbFilePath)
-        {
-            IntPtr base_addr = new IntPtr(0x400000);
-            return LoadPdbModule(processHandle, pdbFilePath, base_addr, 0x7fffffff);
-        }
+        // private static unsafe IntPtr LoadPdbModule(IntPtr processHandle, string pdbFilePath)
+        // {
+        //     IntPtr base_addr = new IntPtr(0x400000);
+        //     return LoadPdbModule(processHandle, pdbFilePath, base_addr, 0x7fffffff);
+        // }
 
         private static unsafe IntPtr LoadPdbModule(IntPtr processHandle, string pdbFilePath, IntPtr baseAddress, uint moduleSize)
         {
             return new IntPtr((long)NativeMethods.SymLoadModuleEx(processHandle,
                 IntPtr.Zero, pdbFilePath, null, baseAddress.ToInt64(), moduleSize, null, 0));
+        }
+
+        bool _disposed = false;
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_disposed == false)
+            {
+                if (disposing == true)
+                {
+                    if (_hProcess != IntPtr.Zero)
+                    {
+                        NativeMethods.CloseHandle(_hProcess);
+                        _hProcess = IntPtr.Zero;
+                    }
+
+                    if (_symInitialized == true)
+                    {
+                        NativeMethods.SymCleanup(_hProcess);
+                        _symInitialized = false;
+                    }
+                }
+
+                _disposed = true;
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
     }
 }

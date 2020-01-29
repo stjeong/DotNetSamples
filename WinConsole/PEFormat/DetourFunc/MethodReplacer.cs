@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using WindowsPE;
@@ -19,6 +21,12 @@ namespace DetourFunc
 
         public static MethodReplacer Win32FuncWithManagedFunc<T>(T dllImportMethod, T funcToReplace, out T saveOrgFunc) where T : Delegate
         {
+            return Win32FuncWithManagedFunc<T, T>(dllImportMethod, funcToReplace, out saveOrgFunc);
+        }
+
+        public static MethodReplacer Win32FuncWithManagedFunc<T, TDelegate>(T dllImportMethod, T funcToReplace, out TDelegate saveOrgFunc) where T : Delegate
+            where TDelegate : Delegate
+        {
             saveOrgFunc = null;
 
             foreach (var attr in dllImportMethod.Method.GetCustomAttributes(false))
@@ -30,7 +38,7 @@ namespace DetourFunc
 
                     if (string.IsNullOrEmpty(dllName) == false && string.IsNullOrEmpty(funcName) == false)
                     {
-                        return Win32FuncWithManagedFunc(dllName, funcName, funcToReplace, out saveOrgFunc);
+                        return Win32FuncWithManagedFunc<T, TDelegate>(dllName, funcName, funcToReplace, out saveOrgFunc);
                     }
                 }
             }
@@ -40,6 +48,12 @@ namespace DetourFunc
 
         public static MethodReplacer Win32FuncWithManagedFunc<T>(string win32Dll, string win32FuncName, T funcToReplace, out T saveOrgFunc) where T : Delegate
         {
+            return Win32FuncWithManagedFunc<T, T>(win32Dll, win32FuncName, funcToReplace, out saveOrgFunc);
+        }
+
+        public static MethodReplacer Win32FuncWithManagedFunc<T, TDelegate>(string win32Dll, string win32FuncName, T funcToReplace, out TDelegate saveOrgFunc) where T : Delegate
+            where TDelegate : Delegate
+        {
             saveOrgFunc = null;
 
             IntPtr orgFuncAddr = GetEATFunctionAddress(win32Dll, win32FuncName, out IntPtr addressOrgFuncAddr);
@@ -48,19 +62,25 @@ namespace DetourFunc
                 return null;
             }
 
+            IntPtr proxyFuncAddr;
+
             if (typeof(T).IsGenericType == true)
             {
-                return null;
+                proxyFuncAddr = funcToReplace.Method.MethodHandle.GetFunctionPointer();
+            }
+            else
+            {
+                proxyFuncAddr = Marshal.GetFunctionPointerForDelegate(funcToReplace);
             }
 
-            IntPtr proxyFuncAddr = Marshal.GetFunctionPointerForDelegate(funcToReplace);
             if (proxyFuncAddr == IntPtr.Zero)
             {
                 return null;
             }
 
             MethodReplacer mr = new MethodReplacer();
-            if (mr.Win32FuncWith<T>(addressOrgFuncAddr, orgFuncAddr, proxyFuncAddr, out saveOrgFunc) == false)
+
+            if (mr.Win32FuncWith<T, TDelegate>(addressOrgFuncAddr, orgFuncAddr, proxyFuncAddr, funcToReplace.Method.ReturnType, out saveOrgFunc) == false)
             {
                 return null;
             }
@@ -69,6 +89,12 @@ namespace DetourFunc
         }
 
         public static MethodReplacer Win32FuncWithExportFunc<T>(string win32Dll, string win32FuncName, T funcToReplace, out T saveOrgFunc) where T : Delegate
+        {
+            return Win32FuncWithExportFunc<T, T>(win32Dll, win32FuncName, funcToReplace, out saveOrgFunc);
+        }
+
+        public static MethodReplacer Win32FuncWithExportFunc<T, TDelegate>(string win32Dll, string win32FuncName, T funcToReplace, out TDelegate saveOrgFunc) where T : Delegate
+            where TDelegate : Delegate
         {
             saveOrgFunc = null;
 
@@ -88,7 +114,7 @@ namespace DetourFunc
             }
 
             MethodReplacer mr = new MethodReplacer();
-            if (mr.Win32FuncWith<T>(addressOrgFuncAddr, orgFuncAddr, proxyFuncAddr, out saveOrgFunc) == false)
+            if (mr.Win32FuncWith<T, TDelegate>(addressOrgFuncAddr, orgFuncAddr, proxyFuncAddr, funcToReplace.Method.ReturnType, out saveOrgFunc) == false)
             {
                 return null;
             }
@@ -96,15 +122,38 @@ namespace DetourFunc
             return mr;
         }
 
-        private bool Win32FuncWith<T>(IntPtr addressOrgFuncAddr, IntPtr orgFuncAddr, IntPtr proxyFuncAddr, out T saveOrgFunc) where T : Delegate
+        // https://stackoverflow.com/questions/26699394/c-sharp-getdelegateforfunctionpointer-with-generic-delegate
+        public static class DelegateCreator
+        {
+            private static readonly Func<Type[], Type> MakeNewCustomDelegate = (Func<Type[], Type>)Delegate.CreateDelegate(typeof(Func<Type[], Type>), typeof(Expression).Assembly.GetType("System.Linq.Expressions.Compiler.DelegateHelpers").GetMethod("MakeNewCustomDelegate", BindingFlags.NonPublic | BindingFlags.Static));
+
+            public static Type NewDelegateType(Type ret, params Type[] parameters)
+            {
+                Type[] args = new Type[parameters.Length + 1];
+                parameters.CopyTo(args, 0);
+                args[args.Length - 1] = ret;
+
+                return MakeNewCustomDelegate(args);
+            }
+        }
+
+        private bool Win32FuncWith<T, TDelegate>(IntPtr addressOrgFuncAddr, IntPtr orgFuncAddr, IntPtr proxyFuncAddr, Type returnType, out TDelegate saveOrgFunc) where T : Delegate
+            where TDelegate : Delegate
         {
             saveOrgFunc = null;
+            TDelegate orgFuncDelegate = null;
 
-            T orgFuncDelegate = Marshal.GetDelegateForFunctionPointer(orgFuncAddr, typeof(T)) as T;
+            Type genericType = typeof(T);
 
-            if (orgFuncDelegate == null)
+            if (genericType.IsGenericType == true)
             {
-                return false;
+                Type specificType = DelegateCreator.NewDelegateType(returnType, genericType.GetGenericArguments());
+                object obj = Marshal.GetDelegateForFunctionPointer(orgFuncAddr, specificType);
+                orgFuncDelegate = obj as TDelegate;
+            }
+            else
+            {
+                orgFuncDelegate = Marshal.GetDelegateForFunctionPointer(orgFuncAddr, typeof(T)) as TDelegate;
             }
 
             if (WriteProtectedAddress(addressOrgFuncAddr, proxyFuncAddr) == false)
@@ -115,7 +164,7 @@ namespace DetourFunc
             _addressOrgFuncAddr = addressOrgFuncAddr;
             _orgFuncAddr = orgFuncAddr;
 
-            saveOrgFunc = orgFuncDelegate;
+            saveOrgFunc = orgFuncDelegate as TDelegate;
             return true;
         }
 

@@ -224,6 +224,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "UIThread", "UIThread", "{6A
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CustomMessageLoop", "WinConsole\UIThread\CustomMessageLoop\CustomMessageLoop.csproj", "{B68139DD-B29E-44DC-BBE5-DFA1361A6736}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NetSymbols", "NetSymbols", "{4D75A131-DB14-4DB8-B5ED-0513BCF66FCD}"
+	ProjectSection(SolutionItems) = preProject
+		WinConsole\Debugger\NetSymbols\mscordacwks_net4_x64.txt = WinConsole\Debugger\NetSymbols\mscordacwks_net4_x64.txt
+		WinConsole\Debugger\NetSymbols\mscordacwks_net4_x86.txt = WinConsole\Debugger\NetSymbols\mscordacwks_net4_x86.txt
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -934,6 +940,7 @@ Global
 		{D9CD2747-6955-4875-BF2D-1F1956008A79} = {B52EEEC7-5E57-4E6D-B19D-4FEC47697F2F}
 		{6A426873-2843-451E-993A-27DA58093469} = {CB77B850-28BD-4B36-BAB3-DABB6136FFA2}
 		{B68139DD-B29E-44DC-BBE5-DFA1361A6736} = {6A426873-2843-451E-993A-27DA58093469}
+		{4D75A131-DB14-4DB8-B5ED-0513BCF66FCD} = {CB77B850-28BD-4B36-BAB3-DABB6136FFA2}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {AA2A41E4-D2AE-415B-A76F-C15D5BCE7128}

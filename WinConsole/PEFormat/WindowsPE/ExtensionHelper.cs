@@ -58,6 +58,13 @@ namespace WindowsPE
             return BitConverter.ToUInt32(buf, 0);
         }
 
+        public static byte ReadByte(this IntPtr addresss, ref int offset)
+        {
+            byte result = Marshal.ReadByte(addresss, offset);
+            offset += 1;
+            return result;
+        }
+
         public static unsafe byte ReadByte(this IntPtr ptr, int position)
         {
             UnmanagedMemoryStream ums = new UnmanagedMemoryStream((byte*)ptr.ToPointer(), (position + 1))
@@ -88,9 +95,22 @@ namespace WindowsPE
             return ums.ReadUInt32();
         }
 
+        public static unsafe IntPtr ReadPtr(this IntPtr addresss)
+        {
+            return ReadPtr(addresss, 0);
+        }
+
         public static IntPtr ReadPtr(this IntPtr ptr, int offset)
         {
             return Marshal.ReadIntPtr(ptr, offset);
+        }
+
+        public static unsafe IntPtr ReadPtr(this IntPtr addresss, ref int offset)
+        {
+            IntPtr target = addresss + offset;
+            offset += IntPtr.Size;
+
+            return Marshal.ReadIntPtr(target, 0);
         }
 
         public static uint ReadUInt32(this IntPtr ptr, int offset)
@@ -127,6 +147,13 @@ namespace WindowsPE
             return Marshal.ReadInt32(ptr, 0);
         }
 
+        public static uint ReadUInt32(this IntPtr addresss, ref int offset)
+        {
+            uint result = (uint)Marshal.ReadInt32(addresss, offset);
+            offset += 4;
+            return result;
+        }
+
         public static ulong ToUInt64(this IntPtr ptr)
         {
             return (ulong)ptr.ToInt64();
@@ -136,5 +163,32 @@ namespace WindowsPE
         {
             return (uint)ptr.ToInt32();
         }
+
+        public static short ReadInt16(this IntPtr addresss, ref int offset)
+        {
+            short result = Marshal.ReadInt16(addresss, offset);
+            offset += 2;
+            return result;
+        }
+
+        public static ushort ReadUInt16(this IntPtr addresss, ref int offset)
+        {
+            ushort result = (ushort)Marshal.ReadInt16(addresss, offset);
+            offset += 2;
+            return result;
+        }
+
+        public static IntPtr Add(this IntPtr address, IntPtr offset)
+        {
+            long newPtr = address.ToInt64() + offset.ToInt64();
+            return new IntPtr(newPtr);
+        }
+
+        public static IntPtr Add(this IntPtr address, uint offset)
+        {
+            long newPtr = address.ToInt64() + offset;
+            return new IntPtr(newPtr);
+        }
+
     }
 }

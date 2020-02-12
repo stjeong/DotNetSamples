@@ -123,7 +123,7 @@ namespace DetourFunc
         }
 
         // https://stackoverflow.com/questions/26699394/c-sharp-getdelegateforfunctionpointer-with-generic-delegate
-        public static class DelegateCreator
+        static class DelegateCreator
         {
             private static readonly Func<Type[], Type> MakeNewCustomDelegate = (Func<Type[], Type>)Delegate.CreateDelegate(typeof(Func<Type[], Type>), typeof(Expression).Assembly.GetType("System.Linq.Expressions.Compiler.DelegateHelpers").GetMethod("MakeNewCustomDelegate", BindingFlags.NonPublic | BindingFlags.Static));
 
@@ -141,7 +141,7 @@ namespace DetourFunc
             where TDelegate : Delegate
         {
             saveOrgFunc = null;
-            TDelegate orgFuncDelegate = null;
+            TDelegate orgFuncDelegate;
 
             Type genericType = typeof(T);
 

@@ -2,6 +2,8 @@
 SET BUILDCONFIG=Release
 SET PRJNAME=DetourFunc
 
+if '%1' == 'local' SET BUILDCONFIG=Debug
+
 FOR /F %%I IN ("%0") DO SET CURRENTDIR=%%~dpI
 
 msbuild %CURRENTDIR%%PRJNAME%.csproj /p:Configuration=%BUILDCONFIG%;DefineConstants="TRACE;_INCLUDE_MANAGED_STRUCTS" /t:Rebuild

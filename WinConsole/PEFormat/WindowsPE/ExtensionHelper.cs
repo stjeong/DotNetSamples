@@ -75,6 +75,16 @@ namespace WindowsPE
             return (byte)ums.ReadByte();
         }
 
+        public static unsafe byte [] ReadBytes(this IntPtr ptr, int length)
+        {
+            UnmanagedMemoryStream ums = new UnmanagedMemoryStream((byte*)ptr.ToPointer(), length);
+
+            byte[] buf = new byte[length];
+            ums.Read(buf, 0, length);
+
+            return buf;
+        }
+
         public static unsafe ushort ReadUInt16ByIndex(this IntPtr ptr, int index)
         {
             UnmanagedMemoryStream ums = new UnmanagedMemoryStream((byte*)ptr.ToPointer(), (index + 1) * sizeof(ushort))

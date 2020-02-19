@@ -1,7 +1,10 @@
-﻿using System;
+﻿using SharpDisasm;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using WindowsPE;
@@ -57,6 +60,7 @@ namespace DetourFunc.ClrType
 
         readonly MethodDescInternal _internal;
         readonly IntPtr _address;
+        // readonly MethodInfo _methodInfo;
 
         public bool HasStableEntryPoint()
         {
@@ -120,6 +124,64 @@ namespace DetourFunc.ClrType
             return (_internal.Flags & (uint)MethodDescClassification.mdcClassification);
         }
 
+        public IntPtr GetNativeFunctionPointer()
+        {
+            if (HasStableEntryPoint() == false)
+            {
+                return IntPtr.Zero;
+            }
+
+            IntPtr ptrEntry = GetFunctionPointer();
+            if (ptrEntry == IntPtr.Zero)
+            {
+                return IntPtr.Zero;
+            }
+
+            SharpDisasm.ArchitectureMode mode = (IntPtr.Size == 8) ? SharpDisasm.ArchitectureMode.x86_64 : SharpDisasm.ArchitectureMode.x86_32;
+            SharpDisasm.Disassembler.Translator.IncludeAddress = false;
+            SharpDisasm.Disassembler.Translator.IncludeBinary = false;
+
+            const int MaxLengthOpCode = 15;
+
+            {
+                byte[] buf = ptrEntry.ReadBytes(MaxLengthOpCode);
+                var disasm = new SharpDisasm.Disassembler(buf, mode, (ulong)ptrEntry.ToInt64());
+
+                Instruction inst = disasm.Disassemble().First();
+                if (inst.Mnemonic == SharpDisasm.Udis86.ud_mnemonic_code.UD_Ijmp)
+                {
+                    // Visual Studio + F5 Debug = Always point to "Fixup Precode"
+                    long address = (long)inst.PC + inst.Operands[0].Value;
+                    return new IntPtr(address);
+                }
+                else
+                {
+                    return ptrEntry;
+                }
+            }
+        }
+
+        public IntPtr GetFunctionPointer()
+        {
+            switch ((MethodClassification)GetClassification())
+            {
+                case MethodClassification.mcIL:
+                    IntPtr funcPtr = _address + (int)MethodDesc.SizeOf;
+                    return funcPtr.ReadPtr();
+
+                case MethodClassification.mcFCall:
+                case MethodClassification.mcNDirect:
+                case MethodClassification.mcEEImpl:
+                case MethodClassification.mcArray:
+                case MethodClassification.mcInstantiated:
+                case MethodClassification.mcComInterop:
+                case MethodClassification.mcDynamic:
+                    throw new NotSupportedException("IL method only");
+            }
+
+            return IntPtr.Zero;
+        }
+
         string GetMethodDescType()
         {
             switch ((MethodClassification)GetClassification())
@@ -165,6 +227,11 @@ namespace DetourFunc.ClrType
             }
         }
 
+        protected MethodDesc(MethodInfo mi) : this(mi.MethodHandle.Value)
+        {
+            // this._methodInfo = mi;
+        }
+
         protected MethodDesc(IntPtr address)
         {
             int offset = 0;
@@ -181,14 +248,26 @@ namespace DetourFunc.ClrType
             _address = address;
         }
 
+        /*
         public static void SetFlags(IntPtr methodDescAddress, MethodDescFlags2 flags)
         {
             methodDescAddress.WriteByte(sizeof(UInt16) + sizeof(byte), (byte)flags);
         }
+        */
 
         public static MethodDesc ReadFromAddress(IntPtr address)
         {
             return new MethodDesc(address);
+        }
+
+        public static MethodDesc ReadFromMethodInfo(MethodInfo mi, bool jit = true)
+        {
+            if (jit == true)
+            {
+                RuntimeHelpers.PrepareMethod(mi.MethodHandle);
+            }
+
+            return new MethodDesc(mi);
         }
 
         public virtual void Dump(TextWriter writer)
@@ -203,8 +282,12 @@ namespace DetourFunc.ClrType
             sb.AppendLine($"\twFlags = {_internal.Flags:x} (IsFullSlotNumber == {RequiresFullSlotNumber()})");
             sb.AppendLine($"\tMethodTablePtr = {GetMethodDescChunk().GetMethodTablePtr().ToInt64():x}");
 
+            if (GetClassification() == (uint)MethodClassification.mcIL)
+            {
+                sb.AppendLine($"\tFunctionPtr = {GetFunctionPointer().ToInt64():x}");
+            }
+
             writer.WriteLine(sb.ToString());
         }
     }
-
 }

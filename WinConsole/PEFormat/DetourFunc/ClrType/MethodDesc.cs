@@ -63,6 +63,8 @@ namespace DetourFunc.ClrType
             return (_internal.Flags2 & MethodDescFlags2.HasStableEntryPoint) != 0;
         }
 
+        public MethodDescFlags2 Flags => _internal.Flags2;
+
         public uint GetBaseSize()
         {
             return MethodDesc.GetBaseSize(GetClassification());
@@ -177,6 +179,11 @@ namespace DetourFunc.ClrType
             );
 
             _address = address;
+        }
+
+        public static void SetFlags(IntPtr methodDescAddress, MethodDescFlags2 flags)
+        {
+            methodDescAddress.WriteByte(sizeof(UInt16) + sizeof(byte), (byte)flags);
         }
 
         public static MethodDesc ReadFromAddress(IntPtr address)

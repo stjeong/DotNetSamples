@@ -127,15 +127,6 @@ namespace WindowsPE
         {
             return (ulong)Marshal.ReadInt64(ptr, offset);
         }
-        public static void WriteInt64(this IntPtr ptr, long value)
-        {
-            Marshal.WriteInt64(ptr, value);
-        }
-
-        public static void WriteInt32(this IntPtr ptr, int value)
-        {
-            Marshal.WriteInt32(ptr, value);
-        }
 
         public static long ReadInt64(this IntPtr ptr)
         {
@@ -152,6 +143,21 @@ namespace WindowsPE
             uint result = (uint)Marshal.ReadInt32(addresss, offset);
             offset += 4;
             return result;
+        }
+
+        public static void WriteInt64(this IntPtr ptr, long value)
+        {
+            Marshal.WriteInt64(ptr, value);
+        }
+
+        public static void WriteInt32(this IntPtr ptr, int value)
+        {
+            Marshal.WriteInt32(ptr, value);
+        }
+
+        public static void WriteByte(this IntPtr ptr, int offset, byte value)
+        {
+            Marshal.WriteByte(ptr, offset, value);
         }
 
         public static ulong ToUInt64(this IntPtr ptr)

@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using WindowsPE;
 
-namespace DetourFunc.ClrType
+namespace DetourFunc.Clr
 {
     // https://github.com/dotnet/runtime/blob/master/src/coreclr/src/vm/method.hpp
 
@@ -141,10 +141,8 @@ namespace DetourFunc.ClrType
             SharpDisasm.Disassembler.Translator.IncludeAddress = false;
             SharpDisasm.Disassembler.Translator.IncludeBinary = false;
 
-            const int MaxLengthOpCode = 15;
-
             {
-                byte[] buf = ptrEntry.ReadBytes(MaxLengthOpCode);
+                byte[] buf = ptrEntry.ReadBytes(NativeMethods.MaxLengthOpCode);
                 var disasm = new SharpDisasm.Disassembler(buf, mode, (ulong)ptrEntry.ToInt64());
 
                 Instruction inst = disasm.Disassemble().First();

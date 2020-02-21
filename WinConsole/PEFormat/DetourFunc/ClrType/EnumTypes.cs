@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace DetourFunc.ClrType
+namespace DetourFunc.Clr
 {
     public enum MethodClassification
     {

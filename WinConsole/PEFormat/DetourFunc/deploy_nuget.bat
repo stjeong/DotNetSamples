@@ -22,7 +22,12 @@ for /f %%i in ('powershell.exe -ExecutionPolicy RemoteSigned -file %CURRENTDIR%.
 echo %NUGETKEY%
 
 if EXIST D:\myNuget\ (
-robocopy %CURRENTDIR%nuget_output\ D:\myNuget %PRJNAME%.%NUGETVERSION%.nupkg
+    robocopy %CURRENTDIR%nuget_output\ D:\myNuget %PRJNAME%.%NUGETVERSION%.nupkg
+    if NOT '%NUGET_PACKAGES%' == '' (
+        if EXIST %NUGET_PACKAGES%\%PRJNAME%\%NUGETVERSION% (
+            rmdir %NUGET_PACKAGES%\%PRJNAME%\%NUGETVERSION% /S /Q
+        )
+    )
 ) ELSE (
     echo No local nuget directory
 )

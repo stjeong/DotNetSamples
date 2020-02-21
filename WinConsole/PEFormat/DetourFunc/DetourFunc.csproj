@@ -54,10 +54,13 @@
     <Compile Include="ClrType\MethodDesc.cs" />
     <Compile Include="ClrType\MethodDescChunk.cs" />
     <Compile Include="ClrType\MethodTable.cs" />
+    <Compile Include="CpuMachineCode.cs" />
     <Compile Include="MethodReplacer.cs" />
     <Compile Include="NativeMethods.cs" />
     <Compile Include="NetMethodReplacer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Trampoline\MachineCodeGen.cs" />
+    <Compile Include="Trampoline\TrampolinePatch.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="deploy_nuget.bat" />
@@ -70,5 +73,6 @@
       <Name>WindowsPE</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

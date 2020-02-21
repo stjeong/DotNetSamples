@@ -491,10 +491,8 @@ namespace WindowsPE
           _MODLOAD_DATA* Data,
           uint Flags);
 
-        [DllImport("kernel32", SetLastError = true, CharSet = CharSet.Ansi)]
-#pragma warning disable CA2101
-        internal static extern IntPtr LoadLibrary([MarshalAs(UnmanagedType.LPStr)]string lpFileName);
-#pragma warning restore CA2101
+        [DllImport("kernel32", SetLastError = true, CharSet = CharSet.Ansi, BestFitMapping = false)]
+        internal static extern IntPtr LoadLibrary(string lpFileName);
 
         [DllImport("Dbghelp.dll", SetLastError = true)]
         internal static unsafe extern bool SymGetModuleInfo64(IntPtr hProcess, ulong qwAddr, ref _IMAGEHLP_MODULE64 ModuleInfo);

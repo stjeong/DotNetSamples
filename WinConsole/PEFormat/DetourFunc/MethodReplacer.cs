@@ -56,7 +56,7 @@ namespace DetourFunc
         {
             saveOrgFunc = null;
 
-            IntPtr orgFuncAddr = GetEATFunctionAddress(win32Dll, win32FuncName, out IntPtr addressOrgFuncAddr);
+            IntPtr orgFuncAddr = GetExportFunctionAddressFromEAT(win32Dll, win32FuncName, out IntPtr addressOrgFuncAddr);
             if (orgFuncAddr == IntPtr.Zero || addressOrgFuncAddr == IntPtr.Zero)
             {
                 return null;
@@ -98,7 +98,7 @@ namespace DetourFunc
         {
             saveOrgFunc = null;
 
-            IntPtr orgFuncAddr = GetEATFunctionAddress(win32Dll, win32FuncName, out IntPtr addressOrgFuncAddr);
+            IntPtr orgFuncAddr = GetExportFunctionAddressFromEAT(win32Dll, win32FuncName, out IntPtr addressOrgFuncAddr);
             if (orgFuncAddr == IntPtr.Zero || addressOrgFuncAddr == IntPtr.Zero)
             {
                 return null;
@@ -107,7 +107,7 @@ namespace DetourFunc
             string moduleName = Path.GetFileName(funcToReplace.GetType().Assembly.Location);
             string funcName = funcToReplace.Method.Name;
 
-            IntPtr proxyFuncAddr = GetEATFunctionAddress(moduleName, funcName, out IntPtr addressToProxyFuncAddr);
+            IntPtr proxyFuncAddr = GetExportFunctionAddressFromEAT(moduleName, funcName, out IntPtr addressToProxyFuncAddr);
             if (proxyFuncAddr == IntPtr.Zero || addressToProxyFuncAddr == IntPtr.Zero)
             {
                 return null;
@@ -218,13 +218,25 @@ namespace DetourFunc
             }
         }
 
-        private static IntPtr GetEATFunctionAddress(string moduleName, string functionName, out IntPtr ptrContainingFuncAddress)
+        // == GetExportFunctionAddressFromEAT
+        public static IntPtr GetExportFunctionAddress(string moduleName, string functionName, out IntPtr ptrContainingFuncAddress)
         {
             ptrContainingFuncAddress = IntPtr.Zero;
 
-            SharpDisasm.ArchitectureMode mode = (IntPtr.Size == 8) ? SharpDisasm.ArchitectureMode.x86_64 : SharpDisasm.ArchitectureMode.x86_32;
-            SharpDisasm.Disassembler.Translator.IncludeAddress = true;
-            SharpDisasm.Disassembler.Translator.IncludeBinary = true;
+            IntPtr libraryAddress = NativeMethods.LoadLibrary(moduleName);
+            if (libraryAddress == IntPtr.Zero)
+            {
+                return IntPtr.Zero;
+            }
+
+            IntPtr funcAddr = NativeMethods.GetProcAddress(libraryAddress, functionName);
+            return GetExportFunctionPtrInfo(funcAddr, out ptrContainingFuncAddress);
+        }
+
+        // == GetExportFunctionAddress
+        public static IntPtr GetExportFunctionAddressFromEAT(string moduleName, string functionName, out IntPtr ptrContainingFuncAddress)
+        {
+            ptrContainingFuncAddress = IntPtr.Zero;
 
             PEImage img = PEImage.FromLoadedModule(moduleName);
             if (img == null)
@@ -237,45 +249,56 @@ namespace DetourFunc
                 if (efi.Name == functionName)
                 {
                     IntPtr funcAddr = img.BaseAddress + (int)efi.RvaAddress;
+                    return GetExportFunctionPtrInfo(funcAddr, out ptrContainingFuncAddress);
+                }
+            }
 
-                    byte[] code = img.ReadBytes(efi.RvaAddress, IntPtr.Size * 10);
+            return IntPtr.Zero;
+        }
 
-                    var disasm = new SharpDisasm.Disassembler(code, mode, (ulong)funcAddr.ToInt64(), true);
+        static IntPtr GetExportFunctionPtrInfo(IntPtr funcAddr, out IntPtr ptrContainingFuncAddress)
+        {
+            ptrContainingFuncAddress = IntPtr.Zero;
 
-                    foreach (var insn in disasm.Disassemble().Take(5))
-                    {
-                        switch (insn.Mnemonic)
+            SharpDisasm.ArchitectureMode mode = (IntPtr.Size == 8) ? SharpDisasm.ArchitectureMode.x86_64 : SharpDisasm.ArchitectureMode.x86_32;
+            SharpDisasm.Disassembler.Translator.IncludeAddress = true;
+            SharpDisasm.Disassembler.Translator.IncludeBinary = true;
+
+            const int maxOpCode = 5;
+            byte[] code = funcAddr.ReadBytes(NativeMethods.MaxLengthOpCode * maxOpCode);
+
+            var disasm = new SharpDisasm.Disassembler(code, mode, (ulong)funcAddr.ToInt64(), true);
+
+            foreach (var insn in disasm.Disassemble().Take(maxOpCode))
+            {
+                switch (insn.Mnemonic)
+                {
+                    case SharpDisasm.Udis86.ud_mnemonic_code.UD_Imov:
+                        if (insn.Operands.Length == 2)
                         {
-                            case SharpDisasm.Udis86.ud_mnemonic_code.UD_Imov:
-                                if (insn.Operands.Length == 2)
-                                {
-                                    long value = insn.Operands[1].Value;
-                                    IntPtr jumpPtr = new IntPtr(value);
-                                    ptrContainingFuncAddress = jumpPtr;
-                                    return new IntPtr(IntPtr.Size == 8 ? jumpPtr.ReadInt64() : jumpPtr.ReadInt32());
-                                }
-                                break;
-
-                            case SharpDisasm.Udis86.ud_mnemonic_code.UD_Ijmp:
-                                if (insn.Operands.Length == 1)
-                                {
-                                    long value = insn.Operands[0].Value;
-                                    IntPtr jumpPtr = new IntPtr(value);
-
-                                    if (IntPtr.Size == 8)
-                                    {
-                                        jumpPtr = new IntPtr((long)insn.PC + value);
-                                    }
-
-                                    ptrContainingFuncAddress = jumpPtr;
-                                    return new IntPtr(IntPtr.Size == 8 ? jumpPtr.ReadInt64() : jumpPtr.ReadInt32());
-                                }
-                                break;
+                            long value = insn.Operands[1].Value;
+                            IntPtr jumpPtr = new IntPtr(value);
+                            ptrContainingFuncAddress = jumpPtr;
+                            return new IntPtr(IntPtr.Size == 8 ? jumpPtr.ReadInt64() : jumpPtr.ReadInt32());
                         }
+                        break;
 
-                    }
+                    case SharpDisasm.Udis86.ud_mnemonic_code.UD_Ijmp:
+                        // 48 FF 25 C1 D2 05 00 jmp qword ptr [7FFD2E8B7398h]
+                        if (insn.Operands.Length == 1)
+                        {
+                            long value = insn.Operands[0].Value;
+                            IntPtr jumpPtr = new IntPtr(value);
 
-                    break;
+                            if (IntPtr.Size == 8)
+                            {
+                                jumpPtr = new IntPtr((long)insn.PC + value);
+                            }
+
+                            ptrContainingFuncAddress = jumpPtr;
+                            return new IntPtr(IntPtr.Size == 8 ? jumpPtr.ReadInt64() : jumpPtr.ReadInt32());
+                        }
+                        break;
                 }
             }
 

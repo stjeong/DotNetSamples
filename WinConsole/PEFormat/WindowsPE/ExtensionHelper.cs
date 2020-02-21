@@ -67,12 +67,7 @@ namespace WindowsPE
 
         public static unsafe byte ReadByte(this IntPtr ptr, int position)
         {
-            UnmanagedMemoryStream ums = new UnmanagedMemoryStream((byte*)ptr.ToPointer(), (position + 1))
-            {
-                Position = position,
-            };
-            
-            return (byte)ums.ReadByte();
+            return Marshal.ReadByte(ptr, position);
         }
 
         public static unsafe byte [] ReadBytes(this IntPtr ptr, int length)
@@ -168,6 +163,12 @@ namespace WindowsPE
         public static void WriteByte(this IntPtr ptr, int offset, byte value)
         {
             Marshal.WriteByte(ptr, offset, value);
+        }
+
+        public static unsafe void WriteBytes(this IntPtr ptr, byte [] buf)
+        {
+            UnmanagedMemoryStream ums = new UnmanagedMemoryStream((byte*)ptr.ToPointer(), buf.Length, buf.Length, FileAccess.Write);
+            ums.Write(buf, 0, buf.Length);
         }
 
         public static ulong ToUInt64(this IntPtr ptr)

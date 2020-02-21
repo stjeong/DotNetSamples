@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using WindowsPE;
 
-namespace DetourFunc.ClrType
+namespace DetourFunc.Clr
 {
     [StructLayout(LayoutKind.Sequential)]
     internal struct MethodTableInternal

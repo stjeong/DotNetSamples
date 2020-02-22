@@ -33,7 +33,7 @@ namespace DetourFunc
         internal static extern IntPtr VirtualAlloc(IntPtr lpAddress, UIntPtr dwSize, AllocationType flAllocationType, MemoryProtection flProtect);
 
         [DllImport("kernel32")]
-        internal static extern bool VirtualFree(IntPtr lpAddress, UInt32 dwSize, UInt32 dwFreeType);
+        internal static extern bool VirtualFree(IntPtr lpAddress, UInt32 dwSize, MemFreeType dwFreeType);
 
         [DllImport("kernel32", SetLastError = true, CharSet = CharSet.Ansi, BestFitMapping = false)]
         internal static extern IntPtr LoadLibrary(string lpFileName);

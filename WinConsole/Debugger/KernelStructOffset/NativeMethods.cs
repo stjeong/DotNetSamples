@@ -60,6 +60,16 @@ namespace WindowsPE
     }
 
     [Flags]
+    public enum MemFreeType : uint
+    {
+        NONE = 0x0,
+        MEM_COALESCE_PLACEHOLDERS = 0x01,
+        MEM_PRESERVE_PLACEHOLDER = 0x02,
+        MEM_DECOMMIT = 0x00004000,
+        MEM_RELEASE = 0x00008000,
+    }
+
+    [Flags]
     public enum ProcessAccessRights : uint
     {
         PROCESS_VM_OPERATION = 0x0008,

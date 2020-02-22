@@ -14,27 +14,72 @@ namespace DetourFunc
     public sealed class TrampolinePatch<T> : IDisposable where T : Delegate
     {
         byte[] _oldCode;
-        IntPtr _funcAddress;
+        IntPtr _fromMethodAddress;
+        MachineCodeGen<T> _originalCode;
+        T _originalMethod;
 
-        public void JumpPatch(IntPtr codeAddress, IntPtr valueAddress)
+        readonly byte[] _longJumpTemplate = new byte[]
         {
-            byte[] code = GetJumpToCode(codeAddress, valueAddress);
-            _oldCode = OverwriteCode(codeAddress, code);
+            // 48 B8 FF FF FF FF FF FF FF 7F mov rax,7FFFFFFFFFFFFFFFh
+            // FF E0 jmp rax 
+            0x48, 0xB8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+            0xFF, 0xE0
+        };
 
-            if (_oldCode.Length == code.Length)
+        readonly byte[] _shortJumpTemplate = new byte[]
+        {
+            // E9 0B 08 00 00 jmp 0000080b
+            0xE9, 0x00, 0x00, 0x00, 0x00
+        };
+
+        public bool JumpPatch(IntPtr fromMethodAddress, IntPtr toMethodAddress)
+        {
+            byte[] code = GetJumpToCode(fromMethodAddress, 0, toMethodAddress);
+            byte[] oldCode = GetOldCode(fromMethodAddress, code.Length);
+
+            OverwriteCode(fromMethodAddress, code);
+
+            if (oldCode.Length >= code.Length)
             {
-                _funcAddress = codeAddress;
+                _oldCode = oldCode;
+                _fromMethodAddress = fromMethodAddress;
+
+                return true;
             }
+
+            return false;
+        }
+
+        private byte[] GetOldCode(IntPtr codeAddress, int maxBytes)
+        {
+            SharpDisasm.ArchitectureMode mode = (IntPtr.Size == 8) ? SharpDisasm.ArchitectureMode.x86_64 : SharpDisasm.ArchitectureMode.x86_32;
+            List<byte> entranceCodes = new List<byte>();
+
+            int totalLen = 0;
+            using (var disasm = new SharpDisasm.Disassembler(codeAddress, maxBytes + NativeMethods.MaxLengthOpCode, mode))
+            {
+                foreach (var insn in disasm.Disassemble())
+                {
+                    for (int i = 0; i < insn.Length; i++)
+                    {
+                        entranceCodes.Add(codeAddress.ReadByte(totalLen + i));
+                    }
+
+                    totalLen += insn.Length;
+
+                    if (totalLen >= maxBytes)
+                    {
+                        return entranceCodes.ToArray();
+                    }
+                }
+            }
+
+            return null;
         }
 
         byte[] OverwriteCode(IntPtr codeAddress, byte[] code)
         {
-            byte[] oldCode = new byte[code.Length];
-
-            for (int i = 0; i < code.Length; i++)
-            {
-                oldCode[i] = codeAddress.ReadByte(i);
-            }
+            byte[] oldCode = codeAddress.ReadBytes(code.Length);
 
             ProcessAccessRights rights = ProcessAccessRights.PROCESS_VM_OPERATION | ProcessAccessRights.PROCESS_VM_READ | ProcessAccessRights.PROCESS_VM_WRITE;
             PageAccessRights dwOldProtect = PageAccessRights.NONE;
@@ -76,56 +121,52 @@ namespace DetourFunc
             }
         }
 
-        byte[] GetJumpToCode(IntPtr codeAddress, IntPtr valueAddress)
+        public T GetOriginalFunc()
         {
-            // E9 0B 08 00 00 jmp 0000080b
-
-            // 48 B8 FF FF FF FF FF FF FF 7F mov rax,7FFFFFFFFFFFFFFFh
-            // FF E0 jmp rax 
-            byte[] _longJumpToBytes = new byte[]
+            if (_originalMethod == null)
             {
-                0x48, 0xB8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                0xFF, 0xE0
-            };
+                List<byte> newJump = new List<byte>();
+                newJump.AddRange(_oldCode);
 
-            byte[] _shortJumpToBytes = new byte[]
-            {
-                0xE9, 0x00, 0x00, 0x00, 0x00
-            };
+                _originalCode = new MachineCodeGen<T>();
+                IntPtr fromAddress = _originalCode.Alloc(newJump.Count + NativeMethods.MaxLengthOpCode * 2);
+
+                byte[] jumpCode = GetJumpToCode(fromAddress, newJump.Count, _fromMethodAddress + _oldCode.Length);
+                newJump.AddRange(jumpCode);
+
+                _originalMethod = _originalCode.GetFunc(newJump.ToArray()) as T;
+            }
+
+            return _originalMethod;
+        }
+
+        byte[] GetJumpToCode(IntPtr fromAddress, int prologueLengthOnFromAddress, IntPtr toAddress)
+        {
+            long offset = toAddress.ToInt64() - fromAddress.ToInt64();
 
             if (IntPtr.Size == 8)
             {
-                long offset = valueAddress.ToInt64() - codeAddress.ToInt64();
-
-                if (Math.Abs(offset) <= Int32.MaxValue)
+                if (Math.Abs(offset) > (Int32.MaxValue - NativeMethods.MaxLengthOpCode * 10))
                 {
-                    byte[] buf = BitConverter.GetBytes((int)offset - _shortJumpToBytes.Length);
-                    Array.Copy(buf, 0, _shortJumpToBytes, 1, 4);
-                    return _shortJumpToBytes;
-                }
-                else
-                {
-                    byte[] buf = BitConverter.GetBytes(valueAddress.ToInt64());
-                    Array.Copy(buf, 0, _longJumpToBytes, 2, IntPtr.Size);
-                    return _longJumpToBytes;
+                    byte[] longJumpToBytes = _longJumpTemplate.ToArray();
+                    byte[] buf8 = BitConverter.GetBytes(toAddress.ToInt64());
+                    Array.Copy(buf8, 0, longJumpToBytes, 2, IntPtr.Size);
+                    return longJumpToBytes;
                 }
             }
-            else
-            {
-                long offset = valueAddress.ToInt64() - codeAddress.ToInt64();
 
-                byte[] buf = BitConverter.GetBytes(offset - _shortJumpToBytes.Length);
-                Array.Copy(buf, 0, _shortJumpToBytes, 1, IntPtr.Size);
-                return _shortJumpToBytes;
-            }
+            byte[] shortJumpToBytes = _shortJumpTemplate.ToArray();
+            byte[] buf4 = BitConverter.GetBytes(offset - (prologueLengthOnFromAddress + shortJumpToBytes.Length));
+            Array.Copy(buf4, 0, shortJumpToBytes, 1, 4);
+            return shortJumpToBytes;
         }
 
         public void Dispose()
         {
-            if (_funcAddress != IntPtr.Zero && _oldCode.Length != 0)
+            if (_fromMethodAddress != IntPtr.Zero && _oldCode.Length != 0)
             {
-                OverwriteCode(_funcAddress, _oldCode);
-                _funcAddress = IntPtr.Zero;
+                OverwriteCode(_fromMethodAddress, _oldCode);
+                _fromMethodAddress = IntPtr.Zero;
                 _oldCode = null;
             }
         }

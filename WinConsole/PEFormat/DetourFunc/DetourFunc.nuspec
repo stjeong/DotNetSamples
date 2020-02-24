@@ -3,7 +3,7 @@
     <metadata>
         <id>DetourFunc</id>
         <title>Detours Win32/.NET Methods</title>
-        <version>1.0.9</version>
+        <version>1.1.0</version>
         <authors>SeongTae Jeong</authors>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>Detours Win32/.NET Methods.</description>

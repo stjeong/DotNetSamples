@@ -52,6 +52,34 @@ namespace DetourFunc.Clr
         }
     }
 
+    [StructLayout(LayoutKind.Sequential)]
+    internal struct FCallMethodDescInternalx86
+    {
+        readonly MethodDescInternal _methodDesc;
+        readonly uint _dwECallID;
+
+        public FCallMethodDescInternalx86(MethodDescInternal methodDesc, uint dwECallID)
+        {
+            _methodDesc = methodDesc;
+            _dwECallID = dwECallID;
+        }
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    internal struct FCallMethodDescInternalx64
+    {
+        readonly MethodDescInternal _methodDesc;
+        readonly uint _dwECallID;
+        readonly uint _padding;
+
+        public FCallMethodDescInternalx64(MethodDescInternal methodDesc, uint dwECallID, uint padding)
+        {
+            _methodDesc = methodDesc;
+            _dwECallID = dwECallID;
+            _padding = padding;
+        }
+    }
+
     public class MethodDesc
     {
         static readonly int ALIGNMENT_SHIFT = (IntPtr.Size == 8) ? 3 : 2;
@@ -60,7 +88,7 @@ namespace DetourFunc.Clr
 
         readonly MethodDescInternal _internal;
         readonly IntPtr _address;
-        // readonly MethodInfo _methodInfo;
+        readonly MethodInfo _methodInfo;
 
         public bool HasStableEntryPoint()
         {
@@ -74,12 +102,15 @@ namespace DetourFunc.Clr
             return MethodDesc.GetBaseSize(GetClassification());
         }
 
-        public static uint GetBaseSize(uint classification)
+        public static uint GetBaseSize(MethodClassification classification)
         {
-            switch ((MethodClassification)classification)
+            switch (classification)
             {
                 case MethodClassification.mcIL:
-                    return MethodDesc.SizeOf;
+                    return (uint)Marshal.SizeOf(typeof(MethodDescInternal));
+
+                case MethodClassification.mcFCall:
+                    return (uint)Marshal.SizeOf((IntPtr.Size == 8 ? typeof(FCallMethodDescInternalx64) : typeof(FCallMethodDescInternalx86)));
             }
 
             throw new NotSupportedException();
@@ -119,9 +150,9 @@ namespace DetourFunc.Clr
             return MethodDescChunk.ReadFromAddress(chunkPtr);
         }
 
-        uint GetClassification()
+        MethodClassification GetClassification()
         {
-            return (_internal.Flags & (uint)MethodDescClassification.mdcClassification);
+            return (MethodClassification)(_internal.Flags & (uint)MethodDescClassification.mdcClassification);
         }
 
         public IntPtr GetNativeFunctionPointer()
@@ -161,13 +192,26 @@ namespace DetourFunc.Clr
 
         public IntPtr GetFunctionPointer()
         {
-            switch ((MethodClassification)GetClassification())
+            MethodClassification methodType = GetClassification();
+            switch (methodType)
             {
                 case MethodClassification.mcIL:
-                    IntPtr funcPtr = _address + (int)MethodDesc.SizeOf;
-                    return funcPtr.ReadPtr();
+                    {
+                        IntPtr funcPtr = _address + (int)MethodDesc.GetBaseSize(methodType);
+                        return funcPtr.ReadPtr();
+                    }
 
                 case MethodClassification.mcFCall:
+                    if (_methodInfo != null)
+                    {
+                        return _methodInfo.MethodHandle.GetFunctionPointer();
+                    }
+                    else
+                    {
+                        IntPtr funcPtr = _address + (int)MethodDesc.GetBaseSize(methodType);
+                        return funcPtr.ReadPtr();
+                    }
+
                 case MethodClassification.mcNDirect:
                 case MethodClassification.mcEEImpl:
                 case MethodClassification.mcArray:
@@ -217,17 +261,9 @@ namespace DetourFunc.Clr
             return (_internal.Flags & (ushort)MethodDescClassification.mdcHasNonVtableSlot) != 0;
         }
 
-        public static uint SizeOf
-        {
-            get
-            {
-                return (uint)Marshal.SizeOf(typeof(MethodDescInternal));
-            }
-        }
-
         protected MethodDesc(MethodInfo mi) : this(mi.MethodHandle.Value)
         {
-            // this._methodInfo = mi;
+            this._methodInfo = mi;
         }
 
         protected MethodDesc(IntPtr address)
@@ -280,9 +316,12 @@ namespace DetourFunc.Clr
             sb.AppendLine($"\twFlags = {_internal.Flags:x} (IsFullSlotNumber == {RequiresFullSlotNumber()})");
             sb.AppendLine($"\tMethodTablePtr = {GetMethodDescChunk().GetMethodTablePtr().ToInt64():x}");
 
-            if (GetClassification() == (uint)MethodClassification.mcIL)
+            switch (GetClassification())
             {
-                sb.AppendLine($"\tFunctionPtr = {GetFunctionPointer().ToInt64():x}");
+                case MethodClassification.mcIL:
+                case MethodClassification.mcFCall:
+                    sb.AppendLine($"\tFunctionPtr = {GetFunctionPointer().ToInt64():x}");
+                    break;
             }
 
             writer.WriteLine(sb.ToString());

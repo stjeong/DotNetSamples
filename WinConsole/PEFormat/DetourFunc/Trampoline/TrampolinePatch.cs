@@ -36,6 +36,11 @@ namespace DetourFunc
         {
             byte[] code = GetJumpToCode(fromMethodAddress, 0, toMethodAddress);
             byte[] oldCode = GetOldCode(fromMethodAddress, code.Length);
+            
+            if (oldCode == null)
+            {
+                return false;
+            }
 
             OverwriteCode(fromMethodAddress, code);
 
@@ -60,6 +65,11 @@ namespace DetourFunc
             {
                 foreach (var insn in disasm.Disassemble())
                 {
+                    if (SharpDisasm.Udis86.ud_mnemonic_code.UD_Ija <= insn.Mnemonic && insn.Mnemonic <= SharpDisasm.Udis86.ud_mnemonic_code.UD_Ijz)
+                    {
+                        return null;
+                    }
+
                     for (int i = 0; i < insn.Length; i++)
                     {
                         entranceCodes.Add(codeAddress.ReadByte(totalLen + i));
@@ -123,6 +133,11 @@ namespace DetourFunc
 
         public T GetOriginalFunc()
         {
+            if (_fromMethodAddress == IntPtr.Zero)
+            {
+                return default;
+            }
+
             if (_originalMethod == null)
             {
                 List<byte> newJump = new List<byte>();

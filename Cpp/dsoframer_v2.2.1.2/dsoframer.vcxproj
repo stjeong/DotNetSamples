@@ -170,8 +170,8 @@ echo regsvr32 exec. time &gt; "$(OutDir)regsvr32.trg" </Command>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="lib\dsoframer.odl">
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">mktyplib /win32 /tlb lib\dsoframer.olb /h lib\dsoframerlib.h /w0 %(FullPath)</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">lib\dsoframer.olb;lib\dsoframerlib.h;%(Outputs)</Outputs>
+      <!--Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">mktyplib /win32 /tlb lib\dsoframer.olb /h lib\dsoframerlib.h /w0 %(FullPath)</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">lib\dsoframer.olb;lib\dsoframerlib.h;%(Outputs)</Outputs-->
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>

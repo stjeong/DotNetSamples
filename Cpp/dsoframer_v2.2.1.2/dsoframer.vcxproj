@@ -87,14 +87,14 @@
       <LinkDLL>true</LinkDLL>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
-      <OutputFile>Debug/dsoframer.ocx</OutputFile>
       <ImportLibrary>.\Debug\dsoframer.lib</ImportLibrary>
       <AdditionalDependencies>oledlg.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalOptions> /FORCE:MULTIPLE</AdditionalOptions>
       <Version>1.1</Version>
       <ModuleDefinitionFile>.\dsoframer.def</ModuleDefinitionFile>
       <IgnoreSpecificDefaultLibraries>LIBC.LIB;LIBCP.LIB</IgnoreSpecificDefaultLibraries>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+      <AdditionalOptions>
+      </AdditionalOptions>
     </Link>
     <CustomBuildStep>
       <Command>REM regsvr32 /s /c "$(TargetPath)" 
@@ -141,7 +141,6 @@ echo regsvr32 exec. time &gt; "$(OutDir)regsvr32.trg" </Command>
       <LinkDLL>true</LinkDLL>
       <SubSystem>Windows</SubSystem>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
-      <OutputFile>Release/dsoframer.ocx</OutputFile>
       <ImportLibrary>.\Release\dsoframer.lib</ImportLibrary>
       <MergeSections>.rdata=.text</MergeSections>
       <BaseAddress>0x22000000</BaseAddress>
@@ -150,6 +149,8 @@ echo regsvr32 exec. time &gt; "$(OutDir)regsvr32.trg" </Command>
       <ModuleDefinitionFile>.\dsoframer.def</ModuleDefinitionFile>
       <IgnoreSpecificDefaultLibraries>LIBC.LIB;LIBCP.LIB</IgnoreSpecificDefaultLibraries>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+      <AdditionalOptions>
+      </AdditionalOptions>
     </Link>
     <CustomBuildStep>
       <Command>REM regsvr32 /s /c "$(TargetPath)" 
@@ -195,13 +196,13 @@ echo regsvr32 exec. time &gt; "$(OutDir)regsvr32.trg" </Command>
     <CustomBuild Include="res\toolbox.bmp" />
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="dsoFramer.ocx.manifest" />
+    <CustomBuild Include="dsoFramer.dll.manifest" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="HttpPostDat.lib" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="dsoFramer.ocx.manifest">
+    <Content Include="dsoFramer.dll.manifest">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

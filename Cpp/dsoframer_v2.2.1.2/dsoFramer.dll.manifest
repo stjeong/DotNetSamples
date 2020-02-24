@@ -2,10 +2,10 @@
 <assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
 
     <assemblyIdentity version="2.2.1.2" processorArchitecture="x86"
-       name="dsoframer.ocx" type="win32">
+       name="dsoframer.dll" type="win32">
     </assemblyIdentity>
 
-    <file name="dsoframer.ocx">
+    <file name="dsoframer.dll">
         <comClass clsid="{00460182-9E5E-11d5-B7C8-B8269041DD57}" threadingModel="Apartment">
         </comClass>
         <typelib tlbid="{00460180-9E5E-11d5-B7C8-B8269041DD57}" version="1.0"

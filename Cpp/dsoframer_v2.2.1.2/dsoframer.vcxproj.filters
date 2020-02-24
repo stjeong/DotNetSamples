@@ -78,6 +78,6 @@
     <CustomBuild Include="res\toolbox.bmp">
       <Filter>Resources</Filter>
     </CustomBuild>
-    <CustomBuild Include="dsoFramer.ocx.manifest" />
+    <CustomBuild Include="dsoFramer.dll.manifest" />
   </ItemGroup>
 </Project>

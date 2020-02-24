@@ -1,4 +1,4 @@
-LIBRARY    dsoframer.ocx
+LIBRARY    dsoframer.dll
 EXPORTS
            DllGetClassObject   	PRIVATE
            DllCanUnloadNow     	PRIVATE

@@ -128,15 +128,15 @@
     </COMReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\..\Cpp\dsoframer_v2.2.1.2\Debug\dsoframer.ocx">
-      <Link>dsoframer.ocx</Link>
+    <Content Include="..\..\Cpp\dsoframer_v2.2.1.2\Debug\dsoframer.dll">
+      <Link>dsoframer.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <NativeReference Include="dsoframer.ocx, Version=2.2.1.2, ProcessorArchitecture=x86, Type=win32">
-      <Name>dsoFramer.ocx.manifest</Name>
-      <HintPath>..\..\Cpp\dsoframer_v2.2.1.2\Debug\dsoFramer.ocx.manifest</HintPath>
+    <NativeReference Include="dsoframer.dll, Version=2.2.1.2, ProcessorArchitecture=x86, Type=win32">
+      <Name>dsoFramer.dll.manifest</Name>
+      <HintPath>..\..\Cpp\dsoframer_v2.2.1.2\Debug\dsoFramer.dll.manifest</HintPath>
     </NativeReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -91,7 +91,7 @@
       <AdditionalDependencies>oledlg.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <Version>1.1</Version>
       <ModuleDefinitionFile>.\dsoframer.def</ModuleDefinitionFile>
-      <IgnoreSpecificDefaultLibraries>LIBC.LIB;LIBCP.LIB</IgnoreSpecificDefaultLibraries>
+      <IgnoreSpecificDefaultLibraries>LIBC.LIB;LIBCP.LIB;nafxcw.lib</IgnoreSpecificDefaultLibraries>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
       <AdditionalOptions>
       </AdditionalOptions>

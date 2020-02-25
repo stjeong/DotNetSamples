@@ -90,6 +90,12 @@ namespace DetourFunc.Clr
         readonly IntPtr _address;
         readonly MethodInfo _methodInfo;
 
+        public static unsafe IntPtr GetObjectAddress(object obj)
+        {
+            TypedReference tr = __makeref(obj);
+            return **(IntPtr**)(&tr);
+        }
+
         public bool HasStableEntryPoint()
         {
             return (_internal.Flags2 & MethodDescFlags2.HasStableEntryPoint) != 0;

@@ -11,6 +11,7 @@ namespace DetourFunc
     public sealed class MachineCodeGen<T> : IDisposable where T: Delegate
     {
         IntPtr _codePointer;
+        public IntPtr CodePointer => _codePointer;
 
         public IntPtr Alloc(int length)
         {

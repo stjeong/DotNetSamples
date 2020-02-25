@@ -18,6 +18,19 @@ namespace DetourFunc
         MachineCodeGen<T> _originalCode;
         T _originalMethod;
 
+        public IntPtr BackupAddress
+        {
+            get
+            {
+                if (_originalCode == null)
+                {
+                    return IntPtr.Zero;
+                }
+
+                return _originalCode.CodePointer;
+            }
+        }
+
         readonly byte[] _longJumpTemplate = new byte[]
         {
             // 48 B8 FF FF FF FF FF FF FF 7F mov rax,7FFFFFFFFFFFFFFFh
@@ -144,9 +157,9 @@ namespace DetourFunc
                 newJump.AddRange(_oldCode);
 
                 _originalCode = new MachineCodeGen<T>();
-                IntPtr fromAddress = _originalCode.Alloc(newJump.Count + NativeMethods.MaxLengthOpCode * 2);
+                IntPtr backupAddress = _originalCode.Alloc(newJump.Count + NativeMethods.MaxLengthOpCode * 2);
 
-                byte[] jumpCode = GetJumpToCode(fromAddress, newJump.Count, _fromMethodAddress + _oldCode.Length);
+                byte[] jumpCode = GetJumpToCode(backupAddress, newJump.Count, _fromMethodAddress + _oldCode.Length);
                 newJump.AddRange(jumpCode);
 
                 _originalMethod = _originalCode.GetFunc(newJump.ToArray()) as T;

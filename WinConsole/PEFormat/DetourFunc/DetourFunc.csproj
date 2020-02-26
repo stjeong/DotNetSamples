@@ -54,6 +54,7 @@
     <Compile Include="ClrType\MethodDesc.cs" />
     <Compile Include="ClrType\MethodDescChunk.cs" />
     <Compile Include="ClrType\MethodTable.cs" />
+    <Compile Include="ClrType\NetMarshaller.cs" />
     <Compile Include="CpuMachineCode.cs" />
     <Compile Include="MethodReplacer.cs" />
     <Compile Include="NativeMethods.cs" />

@@ -280,6 +280,11 @@ namespace WindowsPE
         SystemExtendedHandleInformation = 64
     }
 
+    public enum PROCESS_INFORMATION_CLASS
+    {
+        ProcessHandleInformation = 51,
+    };
+
     public enum OBJECT_INFORMATION_CLASS
     {
         ObjectBasicInformation = 0,
@@ -413,6 +418,14 @@ namespace WindowsPE
             [In] SYSTEM_INFORMATION_CLASS SystemInformationClass,
             [In] IntPtr SystemInformation,
             [In] int SystemInformationLength,
+            [Out] out int ReturnLength);
+
+        [DllImport("ntdll.dll")]
+        internal static extern NT_STATUS NtQueryInformationProcess(
+            [In] IntPtr ProcessHandle,
+            [In] PROCESS_INFORMATION_CLASS ProcessInformationClass,
+            [In] IntPtr ProcessInformation,
+            [In] int ProcessInformationLength,
             [Out] out int ReturnLength);
 
         [DllImport("ntdll.dll")]

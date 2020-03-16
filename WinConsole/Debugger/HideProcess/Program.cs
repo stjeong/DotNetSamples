@@ -15,11 +15,11 @@ namespace HideProcess
 
     class Program
     {
-        static DbgOffset _ethreadOffset = DbgOffset.Get("_ETHREAD");
-        static DbgOffset _kthreadOffset = DbgOffset.Get("_KTHREAD");
-        static DbgOffset _eprocessOffset = DbgOffset.Get("_EPROCESS");
+        static readonly DbgOffset _ethreadOffset = DbgOffset.Get("_ETHREAD");
+        static readonly DbgOffset _kthreadOffset = DbgOffset.Get("_KTHREAD");
+        static readonly DbgOffset _eprocessOffset = DbgOffset.Get("_EPROCESS");
 
-        static void Main(string[] args)
+        static void Main(string[] _)
         {
             int processId = Process.GetCurrentProcess().Id;
             Console.WriteLine($"ThisPID: {processId}");
@@ -62,7 +62,7 @@ namespace HideProcess
                     IntPtr eprocessPtr = memoryIO.ReadMemory<IntPtr>(processPtr);
                     IntPtr activeProcessLinksPtr = _eprocessOffset.GetPointer(eprocessPtr, "ActiveProcessLinks");
 
-                    _LIST_ENTRY entry = memoryIO.ReadMemory<_LIST_ENTRY>(activeProcessLinksPtr);
+                    // _LIST_ENTRY entry = memoryIO.ReadMemory<_LIST_ENTRY>(activeProcessLinksPtr);
 
                     Console.WriteLine("Press any key to hide this process from Task Manager");
                     Console.ReadLine();
@@ -179,7 +179,7 @@ namespace HideProcess
                         continue;
                     }
 
-                    string objName = she.GetName(out string handleTypeName);
+                    string _ = she.GetName(out string handleTypeName);
 
                     if (handleTypeName == "Thread")
                     {

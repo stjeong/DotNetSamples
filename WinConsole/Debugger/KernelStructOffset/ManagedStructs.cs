@@ -122,6 +122,36 @@ namespace WindowsPE
     }
 
     [StructLayout(LayoutKind.Sequential)]
+    public struct _PROCESS_HANDLE_TABLE_ENTRY_INFO
+    {
+        public IntPtr HandleValue;
+        public UIntPtr HandleCount;
+        public UIntPtr PointerCount;
+        public uint GrantedAccess;
+        public uint ObjectTypeIndex;
+        public uint HandleAttributes;
+        public uint Reserved;
+
+        public string GetName(int ownerPid, out string handleTypeName)
+        {
+            return _SYSTEM_HANDLE_TABLE_ENTRY_INFO_EX.GetName(HandleValue, ownerPid, out handleTypeName);
+        }
+    }
+
+    // private
+    public struct _PROCESS_HANDLE_SNAPSHOT_INFORMATION
+    {
+        public UIntPtr HandleCount;
+        public UIntPtr Reserved;
+        public _PROCESS_HANDLE_TABLE_ENTRY_INFO Handles; /* Handles[0] */
+
+        public int NumberOfHandles
+        {
+            get { return (int)HandleCount.ToUInt32(); }
+        }
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
     public struct _SYSTEM_HANDLE_TABLE_ENTRY_INFO
     {
         public short UniqueProcessId;
@@ -188,15 +218,19 @@ namespace WindowsPE
 
         public string GetName(out string handleTypeName)
         {
-            IntPtr handle = HandleValue;
+            return GetName(HandleValue, UniqueProcessId.ToInt32(), out handleTypeName);
+        }
+
+        public static string GetName(IntPtr handleValue, int ownerPid, out string handleTypeName)
+        {
+            IntPtr handle = handleValue;
             IntPtr dupHandle = IntPtr.Zero;
             handleTypeName = "";
-            int ownerPid = UniqueProcessId.ToInt32();
 
             try
             {
                 int addAccessRights = 0;
-                dupHandle = DuplicateHandle(handle, addAccessRights);
+                dupHandle = DuplicateHandle(ownerPid, handle, addAccessRights);
 
                 if (dupHandle == IntPtr.Zero)
                 {
@@ -213,7 +247,7 @@ namespace WindowsPE
                     case "Process":
                         addAccessRights = (int)(ProcessAccessRights.PROCESS_VM_READ | ProcessAccessRights.PROCESS_QUERY_INFORMATION);
                         NativeMethods.CloseHandle(dupHandle);
-                        dupHandle = DuplicateHandle(handle, addAccessRights);
+                        dupHandle = DuplicateHandle(ownerPid, handle, addAccessRights);
                         break;
 
                     default:
@@ -278,7 +312,7 @@ namespace WindowsPE
             return "";
         }
 
-        private string GetProcessName(int ownerPid)
+        private static string GetProcessName(int ownerPid)
         {
             IntPtr processHandle = IntPtr.Zero;
 
@@ -303,7 +337,7 @@ namespace WindowsPE
             }
         }
 
-        private string GetProcessName(IntPtr processHandle)
+        private static string GetProcessName(IntPtr processHandle)
         {
             if (processHandle == IntPtr.Zero)
             {
@@ -382,17 +416,17 @@ namespace WindowsPE
             return deviceName;
         }
 
-        private string GetObjectNameFromHandle(IntPtr handle)
+        private static string GetObjectNameFromHandle(IntPtr handle)
         {
             using (FileNameFromHandleState f = new FileNameFromHandleState(handle))
             {
-                ThreadPool.QueueUserWorkItem(GetObjectNameFromHandle, f);
-                f.WaitOne(10);
+                ThreadPool.QueueUserWorkItem(GetObjectNameFromHandleFunc, f);
+                f.WaitOne(16);
                 return f.FileName;
             }
         }
 
-        private void GetObjectNameFromHandle(object obj)
+        private static void GetObjectNameFromHandleFunc(object obj)
         {
             FileNameFromHandleState state = obj as FileNameFromHandleState;
 
@@ -432,10 +466,12 @@ namespace WindowsPE
                 {
                     Marshal.FreeHGlobal(ptr);
                 }
+
+                state.Set();
             }
         }
 
-        private string GetHandleType(IntPtr handle)
+        private static string GetHandleType(IntPtr handle)
         {
             int guessSize = 1024;
             NT_STATUS ret;
@@ -477,10 +513,9 @@ namespace WindowsPE
             return "(unknown)";
         }
 
-        private IntPtr DuplicateHandle(IntPtr targetHandle, int addAccessRights)
+        private static IntPtr DuplicateHandle(int ownerPid, IntPtr targetHandle, int addAccessRights)
         {
             IntPtr currentProcess = NativeMethods.GetCurrentProcess();
-            int ownerPid = UniqueProcessId.ToInt32();
 
             IntPtr targetProcessHandle = IntPtr.Zero;
             IntPtr duplicatedHandle = IntPtr.Zero;

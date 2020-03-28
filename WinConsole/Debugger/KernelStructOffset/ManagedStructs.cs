@@ -138,7 +138,6 @@ namespace WindowsPE
         }
     }
 
-    // private
     public struct _PROCESS_HANDLE_SNAPSHOT_INFORMATION
     {
         public UIntPtr HandleCount;

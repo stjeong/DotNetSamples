@@ -6,6 +6,9 @@ using System.Text;
 
 namespace KernelStructOffset
 {
+    /// <summary>
+    /// Supported since Windows 8/2012
+    /// </summary>
     public sealed class ProcessHandleInfo : IDisposable
     {
         IntPtr _ptr = IntPtr.Zero;
@@ -45,7 +48,6 @@ namespace KernelStructOffset
                 unsafe
                 {
                     /*
-
                     Span<_PROCESS_HANDLE_TABLE_ENTRY_INFO> handles = new Span<_PROCESS_HANDLE_TABLE_ENTRY_INFO>((_ptr + _handleOffset).ToPointer(), _handleCount);
                     return handles[index];
                     */

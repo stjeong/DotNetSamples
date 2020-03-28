@@ -22,6 +22,9 @@ namespace KernelStructOffset
         const uint IOCTL_GETPOS_MEMORY = 0x9c402418;
         const uint IOCTL_SETPOS_MEMORY = 0x9c40241c;
 
+        const uint IOCTL_READ_PORT_UCHAR = 0x9c402420;
+        const uint IOCTL_WRITE_PORT_UCHAR = 0x9c402424;
+
         SafeFileHandle fileHandle;
 
         public KernelMemoryIO()
@@ -71,10 +74,9 @@ namespace KernelStructOffset
                 }
 
                 byte[] addressBytes = new byte[IntPtr.Size];
-                int pBytesReturned;
 
                 if (NativeMethods.DeviceIoControl(fileHandle, IOCTL_GETPOS_MEMORY,
-                    null, 0, addressBytes, addressBytes.Length, out pBytesReturned, IntPtr.Zero) == true)
+                    null, 0, addressBytes, addressBytes.Length, out int _ /* pBytesReturned */, IntPtr.Zero) == true)
                 {
                     if (IntPtr.Size == 8)
                     {
@@ -93,7 +95,7 @@ namespace KernelStructOffset
                     return;
                 }
 
-                byte[] addressBytes = null;
+                byte[] addressBytes;
 
                 if (IntPtr.Size == 8)
                 {
@@ -104,10 +106,8 @@ namespace KernelStructOffset
                     addressBytes = BitConverter.GetBytes(value.ToInt32());
                 }
 
-                int pBytesReturned;
-
                 NativeMethods.DeviceIoControl(fileHandle, IOCTL_SETPOS_MEMORY, addressBytes, addressBytes.Length, null, 9,
-                    out pBytesReturned, IntPtr.Zero);
+                    out int _ /* pBytesReturned */, IntPtr.Zero);
             }
         }
 
@@ -119,10 +119,9 @@ namespace KernelStructOffset
             }
 
             this.Position = ptr;
-            int pBytesReturned;
 
             if (NativeMethods.DeviceIoControl(fileHandle, IOCTL_WRITE_MEMORY, buffer, buffer.Length,
-                null, 0, out pBytesReturned, IntPtr.Zero) == true)
+                null, 0, out int pBytesReturned, IntPtr.Zero) == true)
             {
                 return pBytesReturned;
             }
@@ -161,7 +160,7 @@ namespace KernelStructOffset
                 return 0;
             }
 
-            byte[] addressBytes = null;
+            byte[] addressBytes;
 
             if (IntPtr.Size == 8)
             {
@@ -172,11 +171,9 @@ namespace KernelStructOffset
                 addressBytes = BitConverter.GetBytes(position.ToInt32());
             }
 
-            int pBytesReturned;
-
             if (NativeMethods.DeviceIoControl(fileHandle, IOCTL_READ_MEMORY, addressBytes, addressBytes.Length,
                 buffer, buffer.Length,
-                out pBytesReturned, IntPtr.Zero) == true)
+                out int pBytesReturned, IntPtr.Zero) == true)
             {
                 return pBytesReturned;
             }
@@ -198,7 +195,7 @@ namespace KernelStructOffset
 
             if (ReadMemory(ptr, buffer) != buffer.Length)
             {
-                return default(T);
+                return default;
             }
 
             fixed (byte* ptrBuffer = buffer)
@@ -208,6 +205,42 @@ namespace KernelStructOffset
 
                 return instance;
             }
+        }
+
+        public byte Inportb(ushort portNumber, out int errorNo)
+        {
+            errorNo = 0;
+            if (fileHandle == null || fileHandle.IsInvalid == true)
+            {
+                errorNo = -1;
+                return 0;
+            }
+
+            byte[] portBytes = BitConverter.GetBytes(portNumber);
+
+            if (NativeMethods.DeviceIoControl(fileHandle, IOCTL_READ_PORT_UCHAR, portBytes, portBytes.Length, portBytes, portBytes.Length,
+                out int _ /* pBytesReturned */, IntPtr.Zero) == true)
+            {
+                return portBytes[0];
+            }
+
+            errorNo = Marshal.GetLastWin32Error();
+            return 0;
+        }
+
+        public bool Outportb(ushort portNumber, byte data)
+        {
+            if (fileHandle == null || fileHandle.IsInvalid == true)
+            {
+                return false;
+            }
+
+            byte[] portBytes = BitConverter.GetBytes(portNumber);
+
+            byte[] inBuffer = new byte[3] { portBytes[0], portBytes[1], data };
+
+            return NativeMethods.DeviceIoControl(fileHandle, IOCTL_WRITE_PORT_UCHAR, inBuffer, inBuffer.Length, inBuffer, inBuffer.Length,
+                out int _ /* pBytesReturned */, IntPtr.Zero);
         }
     }
 }

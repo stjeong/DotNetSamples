@@ -41,8 +41,10 @@ namespace PLPlotOutputToWindow
             }
 
             GCHandle handle = GCHandle.Alloc(buffer, GCHandleType.Pinned);
+
+            try
             {
-                IntPtr pBuf = Marshal.UnsafeAddrOfPinnedArrayElement(buffer, 0);
+                IntPtr pBuf = handle.AddrOfPinnedObject();
 
                 using (var pl = new PLStream())
                 {
@@ -62,7 +64,10 @@ namespace PLPlotOutputToWindow
 
                 // bmp.Save("test.bmp");
             }
-            handle.Free();
+            finally
+            {
+                handle.Free();
+            }
         }
 
         private void drawPLplot_Click(object sender, EventArgs e)

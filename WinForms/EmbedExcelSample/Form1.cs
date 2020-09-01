@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using System.IO;
+using System.Reflection;
 
 namespace WindowsFormsApplication1
 {
@@ -30,10 +31,55 @@ namespace WindowsFormsApplication1
             // this.axFramerControl1.SaveAs(xls2Path, 12);
         }
 
+        bool _changed = false;
+
         private void Button1_Click(object sender, EventArgs e)
         {
-            dynamic doc = this.axFramerControl1.ActiveDocument;
-            doc.ActiveSheet.Range("A1:A2").Cells.value = "test";
+            Microsoft.Office.Interop.Excel.Application app = this.axFramerControl1.GetApplication as Microsoft.Office.Interop.Excel.Application;
+            if (app == null)
+            {
+                return;
+            }
+
+            Microsoft.Office.Interop.Excel.Worksheet sheet = app.ActiveSheet as Microsoft.Office.Interop.Excel.Worksheet;
+            if (sheet == null)
+            {
+                return;
+            }
+
+            sheet.Range["A1", "A2"].Cells.Value2 = "test";
+
+            if (_changed == false)
+            {
+                if (sheet != null)
+                {
+                    sheet.Change += WorkSheet_Change;
+                    _changed = true;
+                }
+            }
+        }
+
+        private void WorkSheet_Change(Microsoft.Office.Interop.Excel.Range target)
+        {
+            Microsoft.Office.Interop.Excel.Application app = target.Application as Microsoft.Office.Interop.Excel.Application;
+            if (app == null)
+            {
+                return;
+            }
+
+            app.EnableEvents = false;
+
+            try
+            {
+                target.Item[1, 1].EntireRow.Insert(Microsoft.Office.Interop.Excel.XlInsertShiftDirection.xlShiftDown);
+
+                object objValue = target.Item[1, 1].Value2;
+                System.Diagnostics.Trace.WriteLine(objValue);
+            }
+            finally
+            {
+                app.EnableEvents = true;
+            }
         }
     }
 }

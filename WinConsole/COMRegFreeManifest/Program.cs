@@ -147,6 +147,8 @@ namespace COMRegFreeManifest
 
         private static string GetBaseInterfaceIID(Type type)
         {
+            string iunkUuid = "{00000000-0000-0000-C000-000000000046}";
+            string idispUuid = "{00020400-0000-0000-C000-000000000046}";
             foreach (CustomAttributeData attr in type.GetCustomAttributesData())
             {
                 if (attr.Constructor.DeclaringType == typeof(TypeLibTypeAttribute))
@@ -154,15 +156,15 @@ namespace COMRegFreeManifest
                     TypeLibTypeFlags flags = (TypeLibTypeFlags)attr.ConstructorArguments[0].Value;
                     if (flags.HasFlag(TypeLibTypeFlags.FDual))
                     {
-                        return "{00020400-0000-0000-C000-000000000046}";
+                        return idispUuid;
                     }
                     else
                     { 
-                        return "{00000000-0000-0000-C000-000000000046}";
+                        return iunkUuid;
                     }
                 }
             }
-            return "";
+            return iunkUuid;
         }
 
         private static string GetTypeLibVersion(Assembly asm)

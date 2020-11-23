@@ -12,7 +12,7 @@ namespace PEFormatSample
 {
     class Program
     {
-        static void Main(string[] _)
+        static int Main(string[] args)
         {
             //// Is DLL managed/unmanaged?
             //CheckDlls();
@@ -28,6 +28,26 @@ namespace PEFormatSample
             //// Show how to download PDB from Microsoft Symbol Server
             //DownloadPdbs(true);
             //DownloadPdbs(false);
+
+            if (args.Length >= 2)
+            {
+                // ex)
+                //  PEFormatSample pdb http://msdl.microsoft.com/download/symbols/ntdll.pdb/6DFD0B387E7941A587A3B64F824B1CAC1/ntdll.pdb
+                if (args[0] == "pdb")
+                {
+                    string dirPath = Path.GetDirectoryName(typeof(Program).Assembly.Location);
+                    Uri uri = new Uri(args[1]);
+                    string localFilePath = Path.Combine(dirPath, uri.GetFileName());
+                    DownloadPdbFile(uri, localFilePath);
+
+                    bool downloaded = File.Exists(localFilePath);
+                    Console.WriteLine($"{localFilePath}: {downloaded}");
+
+                    return downloaded == true ? 0 : 1;
+                }
+            }
+
+            return 0;
         }
 
         private static void DownloadPdbs(bool fromFile)
@@ -315,6 +335,20 @@ namespace PEFormatSample
 
                 Console.WriteLine();
             }
+        }
+    }
+
+    static class Extension
+    {
+        public static string GetFileName(this Uri uri)
+        {
+            string path = uri.LocalPath;
+
+            int pos1 = path.LastIndexOf('\\');
+            int pos2 = path.LastIndexOf('/');
+
+            int epos = Math.Max(pos1, pos2);
+            return path.Substring(epos + 1);
         }
     }
 }

@@ -15,6 +15,12 @@ namespace NetDbgExt
     // .unload C:\...\DotNetSamples\WinConsole\Debugger\NetDbgExt\bin\Debug\x64\NetDbgExt.dll
     public static class UnmanagedMain
     {
+        [DllImport("kernel32", SetLastError = true, CharSet = CharSet.Unicode)]
+        static extern IntPtr LoadLibrary(string lpFileName);
+
+        [DllImport("kernel32", CharSet = CharSet.Ansi)]
+        static extern IntPtr GetProcAddress(IntPtr hModule, string procName);
+
         [DllExport(CallingConvention = CallingConvention.StdCall)]
         public static uint DebugExtensionInitialize(IntPtr version, IntPtr flags)
         {
@@ -54,6 +60,45 @@ namespace NetDbgExt
         public static void DebugExtensionUninitialize()
         {
             NativeMethods.OutputDebugString("NetDbgExt.DebugExtensionUninitialize");
+        }
+
+        // http://www.sysnet.pe.kr/2/0/12439
+        [DllExport(CallingConvention = CallingConvention.StdCall)]
+        public static uint ubp(IDebugClient pDebugClient, [MarshalAs(UnmanagedType.LPStr)] string args)
+        {
+            if (!(pDebugClient is IDebugControl dbgControl))
+            {
+                return 0;
+            }
+
+            string[] arg = args.Split('!');
+            if (arg.Length != 2)
+            {
+                dbgControl.Output(DEBUG_OUTPUT.NORMAL, $"Invalid argument\n");
+                return 0;
+            }
+
+            string dllPath = arg[0];
+            string apiName = arg[1];
+
+            IntPtr ptrDllAddress = LoadLibrary(dllPath);
+            if (ptrDllAddress == IntPtr.Zero)
+            {
+                dbgControl.Output(DEBUG_OUTPUT.NORMAL, $"DLL not found\n");
+                return 0;
+            }
+
+            IntPtr ptrApiAddress = GetProcAddress(ptrDllAddress, apiName);
+            if (ptrApiAddress == IntPtr.Zero)
+            {
+                dbgControl.Output(DEBUG_OUTPUT.NORMAL, $"API not found\n");
+                return 0;
+            }
+
+            string text = (IntPtr.Size == 4) ? ptrApiAddress.ToInt32().ToString("x") : ptrApiAddress.ToInt64().ToString("x");
+            dbgControl.Execute(DEBUG_OUTCTL.THIS_CLIENT, $"bp {text}", DEBUG_EXECUTE.DEFAULT);
+
+            return 0;
         }
 
         // http://www.sysnet.pe.kr/2/0/11313
@@ -138,6 +183,7 @@ namespace NetDbgExt
             dbgControl.Output(DEBUG_OUTPUT.NORMAL, $"usage:\n");
             dbgControl.Output(DEBUG_OUTPUT.NORMAL, $"\tkt [threadid]\n");
             dbgControl.Output(DEBUG_OUTPUT.NORMAL, $"\tprintdt [value of DateTime]\n");
+            dbgControl.Output(DEBUG_OUTPUT.NORMAL, $"\tubp [dll_path]![api_name]\n");
 
             return 0;
         }

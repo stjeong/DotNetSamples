@@ -1,8 +1,7 @@
 ﻿using System;
-using System.IO;
 using System.Diagnostics;
+using System.IO;
 using System.Threading;
-using System.Runtime.InteropServices;
 
 /*
 [Register]
@@ -73,7 +72,6 @@ namespace testd
         static void WriteLog(string text)
         {
             Console.WriteLine(text);
-            WriteSyslog(SyslogPriority.LOG_INFO, text);
         }
 
         static int InstallService(string netDllPath, bool doInstall)
@@ -155,29 +153,6 @@ WantedBy=multi-user.target
             Process child = Process.Start(psi);
             child.WaitForExit();
             return child.ExitCode;
-        }
-
-        [DllImport("libc", CharSet = CharSet.Ansi, ExactSpelling = true, CallingConvention = CallingConvention.Cdecl)]
-        protected static extern void syslog(int priority, string fmt, byte[] msg);
-
-        public enum SyslogPriority
-        {
-            LOG_EMERG = 0,
-            LOG_ALERT = 1,
-            LOG_CRIT = 2,
-            LOG_ERR = 3,
-            LOG_WARNING = 4,
-            LOG_NOTICE = 5,
-            LOG_INFO = 6,
-            LOG_DEBUG = 7,
-        }
-
-        public static void WriteSyslog(SyslogPriority priority, string text)
-        {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) == true)
-            {
-                syslog((int)priority, text, null);
-            }
         }
     }
 }

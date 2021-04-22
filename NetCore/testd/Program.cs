@@ -18,6 +18,8 @@ sudo systemctl stop dotnet-testd
 
 [Kill service: SIGTERM]
 sudo systemctl kill dotnet-testd
+
+tail -F /var/log/syslog
 */
 
 namespace testd
@@ -47,14 +49,14 @@ namespace testd
 
             // SIGTERM
             // systemctl kill
+            // systemctl stop
             AppDomain.CurrentDomain.ProcessExit += (s, e) =>
             {
                 CleanupResources();
                 WriteLog("Exited gracefully!");
             };
 
-            // SIGINT
-            // systemctl stop
+            // Interactive: Ctrl+C
             Console.CancelKeyPress += (s, e) =>
             {
                 WriteLog("stopped");
@@ -76,6 +78,9 @@ namespace testd
 
         static int InstallService(string netDllPath, bool doInstall)
         {
+            // 2021-04-22
+            // remove: KillSignal=SIGINT
+            // added: KillMode=mixed
             string serviceFile = @"
 [Unit]
 Description={0} running on {1}
@@ -83,8 +88,8 @@ Description={0} running on {1}
 [Service]
 WorkingDirectory={2}
 ExecStart={3} {4}
-KillSignal=SIGINT
 SyslogIdentifier={5}
+KillMode=mixed
 
 [Install]
 WantedBy=multi-user.target

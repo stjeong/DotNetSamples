@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <metadata>
+        <id>CustomMessageLoop</id>
+        <title>Win32 Message Loop for Console Application</title>
+        <version>1.0.1</version>
+        <authors>SeongTae Jeong</authors>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>Provide Win32 Message Loop for Console Application</description>
+        <tags>PE</tags>
+        <projectUrl>https://github.com/stjeong/DotNetSamples/tree/master/WinConsole/UIThread/CustomMessageLoop</projectUrl>
+        <license type="expression">MIT</license>
+        <dependencies>
+          <group targetFramework=".NETStandard2.0" />
+        </dependencies>
+      </metadata>
+</package>

@@ -3,7 +3,7 @@
     <metadata>
         <id>CustomMessageLoop</id>
         <title>Win32 Message Loop for Console Application</title>
-        <version>1.0.1</version>
+        <version>1.0.2</version>
         <authors>SeongTae Jeong</authors>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>Provide Win32 Message Loop for Console Application</description>

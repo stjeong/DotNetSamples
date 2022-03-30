@@ -44,12 +44,6 @@ namespace CustomMessageLoop
         public POINT pt;
     }
 
-    public enum Win32Message : uint
-    {
-        WM_CLOSE = 0x0010,
-        WM_USER = 0x0400,
-    }
-
     public class MessageEventArgs : EventArgs
     {
         MSG _msg;

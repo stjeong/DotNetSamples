@@ -8,13 +8,18 @@ namespace CustomMessageLoop
         {
             if (codes.ContainsKey(code) == false)
             {
-                return "";
+                return $"0x{code:x04}";
             }
 
             return codes[code];
         }
 
         public static string GetText(Win32Message code)
+        {
+            return GetText((uint)code);
+        }
+
+        public static string GetText(int code)
         {
             return GetText((uint)code);
         }
@@ -264,6 +269,7 @@ namespace CustomMessageLoop
             [0x0318] = "WM_PRINTCLIENT",
             [0x0319] = "WM_APPCOMMAND",
             [0x031A] = "WM_THEMECHANGED",
+            [0x031B] = "WM_UAHINIT",
             [0x031D] = "WM_CLIPBOARDUPDATE",
             [0x031E] = "WM_DWMCOMPOSITIONCHANGED",
             [0x031F] = "WM_DWMNCRENDERINGCHANGED",

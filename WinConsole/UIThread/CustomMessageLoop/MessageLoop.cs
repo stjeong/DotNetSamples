@@ -84,7 +84,7 @@ namespace CustomMessageLoop
 
         public void Run()
         {
-            _ewh_Exit.Set();
+            _ewh_Exit.Reset();
 
             _uiThread = new Thread(Start);
             _uiThread.SetApartmentState(_apartment);

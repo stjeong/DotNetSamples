@@ -341,3 +341,5 @@ ASALocalRun/
 healthchecksdb
 /WinConsole/Debugger/NetDbgExt/postBuildScript.bat
 /WinConsole/COMRegFreeManifest/deploy_.bat
+/Cpp/netfx_host/netfx_host/NetFxSampleHostApp.exe
+/Cpp/netcore_host/netcore_host/SampleHostApp.dll

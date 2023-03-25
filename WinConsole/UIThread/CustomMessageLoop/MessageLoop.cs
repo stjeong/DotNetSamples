@@ -1,15 +1,22 @@
-﻿using System;
+﻿
+using System;
 using System.Threading;
 
 namespace CustomMessageLoop
 {
     public class MessageLoop : IDisposable
     {
-        uint _tid;
+        const uint QS_ALLPOSTMESSAGE = 0x100;
+        const uint MWMO_INPUTAVAILABLE = 0x0004;
+
+        uint _tid = 0;
         EventWaitHandle _ewh_Sync = new EventWaitHandle(true, EventResetMode.ManualReset);
         EventWaitHandle _ewh_Exit = new EventWaitHandle(true, EventResetMode.ManualReset);
+        EventWaitHandle _ewh_Quit = new EventWaitHandle(false, EventResetMode.ManualReset);
 
-        public ApartmentState COMApartment => _uiThread.GetApartmentState();
+        IntPtr[] _pHandles;
+
+        public ApartmentState COMApartment => _uiThread?.GetApartmentState() ?? ApartmentState.STA;
 
         public void PostMessage(Win32Message msg)
         {
@@ -24,7 +31,7 @@ namespace CustomMessageLoop
             {
                 if (disposing == true)
                 {
-                    SendMessage(Win32Message.WM_CLOSE);
+                    _ewh_Quit.Set();
                     _ewh_Exit.WaitOne();
                 }
             }
@@ -43,7 +50,7 @@ namespace CustomMessageLoop
                 return;
             }
 
-            NativeMethods.PostThreadMessage(_tid, msg, UIntPtr.Zero, IntPtr.Zero);
+            NativeMethods.PostThreadMessage((uint)_tid, msg, UIntPtr.Zero, IntPtr.Zero);
         }
 
         public void WaitForExit(int millisecondsTimeout = Timeout.Infinite)
@@ -58,17 +65,12 @@ namespace CustomMessageLoop
 
         public void SendMessage(uint msg)
         {
-            if (_tid == 0)
-            {
-                return;
-            }
-
             _ewh_Sync.Reset();
-            NativeMethods.PostThreadMessage(_tid, msg, UIntPtr.Zero, IntPtr.Zero);
+            NativeMethods.PostThreadMessage((uint)_tid, msg, UIntPtr.Zero, IntPtr.Zero);
             _ewh_Sync.WaitOne();
         }
 
-        Thread _uiThread;
+        Thread? _uiThread;
         bool _useBackgroundThread;
         ApartmentState _apartment;
 
@@ -78,6 +80,7 @@ namespace CustomMessageLoop
 
         public MessageLoop(bool useBackgroundThread, ApartmentState apartment)
         {
+            _pHandles = new IntPtr[1] { _ewh_Quit.GetSafeWaitHandle().DangerousGetHandle() };
             _useBackgroundThread = useBackgroundThread;
             _apartment = apartment;
         }
@@ -92,48 +95,54 @@ namespace CustomMessageLoop
             _uiThread.Start();
         }
 
-        public event EventHandler Loaded;
-        public event EventHandler Closed;
-        public event EventHandler<MessageEventArgs> MessageArrived;
+        public event EventHandler? Loaded;
+        public event EventHandler? Closed;
+        public event EventHandler<MessageEventArgs>? MessageArrived;
 
-        protected virtual void OnLoad() { }
+        protected virtual void OnLoad() { Loaded?.Invoke(this, EventArgs.Empty); }
 
-        protected virtual void OnClose() { }
+        protected virtual void OnClose() { Closed?.Invoke(this, EventArgs.Empty); }
 
         protected virtual void WindowProc(MSG msg) { }
 
         void Start()
         {
-            _tid = NativeMethods.GetCurrentThreadId();
-
-            OnLoad();
-            Loaded?.Invoke(this, EventArgs.Empty);
-
             try
             {
+                _tid = NativeMethods.GetCurrentThreadId();
+
+                OnLoad();
+
                 while (true)
                 {
-                    int ret = NativeMethods.GetMessage(out MSG msg, IntPtr.Zero, 0, 0);
-                    if (ret == 0 || ret == -1)
-                    {
-                        break;
-                    }
-
                     try
                     {
-                        WindowProc(msg);
-                        MessageArrived?.Invoke(this, new MessageEventArgs(msg));
+                        uint cObjects = (uint)_pHandles.Length;
+                        uint result = NativeMethods.MsgWaitForMultipleObjectsEx(cObjects, _pHandles, 0xFFFFFFFF, QS_ALLPOSTMESSAGE,
+                           MWMO_INPUTAVAILABLE);
 
-                        switch (msg.message)
+                        if (result == cObjects)
                         {
-                            case (uint)Win32Message.WM_CLOSE:
-                                OnClose();
-                                Closed?.Invoke(this, EventArgs.Empty);
-                                return;
-                        }
+                            // NativeMethods.PeekMessage(out MSG msg, IntPtr.Zero, 0, 0, PM_REMOVE);
+                            NativeMethods.GetMessage(out MSG msg, IntPtr.Zero, 0, 0);
+                            WindowProc(msg);
+                            MessageArrived?.Invoke(this, new MessageEventArgs(msg));
 
-                        NativeMethods.TranslateMessage(ref msg);
-                        NativeMethods.DispatchMessage(ref msg);
+                            switch (msg.message)
+                            {
+                                case (uint)Win32Message.WM_QUIT:
+                                case (uint)Win32Message.WM_CLOSE:
+                                    OnClose();
+                                    return;
+                            }
+
+                            NativeMethods.DispatchMessage(ref msg);
+                        }
+                        else
+                        {
+                            OnClose();
+                            return;
+                        }
                     }
                     finally
                     {

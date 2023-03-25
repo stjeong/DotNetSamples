@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace CustomMessageLoop
+﻿namespace CustomMessageLoop
 {
     public enum Win32Message : uint
     {

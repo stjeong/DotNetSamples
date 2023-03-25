@@ -1,17 +1,21 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
 
 namespace CustomMessageLoop
 {
     public static class NativeMethods
     {
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        internal static extern bool PeekMessage(out MSG message, IntPtr hWnd, uint wMsgFilterMin, uint wMsgFilterMax, uint wRemoveMsg);
+
+        
         [DllImport(@"user32.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
         internal static extern int GetMessage(out MSG message, IntPtr hWnd, uint wMsgFilterMin, uint wMsgFilterMax);
+
         [DllImport(@"user32.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
         internal static extern bool TranslateMessage(ref MSG message);
+        
         [DllImport(@"user32.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
         internal static extern IntPtr DispatchMessage(ref MSG message);
 
@@ -24,6 +28,13 @@ namespace CustomMessageLoop
 
         [DllImport("user32.dll")]
         internal static extern void PostQuitMessage(int nExitCode);
+
+        [DllImport("user32.dll")]
+        internal static extern uint MsgWaitForMultipleObjects(uint nCount, IntPtr[]? pHandles, bool fWaitAll, uint dwMilliseconds, uint dwWakeMask);
+
+        [DllImport("user32.dll")]
+        internal static extern uint MsgWaitForMultipleObjectsEx(uint nCount, IntPtr[]? pHandles, uint dwMilliseconds, uint dwWakeMask, uint dwFlags);
+
     }
 
     [StructLayout(LayoutKind.Sequential)]

@@ -115,6 +115,21 @@ namespace WindowsPE
             }
         }
 
+        public IMAGE_DATA_DIRECTORY ResourceTable
+        {
+            get
+            {
+                if (_is64BitHeader == true)
+                {
+                    return _optionalHeader64.ResourceTable;
+                }
+                else
+                {
+                    return _optionalHeader32.ResourceTable;
+                }
+            }
+        }
+
         public IEnumerable<IMAGE_SECTION_HEADER> EnumerateSections()
         {
             return _sections;
@@ -342,6 +357,22 @@ namespace WindowsPE
             }
 
             return ptr;
+        }
+
+        public void GetVersionInfo()
+        {
+            if (ResourceTable.VirtualAddress == 0)
+            {
+                return;
+            }
+
+            IntPtr resourceTablePtr = GetSafeBuffer(ResourceTable.VirtualAddress, ResourceTable.Size, out BufferPtr buffer);
+            
+            try
+            {
+                Console.WriteLine(buffer.Buffer.Length);
+
+            } catch { }
         }
 
         public IEnumerable<IMAGE_DEBUG_DIRECTORY> EnumerateDebugDir()

@@ -14,6 +14,7 @@ namespace PEFormatSample
     {
         static int Main(string[] args)
         {
+            Console.WriteLine($"Is64bits == {IntPtr.Size == 8}");
             //// Is DLL managed/unmanaged?
             //CheckDlls();
 
@@ -22,7 +23,7 @@ namespace PEFormatSample
             //ShowExportFunctions(false);
 
             //// Show debug info from DEBUG Data Directory
-            //ShowPdbInfo(true);
+            ShowPdbInfo(true);
             //ShowPdbInfo(false);
 
             //// Show how to download PDB from Microsoft Symbol Server
@@ -259,7 +260,12 @@ namespace PEFormatSample
 
                 if (fromFile == true)
                 {
-                    pe = PEImage.ReadFromFile(pm.FileName);
+                    string filePath = pm.FileName;
+#if DEBUG
+                    filePath = @"c:\windows\system32\kernel32.dll";
+#endif
+
+                    pe = PEImage.ReadFromFile(filePath);
                 }
                 else
                 {
@@ -281,6 +287,8 @@ namespace PEFormatSample
                 {
                     Console.WriteLine("\t\t" + codeView.PdbLocalPath);
                 }
+
+                pe.GetVersionInfo();
 
                 Console.WriteLine();
             }

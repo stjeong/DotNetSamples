@@ -16,14 +16,17 @@ namespace PEFormatSample
         {
             Console.WriteLine($"Is64bits == {IntPtr.Size == 8}");
             //// Is DLL managed/unmanaged?
-            //CheckDlls();
+            // CheckDlls();
 
             //// Show exported functions from EXPORT Data Directory
-            //ShowExportFunctions(true);
-            //ShowExportFunctions(false);
+            // ShowExportFunctions(true);
+            // ShowExportFunctions(false);
 
             //// Show debug info from DEBUG Data Directory
-            ShowPdbInfo(true);
+            ShowVersionInfo(@"C:\Windows\System32\kernel32.dll");
+            return 0;
+
+            //ShowPdbInfo(true);
             //ShowPdbInfo(false);
 
             //// Show how to download PDB from Microsoft Symbol Server
@@ -49,6 +52,19 @@ namespace PEFormatSample
             }
 
             return 0;
+        }
+
+        private static void ShowVersionInfo(string filePath)
+        {
+            PEImage pe = PEImage.ReadFromFile(filePath);
+
+            if (pe == null)
+            {
+                Console.WriteLine("Failed to read images");
+                return;
+            }
+
+            var versionInfo = pe.FindVersionInfo();
         }
 
         private static void DownloadPdbs(bool fromFile)
@@ -261,10 +277,6 @@ namespace PEFormatSample
                 if (fromFile == true)
                 {
                     string filePath = pm.FileName;
-#if DEBUG
-                    filePath = @"c:\windows\system32\kernel32.dll";
-#endif
-
                     pe = PEImage.ReadFromFile(filePath);
                 }
                 else
@@ -287,8 +299,6 @@ namespace PEFormatSample
                 {
                     Console.WriteLine("\t\t" + codeView.PdbLocalPath);
                 }
-
-                pe.GetVersionInfo();
 
                 Console.WriteLine();
             }
@@ -334,7 +344,7 @@ namespace PEFormatSample
                 Console.WriteLine();
 
                 // foreach (ExportFunctionInfo efi in pe.EnumerateExportFunctions())
-                foreach (ExportFunctionInfo efi in pe.EnumerateExportFunctions().Take(5))
+                foreach (ExportFunctionInfo efi in pe.EnumerateExportFunctions()?.Take(5))
                 {
                     Console.WriteLine("\t" + efi);
                 }

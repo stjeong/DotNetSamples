@@ -59,8 +59,10 @@
     <Compile Include="..\..\Debugger\KernelStructOffset\NativeMethods.cs">
       <Link>NativeMethods.cs</Link>
     </Compile>
+    <Compile Include="..\..\Debugger\KernelStructOffset\ExtensionHelper.cs">
+      <Link>ExtensionHelper.cs</Link>
+    </Compile>
     <Compile Include="BufferPtr.cs" />
-    <Compile Include="ExtensionHelper.cs" />
     <Compile Include="ILDecoder.cs" />
     <Compile Include="PdbDump.cs" />
     <Compile Include="PdbStore.cs" />

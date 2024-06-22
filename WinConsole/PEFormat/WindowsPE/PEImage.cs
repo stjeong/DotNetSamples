@@ -204,7 +204,7 @@ namespace WindowsPE
             }
         }
 
-        public unsafe T [] Reads<T>(uint rvaAddress, uint totalSize) where T : struct
+        public unsafe T[] Reads<T>(uint rvaAddress, uint totalSize) where T : struct
         {
             IMAGE_SECTION_HEADER section = GetSection((int)rvaAddress);
             GetSafeBuffer(0, (uint)section.VirtualAddress + (uint)section.SizeOfRawData, out BufferPtr buffer);
@@ -245,11 +245,13 @@ namespace WindowsPE
             return _corHeader.Value;
         }
 
+        static ExportFunctionInfo[] EmptyExportFunctionInfo = new ExportFunctionInfo[0];
+
         public unsafe ExportFunctionInfo[] GetExportFunctions()
         {
             if (ExportDirectory.VirtualAddress == 0)
             {
-                return null;
+                return EmptyExportFunctionInfo;
             }
 
             IMAGE_SECTION_HEADER section = GetSection((int)ExportDirectory.VirtualAddress);
@@ -359,7 +361,21 @@ namespace WindowsPE
             return ptr;
         }
 
-        public void GetVersionInfo()
+        _IMAGE_RESOURCE_DIRECTORY _resourceRoot;
+        _IMAGE_RESOURCE_DIRECTORY ResourceRoot
+        {
+            get
+            {
+                if (_resourceRoot == null)
+                {
+                    LoadResourceTable();
+                }
+
+                return _resourceRoot;
+            }
+        }
+
+        void LoadResourceTable()
         {
             if (ResourceTable.VirtualAddress == 0)
             {
@@ -367,12 +383,84 @@ namespace WindowsPE
             }
 
             IntPtr resourceTablePtr = GetSafeBuffer(ResourceTable.VirtualAddress, ResourceTable.Size, out BufferPtr buffer);
-            
+
             try
             {
-                Console.WriteLine(buffer.Buffer.Length);
+                _resourceRoot = BuildResourceEntries(resourceTablePtr, resourceTablePtr);
+            }
+            finally
+            {
+                buffer.Clear();
+            }
+        }
 
-            } catch { }
+        private _IMAGE_RESOURCE_DIRECTORY BuildResourceEntries(IntPtr rootDirectoryPtr, IntPtr itemPtr)
+        {
+            try
+            {
+                // .NET 4.5.1 or later, .NET Standard 1.2 or later
+                // IMAGE_RESOURCE_DIRECTORY header = Marshal.PtrToStructure<IMAGE_RESOURCE_DIRECTORY>(resourceTablePtr);
+
+                IMAGE_RESOURCE_DIRECTORY resDir = (IMAGE_RESOURCE_DIRECTORY)Marshal.PtrToStructure(itemPtr, typeof(IMAGE_RESOURCE_DIRECTORY));
+                itemPtr += IMAGE_RESOURCE_DIRECTORY.StructSize;
+
+                int numberOfEntries = resDir.NumberOfNamedEntries + resDir.NumberOfIdEntries;
+                _IMAGE_RESOURCE_DIRECTORY node = new _IMAGE_RESOURCE_DIRECTORY(numberOfEntries);
+
+                for (int i = 0; i < numberOfEntries; i++)
+                {
+                    IMAGE_RESOURCE_DIRECTORY_ENTRY entry = (IMAGE_RESOURCE_DIRECTORY_ENTRY)Marshal.PtrToStructure(itemPtr, typeof(IMAGE_RESOURCE_DIRECTORY_ENTRY));
+
+                    _IMAGE_RESOURCE_DIRECTORY_ENTRY item = new _IMAGE_RESOURCE_DIRECTORY_ENTRY(entry, rootDirectoryPtr);
+                    node.Entries[i] = item;
+
+                    if (entry.IsDirectory)
+                    {
+                        IntPtr childPtr = entry.GetDataPtr(rootDirectoryPtr);
+                        item.Next = BuildResourceEntries(rootDirectoryPtr, childPtr);
+                    }
+                    else
+                    {
+                        IntPtr childPtr = entry.GetDataPtr(rootDirectoryPtr);
+                        IMAGE_RESOURCE_DATA_ENTRY data = (IMAGE_RESOURCE_DATA_ENTRY)Marshal.PtrToStructure(childPtr, typeof(IMAGE_RESOURCE_DATA_ENTRY));
+                        item.Data = new _IMAGE_RESOURCE_DATA_ENTRY(data);
+                    }
+
+                    itemPtr += IMAGE_RESOURCE_DIRECTORY_ENTRY.StructSize;
+                }
+
+                return node;
+
+            }
+            catch { }
+
+            return null;
+        }
+
+        public object FindVersionInfo(int lcid = 0)
+        {
+            foreach (var item in this.ResourceRoot.Entries)
+            {
+                if (item.Id == ResourceTypeId.RT_VERSION)
+                {
+                    var data = item.Next.Entries[0].Next.FindLcidEntry(lcid);
+
+                    IntPtr dataPtr = GetSafeBuffer(data.OffsetToData, data.Size, out BufferPtr buffer);
+                    try
+                    {
+                        VS_VERSION_INFO versionInfo = VS_VERSION_INFO.Parse(dataPtr, data.Size);
+                        return versionInfo;
+                    }
+                    finally
+                    {
+                        buffer.Clear();
+                    }
+
+                    return null;
+                }
+            }
+
+            return null;
         }
 
         public IEnumerable<IMAGE_DEBUG_DIRECTORY> EnumerateDebugDir()
@@ -542,7 +630,6 @@ namespace WindowsPE
                 return null;
             }
 
-            image._readFromFile = false;
             image._baseAddress = baseAddress;
             image._memorySize = memorySize;
 
@@ -731,5 +818,6 @@ namespace WindowsPE
                 }
             }
         }
+
     }
 }

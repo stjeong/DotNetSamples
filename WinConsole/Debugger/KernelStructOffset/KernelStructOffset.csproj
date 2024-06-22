@@ -51,7 +51,7 @@
   <ItemGroup>
     <Compile Include="DbgOffset.cs" />
     <Compile Include="EnvironmentBlockInfo.cs" />
-    <Compile Include="HelperExtension.cs" />
+    <Compile Include="ExtensionHelper.cs" />
     <Compile Include="KernelMemoryIO.cs" />
     <Compile Include="KnownStructs.cs" />
     <Compile Include="ManagedStructs.cs" />

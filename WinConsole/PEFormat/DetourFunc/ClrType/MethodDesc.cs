@@ -93,7 +93,9 @@ namespace DetourFunc.Clr
         public static unsafe IntPtr GetObjectAddress(object obj)
         {
             TypedReference tr = __makeref(obj);
+#pragma warning disable CS8500
             return **(IntPtr**)(&tr);
+#pragma warning restore CS8500
         }
 
         public bool HasStableEntryPoint()

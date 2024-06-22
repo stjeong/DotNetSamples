@@ -103,14 +103,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\KernelStructOffset\HelperExtension.cs">
-      <Link>HelperExtension.cs</Link>
-    </Compile>
     <Compile Include="..\KernelStructOffset\KnownStructs.cs">
       <Link>KnownStructs.cs</Link>
     </Compile>
     <Compile Include="..\KernelStructOffset\NativeMethods.cs">
       <Link>NativeMethods.cs</Link>
+    </Compile>
+    <Compile Include="..\KernelStructOffset\ExtensionHelper.cs">
+      <Link>ExtensionHelper.cs</Link>
     </Compile>
     <Compile Include="..\SimpleDebugger\Win32\Enums.cs">
       <Link>Win32\Enums.cs</Link>

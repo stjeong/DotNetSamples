@@ -2,7 +2,6 @@
 using System;
 using System.Runtime.InteropServices;
 using WindowsPE;
-using KernelStructOffset;
 
 #pragma warning disable IDE1006 // Naming Styles
 

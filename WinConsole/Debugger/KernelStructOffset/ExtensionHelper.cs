@@ -5,7 +5,11 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 
+#if _KSOBUILD
+namespace KernelStructOffset
+#else
 namespace WindowsPE
+#endif
 {
     public static class ExtensionHelper
     {
@@ -18,7 +22,7 @@ namespace WindowsPE
             return result;
         }
 
-        public unsafe static T Read<T>(this BinaryReader reader) where T: new()
+        public unsafe static T Read<T>(this BinaryReader reader) where T : new()
         {
             T obj = new T();
             int typeSize = Marshal.SizeOf(obj);
@@ -26,7 +30,7 @@ namespace WindowsPE
             byte[] buffer = new byte[typeSize];
             reader.Read(buffer, 0, typeSize);
 
-            fixed (byte *p = buffer)
+            fixed (byte* p = buffer)
             {
                 IntPtr ptr = new IntPtr(p);
                 T objSectionHeader = (T)Marshal.PtrToStructure(ptr, typeof(T));
@@ -70,7 +74,7 @@ namespace WindowsPE
             return Marshal.ReadByte(ptr, position);
         }
 
-        public static unsafe byte [] ReadBytes(this IntPtr ptr, int length)
+        public static unsafe byte[] ReadBytes(this IntPtr ptr, int length)
         {
             UnmanagedMemoryStream ums = new UnmanagedMemoryStream((byte*)ptr.ToPointer(), length);
 
@@ -118,6 +122,11 @@ namespace WindowsPE
             return Marshal.ReadIntPtr(target, 0);
         }
 
+        public static ushort ReadUInt16(this IntPtr ptr, int offset)
+        {
+            return (ushort)Marshal.ReadInt16(ptr, offset);
+        }
+
         public static uint ReadUInt32(this IntPtr ptr, int offset)
         {
             return (uint)Marshal.ReadInt32(ptr, offset);
@@ -150,6 +159,12 @@ namespace WindowsPE
             return result;
         }
 
+        public static string ReadString(this IntPtr address, int offset)
+        {
+            address = IntPtr.Add(address, offset);
+            return Marshal.PtrToStringUni(address);
+        }
+
         public static void WriteInt64(this IntPtr ptr, long value)
         {
             Marshal.WriteInt64(ptr, value);
@@ -165,7 +180,7 @@ namespace WindowsPE
             Marshal.WriteByte(ptr, offset, value);
         }
 
-        public static unsafe void WriteBytes(this IntPtr ptr, byte [] buf)
+        public static unsafe void WriteBytes(this IntPtr ptr, byte[] buf)
         {
             UnmanagedMemoryStream ums = new UnmanagedMemoryStream((byte*)ptr.ToPointer(), buf.Length, buf.Length, FileAccess.Write);
             ums.Write(buf, 0, buf.Length);
@@ -207,5 +222,10 @@ namespace WindowsPE
             return new IntPtr(newPtr);
         }
 
+        public unsafe static void WriteValue<T>(this IntPtr ptr, T value) where T : unmanaged
+        {
+            T* pValue = (T*)ptr.ToPointer();
+            *pValue = value;
+        }
     }
 }

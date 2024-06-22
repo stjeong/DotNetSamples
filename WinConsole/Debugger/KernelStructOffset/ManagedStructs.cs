@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 
@@ -71,12 +72,12 @@ namespace WindowsPE
         public uint Age;
         public string PdbFileName;
 
-        public static bool operator == (CodeViewRSDS t1, CodeViewRSDS t2)
+        public static bool operator ==(CodeViewRSDS t1, CodeViewRSDS t2)
         {
             return t1.Equals(t2);
         }
 
-        public static bool operator != (CodeViewRSDS t1, CodeViewRSDS t2)
+        public static bool operator !=(CodeViewRSDS t1, CodeViewRSDS t2)
         {
             return !t1.Equals(t2);
         }
@@ -643,5 +644,178 @@ namespace WindowsPE
 
             return false;
         }
+    }
+
+    public class ImageResourceEntryId
+    {
+        public string Name { get; set; } = "";
+        public ushort Id { get; set; } = 0;
+
+        public static bool operator == (ImageResourceEntryId t1, ResourceTypeId t2)
+        {
+            return string.IsNullOrEmpty(t1.Name) && t1.Id == (ushort)t2;
+        }
+
+        public static bool operator !=(ImageResourceEntryId t1, ResourceTypeId t2)
+        {
+            return !t1.Equals(t2);
+        }
+
+        public override string ToString()
+        {
+            if (string.IsNullOrEmpty(Name) == false)
+            {
+                return Name;
+            }
+
+            return $"{Id}";
+        }
+    }
+
+    public class _IMAGE_RESOURCE_DATA_ENTRY
+    {
+        IMAGE_RESOURCE_DATA_ENTRY entry;
+
+        public uint CodePage => entry.CodePage;
+        public uint OffsetToData => entry.OffsetToData;
+        public uint Size => entry.Size;
+
+        public _IMAGE_RESOURCE_DATA_ENTRY(IMAGE_RESOURCE_DATA_ENTRY entry)
+        {
+            this.entry = entry;
+        }
+
+        public override string ToString()
+        {
+            return $"{entry}";
+        }
+    }
+
+    public class _IMAGE_RESOURCE_DIRECTORY_ENTRY
+    {
+        ImageResourceEntryId _id;
+        public ImageResourceEntryId Id => _id;
+
+        public _IMAGE_RESOURCE_DIRECTORY Next;
+        public _IMAGE_RESOURCE_DATA_ENTRY Data;
+
+        public _IMAGE_RESOURCE_DIRECTORY_ENTRY(IMAGE_RESOURCE_DIRECTORY_ENTRY entry, IntPtr directoryPtr)
+        {
+            _id = new ImageResourceEntryId();
+
+            if (entry.Name.NameIsString == true)
+            {
+                IntPtr namePos = IntPtr.Add(directoryPtr, (int)entry.Name.NameOffset);
+                int nameLength = Marshal.ReadInt16(namePos);
+                namePos = IntPtr.Add(namePos, sizeof(short));
+                unsafe
+                {
+                    _id.Name = new string((char*)namePos.ToPointer(), 0, nameLength);
+                }
+            }
+            else
+            {
+                _id.Id = entry.Name.Id;
+            }
+        }
+
+        public override string ToString()
+        {
+            if (Next != null)
+            {
+                return $"[dir]: {_id}, LinkTo: {Next}";
+            }
+            else
+            {
+                return $"[entry]: Id={_id}, {Data}";
+            }
+        }
+    }
+
+    public class _IMAGE_RESOURCE_DIRECTORY
+    {
+        _IMAGE_RESOURCE_DIRECTORY_ENTRY[] entries;
+        public _IMAGE_RESOURCE_DIRECTORY_ENTRY[] Entries => entries;
+
+        public _IMAGE_RESOURCE_DIRECTORY(int numberOfEntries)
+        {
+            this.entries = new _IMAGE_RESOURCE_DIRECTORY_ENTRY[numberOfEntries];
+        }
+
+        public override string ToString()
+        {
+            return $"Entries: {this.entries.Length}";
+        }
+
+        public _IMAGE_RESOURCE_DATA_ENTRY FindLcidEntry(int lcid)
+        {
+            foreach (var item in Entries)
+            {
+                if (item.Data != null && item.Data.CodePage == lcid)
+                {
+                    return item.Data;
+                }
+            }
+
+            if (this.Entries.Length > 0)
+            {
+                return this.Entries[0].Data;
+            }
+
+            return null;
+        }
+    }
+
+    public class VS_VERSION_INFO
+    {
+        public ushort wLength;
+        public ushort wValueLength;
+        public ushort wType;
+        public string szKey;
+        public VS_FIXEDFILEINFO FileInfo;
+        public VarFileInfo VarFileInfo;
+        public StringFileInfo StringFileInfo;
+
+        public static unsafe VS_VERSION_INFO Parse(IntPtr ptr, uint length)
+        {
+            VS_VERSION_INFO item = new VS_VERSION_INFO();
+
+            item.wLength = ptr.ReadUInt16(0);
+            item.wValueLength = ptr.ReadUInt16(2);
+            item.wType = ptr.ReadUInt16(4);
+            item.szKey = ptr.ReadString(6);
+
+            return item;
+        }
+    }
+
+    public class StringFileInfo
+    {
+        public string szKey;
+        public StringTable[] Children;
+    }
+
+    public class StringTable
+    {
+        public string szKey;
+        public StringTableString[] Children;
+    }
+
+    public class StringTableString
+    {
+        public string szKey;
+        public string Value;
+    }
+
+    public class VarFileInfo
+    {
+        public string szKey;
+        public VarFileInfoVar[] Children;
+    }
+
+    public class VarFileInfoVar
+    {
+        public string szKey;
+        public ushort[] Value;
     }
 }

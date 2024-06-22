@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Xml.Linq;
 
 #pragma warning disable IDE1006, CA1815 // Naming Styles
 
@@ -516,6 +518,11 @@ enum _POOL_TYPE
     {
         public UInt32 VirtualAddress;
         public UInt32 Size;
+
+        public override string ToString()
+        {
+            return $"va: 0x{VirtualAddress:x}, size: 0x{Size:x}";
+        }
     }
 
     [StructLayout(LayoutKind.Explicit)]
@@ -1128,4 +1135,175 @@ enum _POOL_TYPE
             get { return this.MajorRuntimeVersion << 16 | this.MinorRuntimeVersion; }
         }
     }
+
+    [StructLayout(LayoutKind.Sequential)]
+    struct IMAGE_RESOURCE_DIRECTORY
+    {
+        public static int StructSize = Marshal.SizeOf(typeof(IMAGE_RESOURCE_DIRECTORY));
+
+        public uint Characteristics;
+        public uint TimeDateStamp;
+        public ushort MajorVersion;
+        public ushort MinorVersion;
+        public ushort NumberOfNamedEntries;
+        public ushort NumberOfIdEntries;
+
+        public int TotalEntries
+        {
+            get { return NumberOfNamedEntries + NumberOfIdEntries; }
+        }
+
+        public override string ToString()
+        {
+            return $"Entries: {TotalEntries} (Name: {NumberOfNamedEntries}, Id {NumberOfIdEntries})";
+        }
+    }
+
+    [StructLayout(LayoutKind.Explicit)]
+    public struct IMAGE_RESOURCE_DIRECTORY_ENTRY_NAME
+    {
+        [FieldOffset(0)]
+        public uint Name;
+
+        [FieldOffset(0)]
+        public ushort Id;
+
+        public uint NameOffset
+        {
+            get
+            {
+                return Name & 0x7FFFFFFF;
+            }
+        }
+
+        public bool NameIsString
+        {
+            get
+            {
+                return (Name & 0x80000000) != 0;
+            }
+        }
+    }
+
+    [StructLayout(LayoutKind.Explicit)]
+    public struct IMAGE_RESOURCE_DIRECTORY_ENTRY_OFFSET
+    {
+        [FieldOffset(0)]
+        public uint OffsetToData;
+
+        public uint OffsetToDirectory
+        {
+            get
+            {
+                return OffsetToData & 0x7FFFFFFF;
+            }
+        }
+
+        public bool DataIsDirectory
+        {
+            get
+            {
+                return (OffsetToData & 0x80000000) != 0;
+            }
+        }
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct VS_FIXEDFILEINFO
+    {
+        public uint dwSignature;        /* signature - always 0xfeef04bd */
+        public uint dwStrucVersion;     /* structure version - currently 0 */
+        public uint dwFileVersionMS;    /* Most Significant file version dword */
+        public uint dwFileVersionLS;    /* Least Significant file version dword */
+        public uint dwProductVersionMS; /* Most Significant product version */
+        public uint dwProductVersionLS; /* Least Significant product version */
+        public uint dwFileFlagMask;     /* file flag mask */
+        public uint dwFileFlags;        /*  debug/retail/prerelease/... */
+        public uint dwFileOS;           /* OS type.  Will always be Windows32 value */
+        public uint dwFileType;         /* Type of file (dll/exe/drv/... )*/
+        public uint dwFileSubtype;      /* file subtype */
+        public uint dwFileDateMS;       /* Most Significant part of date */
+        public uint dwFileDateLS;       /* Least Significant part of date */
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct IMAGE_RESOURCE_DATA_ENTRY
+    {
+        public uint OffsetToData;
+        public uint Size;
+        public uint CodePage;
+        public uint Reserved;
+
+        public override string ToString()
+        {
+            return $"Offset: {OffsetToData}(0x{OffsetToData:x}), Size: {Size}(0x{Size:x}), CodePage: {CodePage}";
+        }
+    }
+
+    [StructLayout(LayoutKind.Explicit)]
+    public struct IMAGE_RESOURCE_DIRECTORY_ENTRY
+    {
+        public static int StructSize = Marshal.SizeOf(typeof(IMAGE_RESOURCE_DIRECTORY_ENTRY));
+
+        [FieldOffset(0)]
+        public IMAGE_RESOURCE_DIRECTORY_ENTRY_NAME Name;
+
+        [FieldOffset(4)]
+        public IMAGE_RESOURCE_DIRECTORY_ENTRY_OFFSET Offset;
+
+        public bool IsDirectory
+        {
+            get { return Offset.DataIsDirectory; }
+        }
+
+        public override string ToString()
+        {
+            return $"Name: 0x{Name.Name:x}, OffsetToData: 0x{Offset.OffsetToData:x}";
+        }
+
+        internal IntPtr GetDataPtr(IntPtr basePtr)
+        {
+            return IntPtr.Add(basePtr, (int)this.Offset.OffsetToDirectory);
+        }
+    }
+
+    public enum ResourceTypeId : ushort
+    {
+        RT_CURSOR = 1,
+        RT_BITMAP = 2,
+        RT_ICON = 3,
+        RT_MENU = 4,
+        RT_DIALOG = 5,
+        RT_STRING = 6,
+        RT_FONTDIR = 7,
+        RT_FONT = 8,
+        RT_ACCELERATOR = 9,
+        RT_RCDATA = 10,
+        RT_MESSAGETABLE = 11,
+        RT_GROUP_CURSOR = 12,
+        RT_GROUP_ICON = 14,
+        RT_VERSION = 16,
+        RT_DLGINCLUDE = 17,
+        RT_PLUGPLAY = 19,
+        RT_VXD = 20,
+        RT_ANICURSOR = 21,
+        RT_ANIICON = 22,
+        RT_HTML = 23,
+        RT_MANIFEST = 24,
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct RESOURCEHEADER
+    {
+        public uint DataSize;
+        public uint HeaderSize;
+        public uint TYPE;
+        public uint NAME;
+        public uint DataVersion;
+        public ushort MemoryFlags;
+        public ushort LanguageId;
+        public uint Version;
+        public uint Characteristics;
+    }
 }
+

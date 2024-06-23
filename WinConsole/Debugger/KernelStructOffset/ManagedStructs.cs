@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -656,9 +657,34 @@ namespace WindowsPE
             return string.IsNullOrEmpty(t1.Name) && t1.Id == (ushort)t2;
         }
 
-        public static bool operator !=(ImageResourceEntryId t1, ResourceTypeId t2)
+        public static bool operator != (ImageResourceEntryId t1, ResourceTypeId t2)
         {
-            return !t1.Equals(t2);
+            return string.IsNullOrEmpty(t1.Name) == false || t1.Id != (ushort)t2;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is ImageResourceEntryId target)
+            {
+                if (string.IsNullOrEmpty(Name) == false)
+                {
+                    return Name == target.Name;
+                }
+
+                return Id == target.Id;
+            }
+
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            if (string.IsNullOrEmpty(Name) == false)
+            {
+                return Name.GetHashCode();
+            }
+
+            return Id.GetHashCode();
         }
 
         public override string ToString()
@@ -766,24 +792,104 @@ namespace WindowsPE
         }
     }
 
-    public class VS_VERSION_INFO
+    public class VERSION_INFO_HEADER
     {
         public ushort wLength;
         public ushort wValueLength;
         public ushort wType;
         public string szKey;
-        public VS_FIXEDFILEINFO FileInfo;
-        public VarFileInfo VarFileInfo;
-        public StringFileInfo StringFileInfo;
 
-        public static unsafe VS_VERSION_INFO Parse(IntPtr ptr, uint length)
+        public static unsafe VERSION_INFO_HEADER Parse(IntPtr ptr)
         {
-            VS_VERSION_INFO item = new VS_VERSION_INFO();
+            VERSION_INFO_HEADER item = new VERSION_INFO_HEADER();
 
             item.wLength = ptr.ReadUInt16(0);
             item.wValueLength = ptr.ReadUInt16(2);
             item.wType = ptr.ReadUInt16(4);
             item.szKey = ptr.ReadString(6);
+
+            int length = sizeof(ushort) // wLength
+                + sizeof(ushort) // wValueLength
+                + sizeof(ushort) // wType
+                + item.szKey.Length * 2 + 2; // szKey with null
+
+            IntPtr nextPtr = IntPtr.Add(ptr, length);
+            if (nextPtr.ToInt64() % 4 != 0)
+            {
+                length += 2;
+            }
+
+            item._size = length;
+            return item;
+        }
+
+        int _size = 0;
+        public int Size => _size;
+
+        public override string ToString()
+        {
+            return $"{szKey} (valueLength: {wValueLength}, totalLength: {wLength})";
+        }
+    }
+
+    public class VS_VERSION_INFO
+    {
+        public VERSION_INFO_HEADER Header;
+        public VS_FIXEDFILEINFO FileInfo;
+        public VarFileInfo FileInfoVar;
+        public StringFileInfo FileInfoString;
+
+        public int TotalLength
+        {
+            get { return Header.wLength; }
+        }
+
+        public static unsafe VS_VERSION_INFO Parse(IntPtr ptr, uint length)
+        {
+            VS_VERSION_INFO item = new VS_VERSION_INFO();
+
+            item.Header = VERSION_INFO_HEADER.Parse(ptr);
+            Trace.Assert(item.Header.szKey == "VS_VERSION_INFO");
+
+            int pos = item.Header.Size;
+
+            IntPtr fileInfoPtr = IntPtr.Add(ptr, pos);
+            item.FileInfo = (VS_FIXEDFILEINFO)Marshal.PtrToStructure(fileInfoPtr, typeof(VS_FIXEDFILEINFO));
+
+            Trace.Assert(item.FileInfo.dwSignature == 0xFEEF04BD);
+
+            pos += VS_FIXEDFILEINFO.StructSize;
+            IntPtr childrenPtr = IntPtr.Add(ptr, pos);
+
+            while (pos < item.TotalLength)
+            {
+                VERSION_INFO_HEADER header = VERSION_INFO_HEADER.Parse(childrenPtr);
+                pos += header.Size;
+                IntPtr infoPtr = IntPtr.Add(ptr, pos);
+
+                int bodyLength = header.wLength - header.Size;
+
+                switch (header.szKey)
+                {
+                    case "VarFileInfo":
+                        item.FileInfoVar = VarFileInfo.Parse(header.szKey, infoPtr, bodyLength);
+                        break;
+
+                    case "StringFileInfo":
+                        item.FileInfoString = StringFileInfo.Parse(header.szKey, infoPtr);
+                        pos += item.FileInfoString.Size;
+                        break;
+                }
+
+                if (header.szKey == null)
+                {
+                    break;
+                }
+
+                childrenPtr = IntPtr.Add(ptr, pos);
+            }
+
+            // (VarFileInfo | StringFileInfo), or None            
 
             return item;
         }
@@ -793,24 +899,147 @@ namespace WindowsPE
     {
         public string szKey;
         public StringTable[] Children;
+
+        int _size;
+        public int Size => _size;
+
+        public static StringFileInfo Parse(string szKey, IntPtr infoPtr)
+        {
+            StringFileInfo item = new StringFileInfo();
+            item.szKey = szKey;
+
+            List<StringTable> items = new List<StringTable>();
+
+            VERSION_INFO_HEADER header = VERSION_INFO_HEADER.Parse(infoPtr);
+            infoPtr = IntPtr.Add(infoPtr, header.Size);
+
+            int pos = 0;
+            int bodyLength = header.wLength - header.Size;
+
+            while (pos < bodyLength)
+            {
+                StringTable table = StringTable.Parse(header.szKey, infoPtr);
+                items.Add(table);
+
+                infoPtr = IntPtr.Add(infoPtr, table.Size);
+                pos += table.Size;
+            }
+
+            item.Children = items.ToArray();
+            item._size = pos + header.Size;
+
+            return item;
+        }
     }
 
     public class StringTable
     {
         public string szKey;
         public StringTableString[] Children;
+
+        int _size;
+        public int Size
+        {
+            get
+            {
+                return _size;
+            }
+        }
+
+        public override string ToString()
+        {
+            return $"{szKey}, # of key-value: {Children?.Length}";
+        }
+
+        public static StringTable Parse(string key, IntPtr ptr)
+        {
+            StringTable item = new StringTable();
+            item.szKey = key;
+
+            List<StringTableString> list = new List<StringTableString>();
+
+            int pos = 0;
+
+            ushort wLength = ptr.ReadUInt16(0);
+            ushort wValueLength = ptr.ReadUInt16(2);
+            ushort wType = ptr.ReadUInt16(4);
+
+            pos += (sizeof(ushort) * 3);
+
+            while (pos < wLength)
+            {
+                IntPtr nextPtr = IntPtr.Add(ptr, pos);
+
+                StringTableString keyValue = StringTableString.Parse(nextPtr);
+                pos += keyValue.Size;
+
+                list.Add(keyValue);
+            }
+
+            item._size = pos;
+            item.Children = list.ToArray();
+            return item;
+        }
     }
 
     public class StringTableString
     {
         public string szKey;
         public string Value;
+
+        int _size;
+        public int Size
+        {
+            get
+            {
+                return _size;
+            }
+        }
+
+        public static StringTableString Parse(IntPtr basePtr)
+        {
+            StringTableString item = new StringTableString();
+
+            IntPtr ptr = basePtr;
+
+            item.szKey = ptr.ReadString(0);
+            ptr = IntPtr.Add(ptr, item.szKey.Length * 2 + 2); // with null
+
+            if (ptr.ToInt64() % 4 != 0)
+            {
+                ptr = IntPtr.Add(ptr, 2); // 32bit align padding
+            }
+
+            item.Value = ptr.ReadString(0);
+            ptr = IntPtr.Add(ptr, item.Value.Length * 2 + 2); // with null
+
+            if (ptr.ToInt64() % 4 != 0)
+            {
+                ptr = IntPtr.Add(ptr, 2); // 32bit align padding
+            }
+
+            item._size = (int)(ptr.ToInt64() - basePtr.ToInt64());
+            return item;
+        }
+
+        public override string ToString()
+        {
+            return $"{szKey} = {Value}";
+        }
     }
 
     public class VarFileInfo
     {
         public string szKey;
         public VarFileInfoVar[] Children;
+
+        public static VarFileInfo Parse(string szKey, IntPtr infoPtr, int length)
+        {
+            VarFileInfo item = new VarFileInfo();
+            item.szKey = szKey;
+
+            return item;
+        }
     }
 
     public class VarFileInfoVar

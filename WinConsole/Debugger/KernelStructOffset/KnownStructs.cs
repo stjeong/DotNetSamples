@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -1208,9 +1209,11 @@ enum _POOL_TYPE
         }
     }
 
-    [StructLayout(LayoutKind.Sequential)]
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct VS_FIXEDFILEINFO
     {
+        public static int StructSize = Marshal.SizeOf(typeof(VS_FIXEDFILEINFO));
+
         public uint dwSignature;        /* signature - always 0xfeef04bd */
         public uint dwStrucVersion;     /* structure version - currently 0 */
         public uint dwFileVersionMS;    /* Most Significant file version dword */
@@ -1224,6 +1227,46 @@ enum _POOL_TYPE
         public uint dwFileSubtype;      /* file subtype */
         public uint dwFileDateMS;       /* Most Significant part of date */
         public uint dwFileDateLS;       /* Least Significant part of date */
+
+        public string FileOS
+        {
+            get
+            {
+                ushort hightBits = (ushort)(dwFileOS >> 16);
+                ushort lowBits = (ushort)(dwFileOS & 0xffff);
+
+                return $"{Enum.GetName(typeof(FileOSHigh), hightBits)}, {Enum.GetName(typeof(FileOSLow), lowBits)}";
+            }
+        }
+
+        public string FileType
+        {
+            get
+            {
+                return $"{Enum.GetName(typeof(FileType), dwFileType)}";
+            }
+        }
+
+        public Version FileVersion
+        {
+            get
+            {
+                return Version.Parse($"{dwFileVersionMS >> 16}.{dwFileVersionMS & 0xffff}.{dwFileVersionLS >> 16}.{dwFileVersionLS & 0xffff}");
+            }
+        }
+
+        public Version ProductVersion
+        {
+            get
+            {
+                return Version.Parse($"{dwProductVersionMS >> 16}.{dwProductVersionMS & 0xffff}.{dwProductVersionLS >> 16}.{dwProductVersionLS & 0xffff}");
+            }
+        }
+
+        public override string ToString()
+        {
+            return $"{FileType}, FileVersion: {FileVersion}, ProductVersion: {ProductVersion} (Format: {dwStrucVersion >> 16}.{dwStrucVersion & 0xffff})";
+        }
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -1233,7 +1276,6 @@ enum _POOL_TYPE
         public uint Size;
         public uint CodePage;
         public uint Reserved;
-
         public override string ToString()
         {
             return $"Offset: {OffsetToData}(0x{OffsetToData:x}), Size: {Size}(0x{Size:x}), CodePage: {CodePage}";
@@ -1290,6 +1332,36 @@ enum _POOL_TYPE
         RT_ANIICON = 22,
         RT_HTML = 23,
         RT_MANIFEST = 24,
+    }
+
+    public enum FileOSHigh : ushort
+    {
+        VOS_UNKNOWN =   0x0000,
+        VOS_DOS =       0x0001,
+        VOS_OS2_16 =    0x0002,
+        VOS_OS2_32 =    0x0003,
+        VOS_NT =        0x0004,
+        VOS_WINCE =     0x0005,
+    }
+
+    public enum FileOSLow : ushort
+    {
+        VOS_UNKNOWN =   0x0000,
+        VOS_WINDOWS16 = 0x0001,
+        VOS_PM16 =      0x0002,
+        VOS_PM32 =      0x0003,
+        VOS_WINDOWS32 = 0x0004,
+    }
+
+    public enum FileType : uint
+    {
+        VFT_UNKNOWN = 0x0000,
+        VFT_APP = 0x0001,
+        VFT_DLL = 0x0002,
+        VFT_DRV = 0x0003,
+        VFT_FONT = 0x0004,
+        VFT_VXD = 0x0005,
+        VFT_STATIC_LIB = 0x0007,
     }
 
     [StructLayout(LayoutKind.Sequential)]

@@ -455,8 +455,6 @@ namespace WindowsPE
                     {
                         buffer.Clear();
                     }
-
-                    return null;
                 }
             }
 

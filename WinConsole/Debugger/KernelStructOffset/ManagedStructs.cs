@@ -873,6 +873,7 @@ namespace WindowsPE
                 {
                     case "VarFileInfo":
                         item.FileInfoVar = VarFileInfo.Parse(header.szKey, infoPtr, bodyLength);
+                        pos += item.FileInfoVar.Size;
                         break;
 
                     case "StringFileInfo":
@@ -888,8 +889,6 @@ namespace WindowsPE
 
                 childrenPtr = IntPtr.Add(ptr, pos);
             }
-
-            // (VarFileInfo | StringFileInfo), or None            
 
             return item;
         }
@@ -1033,11 +1032,36 @@ namespace WindowsPE
         public string szKey;
         public VarFileInfoVar[] Children;
 
+        int _size;
+        public int Size => _size;
+
         public static VarFileInfo Parse(string szKey, IntPtr infoPtr, int length)
         {
             VarFileInfo item = new VarFileInfo();
             item.szKey = szKey;
 
+            List<VarFileInfoVar> list = new List<VarFileInfoVar>();
+
+            int pos = 0;
+
+            ushort wLength = infoPtr.ReadUInt16(0);
+            ushort wValueLength = infoPtr.ReadUInt16(2);
+            ushort wType = infoPtr.ReadUInt16(4);
+
+            pos += (sizeof(ushort) * 3);
+
+            while (pos < wLength)
+            {
+                IntPtr nextPtr = IntPtr.Add(infoPtr, pos);
+
+                VarFileInfoVar keyValue = VarFileInfoVar.Parse(nextPtr, wValueLength);
+                pos += keyValue.Size;
+
+                list.Add(keyValue);
+            }
+
+            item._size = pos;
+            item.Children = list.ToArray();
             return item;
         }
     }
@@ -1046,5 +1070,51 @@ namespace WindowsPE
     {
         public string szKey;
         public ushort[] Value;
+
+        int _size;
+        public int Size
+        {
+            get
+            {
+                return _size;
+            }
+        }
+
+        public static VarFileInfoVar Parse(IntPtr basePtr, int valueLength)
+        {
+            VarFileInfoVar item = new VarFileInfoVar();
+
+            IntPtr ptr = basePtr;
+
+            item.szKey = ptr.ReadString(0);
+            ptr = IntPtr.Add(ptr, item.szKey.Length * 2 + 2); // with null
+
+            if (ptr.ToInt64() % 4 != 0)
+            {
+                ptr = IntPtr.Add(ptr, 2); // 32bit align padding
+            }
+
+            item.Value = new ushort[valueLength / 2];
+
+            for (int i = 0; i < valueLength / 2; i++)
+            {
+                item.Value[i] = ptr.ReadUInt16(i * 2);
+            }
+
+            ptr = IntPtr.Add(ptr, valueLength);
+
+            if (ptr.ToInt64() % 4 != 0)
+            {
+                ptr = IntPtr.Add(ptr, 2); // 32bit align padding
+            }
+
+            item._size = (int)(ptr.ToInt64() - basePtr.ToInt64());
+            return item;
+        }
+
+        public override string ToString()
+        {
+            return $"{szKey} = {Value}";
+        }
     }
 }

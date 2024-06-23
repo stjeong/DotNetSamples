@@ -1209,6 +1209,47 @@ enum _POOL_TYPE
         }
     }
 
+    [StructLayout(LayoutKind.Explicit)]
+    public struct IMAGE_RESOURCE_DIRECTORY_ENTRY
+    {
+        public static int StructSize = Marshal.SizeOf(typeof(IMAGE_RESOURCE_DIRECTORY_ENTRY));
+
+        [FieldOffset(0)]
+        public IMAGE_RESOURCE_DIRECTORY_ENTRY_NAME Name;
+
+        [FieldOffset(4)]
+        public IMAGE_RESOURCE_DIRECTORY_ENTRY_OFFSET Offset;
+
+        public bool IsDirectory
+        {
+            get { return Offset.DataIsDirectory; }
+        }
+
+        public override string ToString()
+        {
+            return $"Name: 0x{Name.Name:x}, OffsetToData: 0x{Offset.OffsetToData:x}";
+        }
+
+        internal IntPtr GetDataPtr(IntPtr basePtr)
+        {
+            return IntPtr.Add(basePtr, (int)this.Offset.OffsetToDirectory);
+        }
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct IMAGE_RESOURCE_DATA_ENTRY
+    {
+        public uint OffsetToData;
+        public uint Size;
+        public uint CodePage;
+        public uint Reserved;
+
+        public override string ToString()
+        {
+            return $"Offset: {OffsetToData}(0x{OffsetToData:x}), Size: {Size}(0x{Size:x}), CodePage: {CodePage}";
+        }
+    }
+
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct VS_FIXEDFILEINFO
     {
@@ -1269,46 +1310,6 @@ enum _POOL_TYPE
         }
     }
 
-    [StructLayout(LayoutKind.Sequential)]
-    public struct IMAGE_RESOURCE_DATA_ENTRY
-    {
-        public uint OffsetToData;
-        public uint Size;
-        public uint CodePage;
-        public uint Reserved;
-        public override string ToString()
-        {
-            return $"Offset: {OffsetToData}(0x{OffsetToData:x}), Size: {Size}(0x{Size:x}), CodePage: {CodePage}";
-        }
-    }
-
-    [StructLayout(LayoutKind.Explicit)]
-    public struct IMAGE_RESOURCE_DIRECTORY_ENTRY
-    {
-        public static int StructSize = Marshal.SizeOf(typeof(IMAGE_RESOURCE_DIRECTORY_ENTRY));
-
-        [FieldOffset(0)]
-        public IMAGE_RESOURCE_DIRECTORY_ENTRY_NAME Name;
-
-        [FieldOffset(4)]
-        public IMAGE_RESOURCE_DIRECTORY_ENTRY_OFFSET Offset;
-
-        public bool IsDirectory
-        {
-            get { return Offset.DataIsDirectory; }
-        }
-
-        public override string ToString()
-        {
-            return $"Name: 0x{Name.Name:x}, OffsetToData: 0x{Offset.OffsetToData:x}";
-        }
-
-        internal IntPtr GetDataPtr(IntPtr basePtr)
-        {
-            return IntPtr.Add(basePtr, (int)this.Offset.OffsetToDirectory);
-        }
-    }
-
     public enum ResourceTypeId : ushort
     {
         RT_CURSOR = 1,
@@ -1362,20 +1363,6 @@ enum _POOL_TYPE
         VFT_FONT = 0x0004,
         VFT_VXD = 0x0005,
         VFT_STATIC_LIB = 0x0007,
-    }
-
-    [StructLayout(LayoutKind.Sequential)]
-    public struct RESOURCEHEADER
-    {
-        public uint DataSize;
-        public uint HeaderSize;
-        public uint TYPE;
-        public uint NAME;
-        public uint DataVersion;
-        public ushort MemoryFlags;
-        public ushort LanguageId;
-        public uint Version;
-        public uint Characteristics;
     }
 }
 

@@ -437,7 +437,7 @@ namespace WindowsPE
             return null;
         }
 
-        public object FindVersionInfo(int lcid = 0)
+        public VS_VERSION_INFO FindVersionInfo(int lcid = 0)
         {
             foreach (var item in this.ResourceRoot.Entries)
             {

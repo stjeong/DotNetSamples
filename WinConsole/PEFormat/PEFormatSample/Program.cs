@@ -64,7 +64,9 @@ namespace PEFormatSample
                 return;
             }
 
-            var versionInfo = pe.FindVersionInfo();
+            var vi = pe.FindVersionInfo();
+
+            Console.WriteLine(vi.FileInfo);
         }
 
         private static void DownloadPdbs(bool fromFile)

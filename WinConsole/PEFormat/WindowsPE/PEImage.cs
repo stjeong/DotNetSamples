@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Reflection;
 using System.Runtime.InteropServices;
 
 namespace WindowsPE
@@ -133,6 +135,151 @@ namespace WindowsPE
         public IEnumerable<IMAGE_SECTION_HEADER> EnumerateSections()
         {
             return _sections;
+        }
+
+        public IEnumerable<(string, IMAGE_DATA_DIRECTORY)> EnumerateDirectories()
+        {
+            object targetHeader = _optionalHeader32;
+            if (_is64BitHeader == true)
+            {
+                targetHeader = _optionalHeader64;
+            }
+            
+            IEnumerable<(string, IMAGE_DATA_DIRECTORY)> fields = targetHeader.GetType().GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public)
+                .Where(x => x.FieldType == typeof(IMAGE_DATA_DIRECTORY))
+                .Select(x => (x.Name, (IMAGE_DATA_DIRECTORY)x.GetValue(targetHeader)));
+
+            foreach (var field in fields)
+            {
+                yield return  field;
+            }
+        }
+
+        public void ShowHeader()
+        {
+            Console.WriteLine($"File Type: {_fileHeader.GetFileType()}");
+            Console.WriteLine("FILE HEADER VALUES");
+            Console.WriteLine($"{_fileHeader.Machine,8:X} machine {_fileHeader.GetMachineType()}");
+            Console.WriteLine($"{_fileHeader.NumberOfSections,8:X} number of sections");
+            Console.WriteLine($"{_fileHeader.TimeDateStamp,8:X} time date stamp {_fileHeader.GetTimeDateStamp()}");
+            Console.WriteLine();
+
+            Console.WriteLine($"{_fileHeader.PointerToSymbolTable,8:X} file pointer to symbol table");
+            Console.WriteLine($"{_fileHeader.NumberOfSymbols,8:X} number of symbols");
+            Console.WriteLine($"{_fileHeader.Characteristics,8:X} characteristics");
+            foreach (string text in _fileHeader.GetCharacteristics())
+            {
+                Console.WriteLine($"\t   {text}");
+            }
+            Console.WriteLine();
+
+            Console.WriteLine("OPTIONAL HEADER VALUES");
+            if (_is64BitHeader == true)
+            {
+                ShowOptionalHeader64();
+            }
+            else
+            {
+                ShowOptionalHeader32();
+            }
+
+            Console.WriteLine();
+            Console.WriteLine();
+
+            int number = 1;
+            foreach (var item in this.EnumerateSections())
+            {
+                Console.WriteLine($"SECTION HEADER #{number}");
+                Console.WriteLine($"{item.GetName(),8} name");
+                Console.WriteLine($"{item.PhysicalAddressOrVirtualSize,8:X} virtual size");
+                Console.WriteLine($"{item.VirtualAddress,8:X} virtual address");
+                Console.WriteLine($"{item.SizeOfRawData,8:X} size of raw data");
+                Console.WriteLine($"{item.PointerToRawData,8:X} pointer to raw data");
+                Console.WriteLine($"{item.PointerToRelocations,8:X} pointer to relocations");
+                Console.WriteLine($"{item.PointerToLineNumbers,8:X} pointer to line numbers");
+                Console.WriteLine($"{item.NumberOfRelocations,8:X} number of relocations");
+                Console.WriteLine($"{item.NumberOfLineNumbers,8:X} number of line numbers");
+                Console.WriteLine($"{item.Characteristics,8:X} flags");
+                foreach (string text in item.GetCharacteristics())
+                {
+                    Console.WriteLine($"\t   {text}");
+                }
+                Console.WriteLine();
+                number++;
+            }
+
+            Console.WriteLine();
+
+            ShowDebugInfo();
+        }
+
+        private void ShowDebugInfo()
+        {
+            List<IMAGE_DEBUG_DIRECTORY> list = new List<IMAGE_DEBUG_DIRECTORY>();
+            list.AddRange(EnumerateDebugDir());
+            Console.WriteLine($"Debug Directories({list.Count})");
+            Console.WriteLine($"    {"Type",-11}{"Size",-9}{"Address",-9}{"Pointer",-7}");
+
+            foreach (IMAGE_DEBUG_DIRECTORY debugDir in list)
+            {
+                Console.Write($"    {debugDir.GetDebugType(),-7}");
+                Console.Write($"{debugDir.SizeOfData,8:X}");
+                Console.Write($"{debugDir.AddressOfRawData,12:X}");
+                Console.Write($"{debugDir.PointerToRawData,9:X}");
+
+                if (debugDir.Type == (uint)DebugDirectoryType.IMAGE_DEBUG_TYPE_CODEVIEW)
+                {
+                    CodeViewRSDS codeView = debugDir.GetCodeViewHeader(GetSafeBuffer(debugDir.AddressOfRawData, debugDir.SizeOfData, out BufferPtr buffer));
+                    Console.Write($"    Format: {codeView.GetSignature()}, {codeView.Age}, {codeView.PdbFileName}");
+                }
+                Console.WriteLine();
+            }
+        }
+
+        private void ShowOptionalHeader32()
+        {
+            Console.WriteLine("Not yet implemented");
+        }
+
+        private void ShowOptionalHeader64()
+        {
+            Console.WriteLine($"{_optionalHeader64.Magic,8:X} magic #");
+            string version = $"{_optionalHeader64.MajorLinkerVersion,2}.{_optionalHeader64.MinorLinkerVersion,02:D2}";
+            Console.WriteLine($"{version,8:X} linker version");
+            Console.WriteLine($"{_optionalHeader64.SizeOfCode,8:X} size of code");
+            Console.WriteLine($"{_optionalHeader64.SizeOfInitializedData,8:X} size of initialized data");
+            Console.WriteLine($"{_optionalHeader64.SizeOfUninitializedData,8:X} size of uninitialized data");
+            Console.WriteLine($"{_optionalHeader64.AddressOfEntryPoint,8:X} address of entry point");
+            Console.WriteLine($"{_optionalHeader64.BaseOfCode,8:X} base of code");
+            Console.WriteLine($"\t ----- new -----");
+
+            Console.WriteLine($"{_optionalHeader64.ImageBase,16:X16} image base");
+            Console.WriteLine($"{_optionalHeader64.SectionAlignment,8:X} section alignment");
+            Console.WriteLine($"{_optionalHeader64.FileAlignment,8:X} file alignment");
+            Console.WriteLine($"{(ushort)_optionalHeader64.Subsystem,8:X} subsystem ({IMAGE_OPTIONAL_HEADER64.GetSubsystem((ushort)_optionalHeader64.Subsystem)})");
+            version = $"{_optionalHeader64.MajorOperatingSystemVersion,2}.{_optionalHeader64.MinorOperatingSystemVersion,02:D2}";
+            Console.WriteLine($"{version,8:X} operating system version");
+            version = $"{_optionalHeader64.MajorImageVersion,2}.{_optionalHeader64.MinorImageVersion,02:D2}";
+            Console.WriteLine($"{version,8:X} image version");
+            version = $"{_optionalHeader64.MajorSubsystemVersion,2}.{_optionalHeader64.MinorSubsystemVersion,02:D2}";
+            Console.WriteLine($"{version,8:X} subsystem version");
+            Console.WriteLine($"{_optionalHeader64.SizeOfImage,8:X} size of image");
+            Console.WriteLine($"{_optionalHeader64.SizeOfHeaders,8:X} size of headers");
+            Console.WriteLine($"{_optionalHeader64.CheckSum,8:X} checksum");
+            Console.WriteLine($"{_optionalHeader64.SizeOfStackReserve,16:X16} size of stack reserve");
+            Console.WriteLine($"{_optionalHeader64.SizeOfStackCommit,16:X16} size of stack commit");
+            Console.WriteLine($"{_optionalHeader64.SizeOfHeapReserve,16:X16} size of heap reserve");
+            Console.WriteLine($"{_optionalHeader64.SizeOfHeapCommit,16:X16} size of heap commit");
+            Console.WriteLine($"{_optionalHeader64.DllCharacteristics,8:X} DLL characteristics");
+            foreach (string text in _optionalHeader64.GetDllCharacteristics())
+            {
+                Console.WriteLine($"\t   {text}");
+            }
+
+            foreach (var (name, dir) in EnumerateDirectories())
+            {
+                Console.WriteLine($"{dir.VirtualAddress,8:X} [{dir.Size,8:X}] address [size] of {name} Directory");
+            }
         }
 
         public IEnumerable<VTableFixups> EnumerateVTableFixups()

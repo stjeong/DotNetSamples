@@ -15,16 +15,20 @@ namespace PEFormatSample
         static int Main(string[] args)
         {
             Console.WriteLine($"Is64bits == {IntPtr.Size == 8}");
-            //// Is DLL managed/unmanaged?
+            // Is DLL managed/unmanaged?
             // CheckDlls();
 
-            //// Show exported functions from EXPORT Data Directory
+            // Show exported functions from EXPORT Data Directory
             // ShowExportFunctions(true);
             // ShowExportFunctions(false);
 
-            //// Show debug info from DEBUG Data Directory
-            ShowVersionInfo(@"C:\Windows\System32\kernel32.dll");
-            return 0;
+            Console.WriteLine();
+
+            DLLDumpHeader(@"c:\temp\System.Private.CoreLib.dll");
+
+            // Show debug info from DEBUG Data Directory
+            // ShowVersionInfo(@"C:\Windows\System32\kernel32.dll");
+            // return 0;
 
             //ShowPdbInfo(true);
             //ShowPdbInfo(false);
@@ -52,6 +56,19 @@ namespace PEFormatSample
             }
 
             return 0;
+        }
+
+        private static void DLLDumpHeader(string filePath)
+        {
+            PEImage pe = PEImage.ReadFromFile(filePath);
+
+            if (pe == null)
+            {
+                Console.WriteLine("Failed to read images");
+                return;
+            }
+
+            pe.ShowHeader();
         }
 
         private static void ShowVersionInfo(string filePath)

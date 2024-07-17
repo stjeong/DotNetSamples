@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -108,6 +109,13 @@ namespace WindowsPE
         }
     }
 
+    [Flags]
+    public enum ImageFileType : ushort
+    {
+        IMAGE_FILE_EXECUTABLE_IMAGE = 0x02,
+        IMAGE_FILE_DLL = 0x2000,
+    }
+
     [StructLayout(LayoutKind.Sequential)]
     public struct IMAGE_FILE_HEADER
     {
@@ -118,6 +126,124 @@ namespace WindowsPE
         public UInt32 NumberOfSymbols;
         public UInt16 SizeOfOptionalHeader;
         public UInt16 Characteristics;
+
+        public string GetFileType()
+        {
+            if ((this.Characteristics & (ushort)ImageFileType.IMAGE_FILE_DLL) == (ushort)ImageFileType.IMAGE_FILE_DLL)
+            {
+                return "DLL";
+            }
+
+            if ((this.Characteristics & (ushort)ImageFileType.IMAGE_FILE_EXECUTABLE_IMAGE) == (ushort)ImageFileType.IMAGE_FILE_EXECUTABLE_IMAGE)
+            {
+                return "EXECUTABLE IMAGE";
+            }
+
+            return $"0x{this.Characteristics:x}";
+        }
+
+        public string GetMachineType()
+        {
+            switch (this.Machine)
+            {
+                case 0x14c:
+                    return "X86";
+                case 0x8664:
+                    return "X64";
+                case 0x0200:
+                    return "IA64";
+                default:
+                    return "Unknown";
+            }
+        }
+
+        public string GetTimeDateStamp()
+        {
+            DateTime dateTime = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+            return dateTime.AddSeconds(this.TimeDateStamp).ToLocalTime().ToString("ddd MMM dd HH:mm:ss yyyy", new CultureInfo("en-us"));
+        }
+
+        public string[] GetCharacteristics()
+        {
+            List<string> list = new List<string>();
+
+            if ((this.Characteristics & 0x0001) == 0x0001)
+            {
+                list.Add("Relocs Stripped");
+            }
+
+            if ((this.Characteristics & 0x0002) == 0x0002)
+            {
+                list.Add("Executable");
+            }
+
+            if ((this.Characteristics & 0x0004) == 0x0004)
+            {
+                list.Add("Line Numbers Stripped");
+            }
+
+            if ((this.Characteristics & 0x0008) == 0x0008)
+            {
+                list.Add("Local Symbols Stripped");
+            }
+
+            if ((this.Characteristics & 0x0010) == 0x0010)
+            {
+                list.Add("Aggressive Working Set Trim");
+            }
+
+            if ((this.Characteristics & 0x0020) == 0x0020)
+            {
+                list.Add("App can handle >2gb addresses");
+            }
+
+            if ((this.Characteristics & 0x0080) == 0x0080)
+            {
+                list.Add("Bytes Reversed LO");
+            }
+
+            if ((this.Characteristics & 0x0100) == 0x0100)
+            {
+                list.Add("32 bit word machine");
+            }
+
+            if ((this.Characteristics & 0x0200) == 0x0200)
+            {
+                list.Add("Debug Stripped");
+            }
+
+            if ((this.Characteristics & 0x0400) == 0x0400)
+            {
+                list.Add("Removable Run From Swap");
+            }
+
+            if ((this.Characteristics & 0x0800) == 0x0800)
+            {
+                list.Add("Net Run From Swap");
+            }
+
+            if ((this.Characteristics & 0x1000) == 0x1000)
+            {
+                list.Add("System");
+            }
+
+            if ((this.Characteristics & 0x2000) == 0x2000)
+            {
+                list.Add("DLL");
+            }
+
+            if ((this.Characteristics & 0x4000) == 0x4000)
+            {
+                list.Add("Up System Only");
+            }
+
+            if ((this.Characteristics & 0x8000) == 0x8000)
+            {
+                list.Add("Bytes Reversed HI");
+            }
+
+            return list.ToArray();
+        }
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -806,6 +932,110 @@ enum _POOL_TYPE
 
         [FieldOffset(232)]
         public IMAGE_DATA_DIRECTORY Reserved;
+
+        public static string GetSubsystem(ushort subsystem)
+        {
+            switch (subsystem)
+            {
+                case 0:
+                    return "Unknown";
+
+                case 1:
+                    return "Native";
+
+                case 2:
+                    return "Windows GUI";
+
+                case 3:
+                    return "Windows CUI";
+
+                case 5:
+                    return "OS/2 CUI";
+
+                case 7:
+                    return "POSIX CUI";
+
+                case 9:
+                    return "Windows CE GUI";
+
+                case 10:
+                    return "EFI Application";
+
+                case 11:
+                    return "EFI Boot Service Driver";
+
+                case 12:
+                    return "EFI Runtime Driver";
+
+                case 13:
+                    return "EFI ROM";
+
+                case 14:
+                    return "XBOX";
+
+                case 16:
+                    return "Windows Boot Application";
+            }
+
+            return "Unknown";
+        }
+
+        public IEnumerable<string> GetDllCharacteristics()
+        {
+            List<string> list = new List<string>();
+
+            if (DllCharacteristics.HasFlag(DllCharacteristicsType.IMAGE_DLLCHARACTERISTICS_HIGH_ENTROPY_VA))
+            {
+                list.Add("High entropy VA supported");
+            }
+
+            if (DllCharacteristics.HasFlag(DllCharacteristicsType.IMAGE_DLLCHARACTERISTICS_DYNAMIC_BASE))
+            {
+                list.Add("Dynamic Base");
+            }
+
+            if (DllCharacteristics.HasFlag(DllCharacteristicsType.IMAGE_DLLCHARACTERISTICS_FORCE_INTEGRITY))
+            {
+                list.Add("Force Integrity");
+            }
+
+            if (DllCharacteristics.HasFlag(DllCharacteristicsType.IMAGE_DLLCHARACTERISTICS_NX_COMPAT))
+            {
+                list.Add("NX compatible");
+            }
+
+            if (DllCharacteristics.HasFlag(DllCharacteristicsType.IMAGE_DLLCHARACTERISTICS_NO_ISOLATION))
+            {
+                list.Add("No Isolation");
+            }
+
+            if (DllCharacteristics.HasFlag(DllCharacteristicsType.IMAGE_DLLCHARACTERISTICS_NO_SEH))
+            {
+                list.Add("No SEH");
+            }
+
+            if (DllCharacteristics.HasFlag(DllCharacteristicsType.IMAGE_DLLCHARACTERISTICS_NO_BIND))
+            {
+                list.Add("No Bind");
+            }
+
+            if (DllCharacteristics.HasFlag(DllCharacteristicsType.IMAGE_DLLCHARACTERISTICS_APPCONTAINER))
+            {
+                list.Add("App Container");
+            }
+
+            if (DllCharacteristics.HasFlag(DllCharacteristicsType.IMAGE_DLLCHARACTERISTICS_WDM_DRIVER))
+            {
+                list.Add("WDM Driver");
+            }
+
+            if (DllCharacteristics.HasFlag(DllCharacteristicsType.IMAGE_DLLCHARACTERISTICS_TERMINAL_SERVER_AWARE))
+            {
+                list.Add("Terminal Server Aware");
+            }
+
+            return list;
+        }
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -842,6 +1072,36 @@ enum _POOL_TYPE
                 default:
                     throw new ApplicationException("Push the author to impl this: " + dir.Signature);
             }
+        }
+
+        public string GetDebugType()
+        {
+            if (Type == 1)
+            {
+                return "COFF";
+            }
+
+            if (Type == 2)
+            {
+                return "cv";
+            }
+
+            if (Type == 9)
+            {
+                return "Borland";
+            }
+
+            return $"({this.Type,5})";
+        }
+
+        public string GetFormat()
+        {
+            if (this.PointerToRawData == 0)
+            {
+                return "";
+            }
+
+            return "Format: ";
         }
 #endif
     }
@@ -910,6 +1170,64 @@ enum _POOL_TYPE
             int endAddress = startAddress + PhysicalAddressOrVirtualSize;
 
             return $"{GetName()}: 0x{startAddress.ToString("x")} ~ 0x{endAddress.ToString("x")}";
+        }
+
+        internal IEnumerable<string> GetCharacteristics()
+        {
+            List<string> list = new List<string>();
+
+            if ((Characteristics & 0x00000020) == 0x00000020)
+            {
+                list.Add("Code");
+            }
+
+            if ((Characteristics & 0x00000040) == 0x00000040)
+            {
+                list.Add("Initialized Data");
+            }
+
+            if ((Characteristics & 0x00000080) == 0x00000080)
+            {
+                list.Add("Uninitialized Data");
+            }
+
+            if ((Characteristics & 0x02000000) == 0x02000000)
+            {
+                list.Add("Discardable");
+            }
+
+            if ((Characteristics & 0x04000000) == 0x04000000)
+            {
+                list.Add("Not Cached");
+            }
+
+            if ((Characteristics & 0x08000000) == 0x08000000)
+            {
+                list.Add("Not Paged");
+            }
+
+            if ((Characteristics & 0x10000000) == 0x10000000)
+            {
+                list.Add("Shared");
+            }
+
+            if ((Characteristics & 0x20000000) == 0x20000000)
+            {
+                list.Add("Execute");
+            }
+
+            if ((Characteristics & 0x40000000) == 0x40000000)
+            {
+                list.Add("Read");
+            }
+
+            if ((Characteristics & 0x80000000) == 0x80000000)
+            {
+                list.Add("Write");
+            }
+
+            return list;
+
         }
     }
 
@@ -1337,20 +1655,20 @@ enum _POOL_TYPE
 
     public enum FileOSHigh : ushort
     {
-        VOS_UNKNOWN =   0x0000,
-        VOS_DOS =       0x0001,
-        VOS_OS2_16 =    0x0002,
-        VOS_OS2_32 =    0x0003,
-        VOS_NT =        0x0004,
-        VOS_WINCE =     0x0005,
+        VOS_UNKNOWN = 0x0000,
+        VOS_DOS = 0x0001,
+        VOS_OS2_16 = 0x0002,
+        VOS_OS2_32 = 0x0003,
+        VOS_NT = 0x0004,
+        VOS_WINCE = 0x0005,
     }
 
     public enum FileOSLow : ushort
     {
-        VOS_UNKNOWN =   0x0000,
+        VOS_UNKNOWN = 0x0000,
         VOS_WINDOWS16 = 0x0001,
-        VOS_PM16 =      0x0002,
-        VOS_PM32 =      0x0003,
+        VOS_PM16 = 0x0002,
+        VOS_PM32 = 0x0003,
         VOS_WINDOWS32 = 0x0004,
     }
 

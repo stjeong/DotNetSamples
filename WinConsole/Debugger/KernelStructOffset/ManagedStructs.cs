@@ -100,6 +100,12 @@ namespace WindowsPE
             return Signature.GetHashCode() + Age.GetHashCode();
         }
 
+        public string GetSignature()
+        {
+            byte[] buffer = BitConverter.GetBytes(this.CvSignature);
+            return Encoding.ASCII.GetString(buffer);
+        }
+
         public string PdbLocalPath
         {
             get

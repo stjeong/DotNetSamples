@@ -118,6 +118,13 @@ namespace KernelStructOffset
                 }
 
                 Marshal.FreeHGlobal(ptr);
+
+                if (ret == NT_STATUS.STATUS_INVALID_INFO_CLASS)
+                {
+                    // Windows 7 or lower
+                    throw new NotSupportedException("Invalid information class: PROCESS_INFORMATION_CLASS.ProcessHandleInformation");
+                }
+
                 break;
             }
         }

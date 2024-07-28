@@ -260,7 +260,7 @@ namespace WindowsPE
     {
         STATUS_SUCCESS = 0x00000000,
         STATUS_BUFFER_OVERFLOW = unchecked((int)0x80000005L),
-        STATUS_INVALID_INFO_CLASS = unchecked((int)0x80000003L),
+        STATUS_INVALID_INFO_CLASS = unchecked((int)0xC0000003L),
         STATUS_INFO_LENGTH_MISMATCH = unchecked((int)0xC0000004L),
         STATUS_INVALID_HANDLE = unchecked((int)0xC0000008L),
         STATUS_INVALID_PARAMETER = unchecked((int)0xC000000DL),

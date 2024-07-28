@@ -222,7 +222,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DetourFunc", "WinConsole\PE
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "UIThread", "UIThread", "{6A426873-2843-451E-993A-27DA58093469}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CustomMessageLoop", "WinConsole\UIThread\CustomMessageLoop\CustomMessageLoop.csproj", "{B68139DD-B29E-44DC-BBE5-DFA1361A6736}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CustomMessageLoop", "WinConsole\UIThread\CustomMessageLoop\CustomMessageLoop.csproj", "{B68139DD-B29E-44DC-BBE5-DFA1361A6736}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NetSymbols", "NetSymbols", "{4D75A131-DB14-4DB8-B5ED-0513BCF66FCD}"
 	ProjectSection(SolutionItems) = preProject

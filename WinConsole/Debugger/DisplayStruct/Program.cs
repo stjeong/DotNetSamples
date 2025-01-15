@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading;
 using WindowsPE;
@@ -15,6 +16,8 @@ namespace DisplayStruct
     {
         static void Main(string[] args)
         {
+            ServicePointManager.SecurityProtocol |= (SecurityProtocolType)3072;
+
             if (args.Length < 2)
             {
                 return;

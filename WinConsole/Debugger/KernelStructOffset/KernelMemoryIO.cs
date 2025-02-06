@@ -252,7 +252,7 @@ namespace KernelStructOffset
             return 0;
         }
 
-        public ulong Inportl(ushort portNumber, out int errorNo)
+        public uint Inportl(ushort portNumber, out int errorNo)
         {
             errorNo = 0;
             if (fileHandle == null || fileHandle.IsInvalid == true)
@@ -261,7 +261,7 @@ namespace KernelStructOffset
                 return 0;
             }
 
-            byte[] portBytes = BitConverter.GetBytes((ulong)portNumber);
+            byte[] portBytes = BitConverter.GetBytes((uint)portNumber);
 
             if (NativeMethods.DeviceIoControl(fileHandle, IOCTL_READ_PORT_ULONG, portBytes, portBytes.Length, portBytes, portBytes.Length,
                 out int _ /* pBytesReturned */, IntPtr.Zero) == true)
@@ -281,8 +281,43 @@ namespace KernelStructOffset
             }
 
             byte[] portBytes = BitConverter.GetBytes(portNumber);
-
             byte[] inBuffer = new byte[3] { portBytes[0], portBytes[1], data };
+
+            return NativeMethods.DeviceIoControl(fileHandle, IOCTL_WRITE_PORT_UCHAR, inBuffer, inBuffer.Length, inBuffer, inBuffer.Length,
+                out int _ /* pBytesReturned */, IntPtr.Zero);
+        }
+
+        public bool Outports(ushort portNumber, ushort data)
+        {
+            if (fileHandle == null || fileHandle.IsInvalid == true)
+            {
+                return false;
+            }
+
+            byte[] portBytes = BitConverter.GetBytes(portNumber);
+            byte[] dataBytes = BitConverter.GetBytes(data);
+
+            byte[] inBuffer = new byte[4];
+            Array.Copy(portBytes, inBuffer, portBytes.Length);
+            Array.Copy(dataBytes, 0, inBuffer, 2,  dataBytes.Length);
+
+            return NativeMethods.DeviceIoControl(fileHandle, IOCTL_WRITE_PORT_UCHAR, inBuffer, inBuffer.Length, inBuffer, inBuffer.Length,
+                out int _ /* pBytesReturned */, IntPtr.Zero);
+        }
+
+        public bool Outportl(uint portNumber, uint data)
+        {
+            if (fileHandle == null || fileHandle.IsInvalid == true)
+            {
+                return false;
+            }
+
+            byte[] portBytes = BitConverter.GetBytes(portNumber);
+            byte[] dataBytes = BitConverter.GetBytes(data);
+
+            byte[] inBuffer = new byte[8];
+            Array.Copy(portBytes, inBuffer, portBytes.Length);
+            Array.Copy(dataBytes, 0, inBuffer, 4, dataBytes.Length);
 
             return NativeMethods.DeviceIoControl(fileHandle, IOCTL_WRITE_PORT_UCHAR, inBuffer, inBuffer.Length, inBuffer, inBuffer.Length,
                 out int _ /* pBytesReturned */, IntPtr.Zero);

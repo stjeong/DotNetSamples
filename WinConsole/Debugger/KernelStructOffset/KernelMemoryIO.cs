@@ -22,7 +22,10 @@ namespace KernelStructOffset
         const uint IOCTL_GETPOS_MEMORY = 0x9c402418;
         const uint IOCTL_SETPOS_MEMORY = 0x9c40241c;
 
-        const uint IOCTL_READ_PORT_UCHAR = 0x9c402420;
+        const uint IOCTL_READ_PORT_UCHAR = ((((uint)40000) << 16) | ((0) << 14) | ((0x908) << 2) | (0));  // 9c402420
+        const uint IOCTL_READ_PORT_USHORT = ((((uint)40000) << 16) | ((0) << 14) | ((0x918) << 2) | (0)); // 9c402460
+        const uint IOCTL_READ_PORT_ULONG = ((((uint)40000) << 16) | ((0) << 14) | ((0x928) << 2) | (0));  // 9c4024a0
+
         const uint IOCTL_WRITE_PORT_UCHAR = 0x9c402424;
 
         SafeFileHandle fileHandle;
@@ -222,6 +225,48 @@ namespace KernelStructOffset
                 out int _ /* pBytesReturned */, IntPtr.Zero) == true)
             {
                 return portBytes[0];
+            }
+
+            errorNo = Marshal.GetLastWin32Error();
+            return 0;
+        }
+
+        public ushort Inports(ushort portNumber, out int errorNo)
+        {
+            errorNo = 0;
+            if (fileHandle == null || fileHandle.IsInvalid == true)
+            {
+                errorNo = -1;
+                return 0;
+            }
+
+            byte[] portBytes = BitConverter.GetBytes(portNumber);
+
+            if (NativeMethods.DeviceIoControl(fileHandle, IOCTL_READ_PORT_USHORT, portBytes, portBytes.Length, portBytes, portBytes.Length,
+                out int _ /* pBytesReturned */, IntPtr.Zero) == true)
+            {
+                return BitConverter.ToUInt16(portBytes, 0);
+            }
+
+            errorNo = Marshal.GetLastWin32Error();
+            return 0;
+        }
+
+        public ulong Inportl(ushort portNumber, out int errorNo)
+        {
+            errorNo = 0;
+            if (fileHandle == null || fileHandle.IsInvalid == true)
+            {
+                errorNo = -1;
+                return 0;
+            }
+
+            byte[] portBytes = BitConverter.GetBytes((ulong)portNumber);
+
+            if (NativeMethods.DeviceIoControl(fileHandle, IOCTL_READ_PORT_ULONG, portBytes, portBytes.Length, portBytes, portBytes.Length,
+                out int _ /* pBytesReturned */, IntPtr.Zero) == true)
+            {
+                return BitConverter.ToUInt32(portBytes, 0);
             }
 
             errorNo = Marshal.GetLastWin32Error();

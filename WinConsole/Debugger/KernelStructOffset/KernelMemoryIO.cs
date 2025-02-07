@@ -26,7 +26,9 @@ namespace KernelStructOffset
         const uint IOCTL_READ_PORT_USHORT = ((((uint)40000) << 16) | ((0) << 14) | ((0x918) << 2) | (0)); // 9c402460
         const uint IOCTL_READ_PORT_ULONG = ((((uint)40000) << 16) | ((0) << 14) | ((0x928) << 2) | (0));  // 9c4024a0
 
-        const uint IOCTL_WRITE_PORT_UCHAR = 0x9c402424;
+        const uint IOCTL_WRITE_PORT_UCHAR = ((((uint)40000) << 16) | ((0) << 14) | ((0x909) << 2) | (0));  // 0x9c402424
+        const uint IOCTL_WRITE_PORT_USHORT = ((((uint)40000) << 16) | ((0) << 14) | ((0x919) << 2) | (0)); // 0x9c402464
+        const uint IOCTL_WRITE_PORT_ULONG = ((((uint)40000) << 16) | ((0) << 14) | ((0x929) << 2) | (0));  // 0x9c4024a4
 
         SafeFileHandle fileHandle;
 
@@ -301,7 +303,7 @@ namespace KernelStructOffset
             Array.Copy(portBytes, inBuffer, portBytes.Length);
             Array.Copy(dataBytes, 0, inBuffer, 2,  dataBytes.Length);
 
-            return NativeMethods.DeviceIoControl(fileHandle, IOCTL_WRITE_PORT_UCHAR, inBuffer, inBuffer.Length, inBuffer, inBuffer.Length,
+            return NativeMethods.DeviceIoControl(fileHandle, IOCTL_WRITE_PORT_USHORT, inBuffer, inBuffer.Length, inBuffer, inBuffer.Length,
                 out int _ /* pBytesReturned */, IntPtr.Zero);
         }
 
@@ -319,7 +321,7 @@ namespace KernelStructOffset
             Array.Copy(portBytes, inBuffer, portBytes.Length);
             Array.Copy(dataBytes, 0, inBuffer, 4, dataBytes.Length);
 
-            return NativeMethods.DeviceIoControl(fileHandle, IOCTL_WRITE_PORT_UCHAR, inBuffer, inBuffer.Length, inBuffer, inBuffer.Length,
+            return NativeMethods.DeviceIoControl(fileHandle, IOCTL_WRITE_PORT_ULONG, inBuffer, inBuffer.Length, inBuffer, inBuffer.Length,
                 out int _ /* pBytesReturned */, IntPtr.Zero);
         }
     }

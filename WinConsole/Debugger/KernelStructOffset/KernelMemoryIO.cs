@@ -30,6 +30,8 @@ namespace KernelStructOffset
         const uint IOCTL_WRITE_PORT_USHORT = ((((uint)40000) << 16) | ((0) << 14) | ((0x919) << 2) | (0)); // 0x9c402464
         const uint IOCTL_WRITE_PORT_ULONG = ((((uint)40000) << 16) | ((0) << 14) | ((0x929) << 2) | (0));  // 0x9c4024a4
 
+        const uint IOCTL_KMIO_TEST = ((((uint)40000) << 16) | ((0) << 14) | ((0x100) << 2) | (0));
+
         SafeFileHandle fileHandle;
 
         public KernelMemoryIO()
@@ -322,6 +324,19 @@ namespace KernelStructOffset
             Array.Copy(dataBytes, 0, inBuffer, 4, dataBytes.Length);
 
             return NativeMethods.DeviceIoControl(fileHandle, IOCTL_WRITE_PORT_ULONG, inBuffer, inBuffer.Length, inBuffer, inBuffer.Length,
+                out int _ /* pBytesReturned */, IntPtr.Zero);
+        }
+
+        public void Test()
+        {
+            if (fileHandle == null || fileHandle.IsInvalid == true)
+            {
+                return;
+            }
+
+            byte[] inBuffer = new byte[0];
+
+            NativeMethods.DeviceIoControl(fileHandle, IOCTL_KMIO_TEST, inBuffer, inBuffer.Length, inBuffer, inBuffer.Length,
                 out int _ /* pBytesReturned */, IntPtr.Zero);
         }
     }

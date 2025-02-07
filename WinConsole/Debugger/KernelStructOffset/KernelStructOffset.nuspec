@@ -3,7 +3,7 @@
     <metadata>
         <id>KernelStructOffset</id>
         <title>Get Structure offset using debugger on runtime</title>
-        <version>1.4.6</version>
+        <version>1.4.7</version>
         <authors>SeongTae Jeong</authors>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>Get Structure offset(for example, _PEB) using Debugger on runtime</description>

@@ -17,7 +17,9 @@ namespace KernelStructOffset
     // net stop KernelMemoryIO
     public class KernelMemoryIO : IDisposable
     {
-        const uint IOCTL_READ_MEMORY = 0x9c402410;
+        const uint IOCTL_READ_MEMORY = ((((uint)40000) << 16) | ((0) << 14) | ((0x904) << 2) | (0)); // 0x9c402410;
+        const uint IOCTL_READ_PHYSICAL_MEMORY = ((((uint)40000) << 16) | ((0) << 14) | ((0x914) << 2) | (0)); // 0x9c402450;
+
         const uint IOCTL_WRITE_MEMORY = 0x9c402414;
         const uint IOCTL_GETPOS_MEMORY = 0x9c402418;
         const uint IOCTL_SETPOS_MEMORY = 0x9c40241c;
@@ -136,7 +138,7 @@ namespace KernelStructOffset
             return 0;
         }
 
-        public unsafe int WriteMemory<T>(void *ptr, T instance) where T : struct
+        public unsafe int WriteMemory<T>(void* ptr, T instance) where T : struct
         {
             return WriteMemory<T>(new IntPtr(ptr), instance);
         }
@@ -158,6 +160,34 @@ namespace KernelStructOffset
 
                 return WriteMemory(ptr, buffer);
             }
+        }
+
+        public int ReadPhysicalMemory(IntPtr position, byte[] buffer)
+        {
+            if (this.IsInitialized == false)
+            {
+                return 0;
+            }
+
+            byte[] addressBytes;
+
+            if (IntPtr.Size == 8)
+            {
+                addressBytes = BitConverter.GetBytes(position.ToInt64());
+            }
+            else
+            {
+                addressBytes = BitConverter.GetBytes(position.ToInt32());
+            }
+
+            if (NativeMethods.DeviceIoControl(fileHandle, IOCTL_READ_PHYSICAL_MEMORY, addressBytes, addressBytes.Length,
+                buffer, buffer.Length,
+                out int pBytesReturned, IntPtr.Zero) == true)
+            {
+                return pBytesReturned;
+            }
+
+            return 0;
         }
 
         public int ReadMemory(IntPtr position, byte[] buffer)
@@ -303,7 +333,7 @@ namespace KernelStructOffset
 
             byte[] inBuffer = new byte[4];
             Array.Copy(portBytes, inBuffer, portBytes.Length);
-            Array.Copy(dataBytes, 0, inBuffer, 2,  dataBytes.Length);
+            Array.Copy(dataBytes, 0, inBuffer, 2, dataBytes.Length);
 
             return NativeMethods.DeviceIoControl(fileHandle, IOCTL_WRITE_PORT_USHORT, inBuffer, inBuffer.Length, inBuffer, inBuffer.Length,
                 out int _ /* pBytesReturned */, IntPtr.Zero);
